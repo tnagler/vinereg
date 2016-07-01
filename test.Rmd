@@ -1,0 +1,51 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(vinereg)
+library(copula)
+library(kdevine)
+library(VineCopula)
+library(sn)
+R.utils::sourceDirectory("old")
+```
+simulate covariates
+```{r}
+set.seed(20062016)
+n <- 1000
+cop <- gumbelCopula(4, dim = 4L, param = 1.2)
+s <- rCopula(n, cop)
+x <- qbinom(s, 1, 0.3)
+
+## regression model inducing order 1:5
+y <- 1.5 * x[, 1] + 1 * x[, 2] + 0.5 * x[, 3] + 0.3 * x[, 4] + rnorm(n)
+z <- x + (matrix(rbeta(n * 4, 1.7, 1.7), n) - 0.5) * 1
+```
+
+## nonparameteric
+new
+```{r}
+system.time(fit1 <- vinereg(y, z, familyset = "kde"))[3]  # with model selection
+system.time(val1 <- predict(fit1, z, alpha = c(0.5, 0.9)))[3]
+```
+old
+```{r}
+system.time(fit2 <- DVRnp(y, z))[3]  # without model selection
+system.time(val2 <- DVQPnp(z, fit2, alpha = 0.5))[3]
+plot(val1, val2)
+```
+## parametric
+new
+```{r}
+system.time(fit3 <- vinereg(y, z, familyset = 0:3))[3]  # with model selection
+system.time(val3 <- predict(fit3, z, alpha = 0.5))[3]
+```
+old
+```{r}
+system.time(fit4 <- DVR(y, z, familyset = 0:3))[3]  # without model selection
+system.time(val4 <- DVQP(z, fit4, alpha = 0.5))[3]
+plot(val3, val4)
+```
