@@ -14,8 +14,10 @@
 #' @importFrom kdecopula hkdecop
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = F) {
+    if (missing(newdata))
+        newdata <- object$data$x
     d <- length(object$margins) - 1
-    X <- matrix(newdata, ncol = d)
+    X <- matrix(as.matrix(newdata), ncol = d)
     n <- nrow(X)
 
     if (uscale == T) {
@@ -40,7 +42,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = F) {
 
     uq <- get_uq(U, alpha, DVM = DVM, object$copula.type)
     if (!uscale) {
-        if (ncol(uq) > 1) {
+        if (NCOL(uq) > 1) {
             q <- apply(uq, 2, qkde1d, obj = object$margins[[1]])
         } else {
             q <- qkde1d(uq, object$margins[[1]])

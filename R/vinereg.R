@@ -176,7 +176,8 @@ vinereg <- function(y, x, familyset = "kde", correction = NA, par.1d = list(),
                 order = colnames(x)[my.index],
                 my.index = my.index,
                 used = sort(my.index),
-                copula.type = copula.type)
+                copula.type = copula.type,
+                data = list(y = y, x = x))
     class(out) <- "vinereg"
     out
 }
