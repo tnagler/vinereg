@@ -1,21 +1,40 @@
-#' D-vine regressions
+#' D-vine quantile regression
 #'
 #' @param y response vector
 #' @param x covariate matrix
-#' @param familyset either \code{"kde"} for kernel estimation of the D-vine or
-#' a vector of integers (see \code{\link{BiCopSelect}}).
+#' @param familyset either \code{"kde"} for kernel estimation of the D-vine or a
+#'   vector of integers (see \code{\link{BiCopSelect}}).
 #' @param correction correction criterion for the conditional log-likelihood.
-#' \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
-#' and \code{"BIC"}.
+#'   \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
+#'   and \code{"BIC"}.
+#' @param par_1d list of options passed to [kdevine::kde1d()].
 #' @param cores integer.
+#' @param uscale logical indicating whether the data are already on copula scale
+#'   (no margins have to be fitted).
 #' @param ... further arguments passed to \code{\link{kde1d}},
-#' \code{\link{BiCopSelect}} or \code{\link{kdecop}}.
+#'   \code{\link{BiCopSelect}} or \code{\link{kdecop}}.
 #'
 #' @return An object of class \code{vinereg}.
 #'
+#' @examples
+#' # simulate data
+#' x <- matrix(rnorm(300), 100, 3)
+#' y <- x %*% c(1, -1, 2)
+#'
+#' # fit vine regression model (parametric)
+#' fit <- vinereg(y = y, x = x, familyset = NA)
+#'
+#' # model predictions (median)
+#' pred <- predict(fit, newdata = x, alpha = 0.5)
+#'
+#' # observed vs predicted
+#' plot(y, pred)
+#'
+#' @seealso \code{\link{predict.vinereg}}
+#'
 #' @export
 #'
-#' @importFrom parallel makeCluster
+#' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
 #' @importFrom VineCopula BiCopSelect BiCopHfunc BiCop
@@ -23,41 +42,40 @@
 #' @importFrom kdevine kde1d pkde1d
 #' @importFrom kdecopula kdecop hkdecop
 #'
-vinereg <- function(y, x, familyset = "kde", correction = NA, par.1d = list(),
-                    cores = 1, ...) {
+vinereg <- function(y, x, familyset = "kde", correction = NA, par_1d = list(),
+                    cores = 1, uscale = FALSE, ...) {
     ## adjust input
     x <- as.matrix(x)
     d <- ncol(x)
-    dat <- udat <- cbind(y, x)
     if (is.null(colnames(x)))
         colnames(x) <- paste0("x", 1:ncol(x))
     n <- nrow(x)
-    if (!is.null(par.1d$xmin)) {
-        if(length(par.1d$xmin) != d + 1)
+    if (!is.null(par_1d$xmin)) {
+        if (length(par_1d$xmin) != d + 1)
             stop("'xmin' has to be of length d + 1")
     }
-    if (!is.null(par.1d$xmax)) {
-        if(length(par.1d$xmax) != d + 1)
-            stop("'xmin' has to be of length d")
+    if (!is.null(par_1d$xmax)) {
+        if (length(par_1d$xmax) != d + 1)
+            stop("'xmin' has to be of length d + 1")
     }
-    if (!is.null(par.1d$xmax)) {
-        if(length(par.1d$xmax) != d + 1)
-            stop("'xmin' has to be of length d")
+    if (!is.null(par_1d$xmax)) {
+        if (length(par_1d$xmax) != d + 1)
+            stop("'xmin' has to be of length d + 1")
     }
-    if (length(par.1d$bw) != d && !is.null(par.1d$bw))
+    if (length(par_1d$bw) != d && !is.null(par_1d$bw))
         stop("'bw' hast to be of length d + 1")
-    if (is.null(par.1d$mult)) {
-        par.1d$mult <- 1
+    if (is.null(par_1d$mult)) {
+        par_1d$mult <- 1
     }
-    if (length(par.1d$mult) == 1)
-        par.1d$mult <- rep(par.1d$mult, d + 1)
-    if (length(par.1d$mult) != d + 1)
+    if (length(par_1d$mult) == 1)
+        par_1d$mult <- rep(par_1d$mult, d + 1)
+    if (length(par_1d$mult) != d + 1)
         stop("mult.1d has to be of length 1 or d + 1")
 
     ## register parallel backend
     if (cores != 1 | is.na(cores)) {
         if (is.na(cores))
-            cores <- max(1, detectCores() - 1)
+            cores <- max(1, parallel::detectCores() - 1)
         if (cores > 1) {
             cl <- makeCluster(cores)
             registerDoParallel(cl)
@@ -67,26 +85,34 @@ vinereg <- function(y, x, familyset = "kde", correction = NA, par.1d = list(),
     }
 
     ## estimation of the marginals and transformation to copula data
-    est_margs <- function(k) {
-        fit <- kde1d(dat[, k],
-                     xmin = par.1d$xmin[k],
-                     xmax = par.1d$xmax[k],
-                     bw   = par.1d$bw[k],
-                     mult = par.1d$mult[k])
-        u <- pkde1d(dat[, k], fit)
-        list(fit = fit, u = u)
-    }
-    if (cores > 1) {
-        margs <- foreach(k = seq.int(d + 1)) %dopar% est_margs(k)
+    dat <- udat <- cbind(y, x)
+    if (uscale) {
+        V <- y
+        U <- x
+        margs <- lapply(seq.int(d + 1), function(i) NULL)
     } else {
-        margs <- lapply(seq.int(d + 1), est_margs)
+        est_margs <- function(k) {
+            fit <- kde1d(dat[, k],
+                         xmin = par_1d$xmin[k],
+                         xmax = par_1d$xmax[k],
+                         bw   = par_1d$bw[k],
+                         mult = par_1d$mult[k])
+            u <- pkde1d(dat[, k], fit)
+            list(fit = fit, u = u)
+        }
+        if (cores > 1) {
+            k <- 0  # otherwise CRAN check complains
+            margs <- foreach::foreach(k = seq.int(d + 1)) %dopar% est_margs(k)
+        } else {
+            margs <- lapply(seq.int(d + 1), est_margs)
+        }
+        udat <- sapply(margs, function(x) x$u)
     }
-    udat <- sapply(margs, function(x) x$u)
     V <- udat[, 1]
     U <- udat[, 2:(d + 1), drop = FALSE]
 
     ## initialize 1-dimensional D-vine
-    if (is.na(familyset) || is.integer(familyset)) {
+    if (is.na(familyset) || is.numeric(familyset)) {
         copula.type <- "parametric"
         vine <- list(RVM = list(Matrix = matrix(1, 1, 1),
                                 family = matrix(0, 1, 1),
@@ -155,7 +181,7 @@ vinereg <- function(y, x, familyset = "kde", correction = NA, par.1d = list(),
     ## adjust model matrix and names
     reorder <- my.index
     reorder[order(reorder)] <- 1:length(my.index)
-    if (is.na(familyset) || is.integer(familyset)) {
+    if (is.na(familyset) || is.numeric(familyset)) {
         vine$RVM$Matrix <- DVineMatGen(elements = c(1, reorder + 1))
     } else {
         M <- DVineMatGen(elements = c(1, reorder + 1))
@@ -191,7 +217,7 @@ update_p <- function(j, i, my.index, U, V, remaining.variables, vine, correction
     # number of vine's parameters for cll calculation
     npar <- sum(RVM$par != 0) + sum(RVM$par2 != 0)
     tmpdat <- cbind(V,
-                    U[, my.index[1:(i-1)]],
+                    U[, my.index[1:(i - 1)]],
                     U[, remaining.variables[j]])
 
     cll <- sum(RVineLogLik(tmpdat, RVM)$V$value[, 1])

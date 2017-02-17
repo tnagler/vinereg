@@ -2,24 +2,29 @@
 % Please edit documentation in R/vinereg.R
 \name{vinereg}
 \alias{vinereg}
-\title{D-vine regressions}
+\title{D-vine quantile regression}
 \usage{
-vinereg(y, x, familyset = "kde", correction = NA, par.1d = list(),
-  cores = 1, ...)
+vinereg(y, x, familyset = "kde", correction = NA, par_1d = list(),
+  cores = 1, uscale = FALSE, ...)
 }
 \arguments{
 \item{y}{response vector}
 
 \item{x}{covariate matrix}
 
-\item{familyset}{either \code{"kde"} for kernel estimation of the D-vine or
-a vector of integers (see \code{\link{BiCopSelect}}).}
+\item{familyset}{either \code{"kde"} for kernel estimation of the D-vine or a
+vector of integers (see \code{\link{BiCopSelect}}).}
 
 \item{correction}{correction criterion for the conditional log-likelihood.
 \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
 and \code{"BIC"}.}
 
+\item{par_1d}{list of options passed to [kdevine::kde1d()].}
+
 \item{cores}{integer.}
+
+\item{uscale}{logical indicating whether the data are already on copula scale
+(no margins have to be fitted).}
 
 \item{...}{further arguments passed to \code{\link{kde1d}},
 \code{\link{BiCopSelect}} or \code{\link{kdecop}}.}
@@ -28,6 +33,23 @@ and \code{"BIC"}.}
 An object of class \code{vinereg}.
 }
 \description{
-D-vine regressions
+D-vine quantile regression
 }
+\examples{
+# simulate data
+x <- matrix(rnorm(300), 100, 3)
+y <- x \%*\% c(1, -1, 2)
 
+# fit vine regression model (parametric)
+fit <- vinereg(y = y, x = x, familyset = NA)
+
+# model predictions (median)
+pred <- predict(fit, newdata = x, alpha = 0.5)
+
+# observed vs predicted
+plot(y, pred)
+
+}
+\seealso{
+\code{\link{predict.vinereg}}
+}

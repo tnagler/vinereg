@@ -1,3 +1,4 @@
+#' @importFrom VineCopula BiCopIndTest
 xtnd_vine_np <- function(newcolumn, matrix = NA, method = "TLL2", renorm.iter = 3L,
                          mult = 1, test.level = NA, trunc.level = NA,
                          treecrit = "tau", info = TRUE,

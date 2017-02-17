@@ -7,8 +7,8 @@ library(np)
 library(sn)
 library(logitnorm)
 
-n <- 500
-d <- 10
+n <- 100
+d <- 3
 cop <- gumbelCopula(dim = d, param = 1.3)
 s <- rCopula(n, cop)
 qfun <- function(u) qbinom(u, 4, 0.3)
@@ -20,7 +20,10 @@ y <- trueqan(x, runif(n))
 z <- x + (matrix(qlogitnorm(runif(n * d), sigma = 0.5), n) - 0.5) * 1
 # pairs(cbind(y, z))
 
-resnp <- vinereg(y, z, familyset = 1:3, par.1d = list(mult = 2), correction = "BIC")
+resnp <- vinereg(y, z, familyset = 1, par_1d = list(mult = 2), correction = "BIC")
+
+x <- as.data.frame(x)
+predict(resnp, x)
 resnp2 <- npqreg(tydat = y,
                  txdat = do.call(data.frame, lapply(1:ncol(x), function(i) ordered(x[, i], 0:25))),
                  tol = 1e-2, itmax = 10)

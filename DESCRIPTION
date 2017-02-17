@@ -1,17 +1,14 @@
 Package: vinereg
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.2
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Title: D-Vine Quantile Regression
+Version: 0.1.3
+Author: Thomas Nagler, Daniel Kraus
+Maintainer: Thomas Nagler <thomas.nagler@tum.de>
+Description: 
+  Fits and predicts a D-vine quantile regression model with
+  either parameteric or nonparametric pair-cooulas.
+License: GPL-3
 LazyData: TRUE
-Imorts:
-    doParallel,
-    parallel,
-    foreach,
-    VineCopula,
-    kdevine,
-    kdecopula
-RoxygenNote: 5.0.1
+Imports: doParallel, parallel, foreach, VineCopula, kdevine, kdecopula
+RoxygenNote: 6.0.0
+NeedsCompilation: no

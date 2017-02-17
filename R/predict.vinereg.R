@@ -4,23 +4,45 @@
 #' @param newdata matrix of covariate values for which to predict the quantile.
 #' @param alpha vector of quantile levels.
 #' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
+#' @param ... unused.
 #'
 #' @return A vector of quantiles if alpha is a single number; a matrix of
 #' quantiles with \code{length(alpha)} columns otherwise.
 #'
+#' @examples
+#' # simulate data
+#' x <- matrix(rnorm(300), 100, 3)
+#' y <- x %*% c(1, -1, 2)
+#'
+#' # fit vine regression model (parametric)
+#' fit <- vinereg(y = y, x = x, familyset = NA)
+#'
+#' # model predictions (median)
+#' pred <- predict(fit, newdata = x, alpha = 0.5)
+#'
+#' # observed vs predicted
+#' plot(y, pred)
+#'
+#' @seealso \code{\link{vinereg}}
+#'
 #' @export
+#'
 #' @importFrom VineCopula RVineSim BiCopHfunc
 #' @importFrom kdevine rkdevinecop qkde1d
 #' @importFrom kdecopula hkdecop
 #'
-predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = F) {
+predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     if (missing(newdata))
         newdata <- object$data$x
+    if (is.null(object$margins[[1]]) & (!uscale)) {
+        warning("no margins have been estimated, setting uscale = TRUE")
+        uscale <- TRUE
+    }
     d <- length(object$margins) - 1
     X <- matrix(as.matrix(newdata), ncol = d)
     n <- nrow(X)
 
-    if (uscale == T) {
+    if (uscale) {
         U <- X
     } else {
         U <- matrix(0, n, d)
