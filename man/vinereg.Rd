@@ -10,7 +10,7 @@ vinereg(formula, data, familyset = "kde", correction = NA,
 \arguments{
 \item{formula}{an object of class "formula"; same as [stats::lm()].}
 
-\item{data}{matrix, data frame, list or environment (or object coercible by
+\item{data}{data frame (or object coercible by
 [base::as.data.frame()]) containing the variables in the model.}
 
 \item{familyset}{either \code{"kde"} for kernel estimation of the D-vine or a

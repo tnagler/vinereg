@@ -1,7 +1,7 @@
 #' D-vine quantile regression
 #'
 #' @param formula an object of class "formula"; same as [stats::lm()].
-#' @param data matrix, data frame, list or environment (or object coercible by
+#' @param data data frame (or object coercible by
 #'   [base::as.data.frame()]) containing the variables in the model.
 #' @param familyset either \code{"kde"} for kernel estimation of the D-vine or a
 #'   vector of integers (see \code{\link{BiCopSelect}}).

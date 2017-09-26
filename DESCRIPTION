@@ -6,9 +6,9 @@ Author: Thomas Nagler, Daniel Kraus
 Maintainer: Thomas Nagler <thomas.nagler@tum.de>
 Description: 
   Fits and predicts a D-vine quantile regression model with
-  either parameteric or nonparametric pair-cooulas.
+  parameteric or nonparametric pair-copulas.
 License: GPL-3
 LazyData: TRUE
-Imports: cctools, doParallel, parallel, foreach, VineCopula, kdevine, kdecopula
+Imports: cctools, rvinecopulib, doParallel, parallel, foreach, kdevine
 RoxygenNote: 6.0.1
 NeedsCompilation: no
