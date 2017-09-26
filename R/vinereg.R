@@ -1,7 +1,8 @@
 #' D-vine quantile regression
 #'
-#' @param y response vector
-#' @param x covariate matrix
+#' @param formula an object of class "formula"; same as [stats::lm()].
+#' @param data matrix, data frame, list or environment (or object coercible by
+#'   [base::as.data.frame()]) containing the variables in the model.
 #' @param familyset either \code{"kde"} for kernel estimation of the D-vine or a
 #'   vector of integers (see \code{\link{BiCopSelect}}).
 #' @param correction correction criterion for the conditional log-likelihood.
@@ -20,12 +21,13 @@
 #' # simulate data
 #' x <- matrix(rnorm(300), 100, 3)
 #' y <- x %*% c(1, -1, 2)
+#' dat <- data.frame(y = y, x = x)
 #'
 #' # fit vine regression model (parametric)
-#' fit <- vinereg(y = y, x = x, familyset = NA)
+#' fit <- vinereg(y ~ ., dat, familyset = NA)
 #'
 #' # model predictions (median)
-#' pred <- predict(fit, newdata = x, alpha = 0.5)
+#' pred <- predict(fit, newdata = dat, alpha = 0.5)
 #'
 #' # observed vs predicted
 #' plot(y, pred)
@@ -41,36 +43,38 @@
 #' @importFrom VineCopula RVineLogLik RVineMatrix
 #' @importFrom kdevine kde1d pkde1d
 #' @importFrom kdecopula kdecop hkdecop
+#' @importFrom stats model.frame
 #'
-vinereg <- function(y, x, familyset = "kde", correction = NA, par_1d = list(),
+vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = list(),
                     cores = 1, uscale = FALSE, ...) {
-    ## adjust input
-    x <- as.matrix(x)
+    # remove unused variables
+    mf <- model.frame(formula, data)
+    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
+        stop("response must be numeric or ordered")
+    x <- cctools::cont_conv(mf)
     d <- ncol(x)
-    if (is.null(colnames(x)))
-        colnames(x) <- paste0("x", 1:ncol(x))
     n <- nrow(x)
     if (!is.null(par_1d$xmin)) {
-        if (length(par_1d$xmin) != d + 1)
-            stop("'xmin' has to be of length d + 1")
+        if (length(par_1d$xmin) != d)
+            stop("'xmin'  must be a vector with one value for each variable")
     }
     if (!is.null(par_1d$xmax)) {
-        if (length(par_1d$xmax) != d + 1)
-            stop("'xmin' has to be of length d + 1")
+        if (length(par_1d$xmax) != d)
+            stop("'xmin'  must be a vector with one value for each variable")
     }
     if (!is.null(par_1d$xmax)) {
-        if (length(par_1d$xmax) != d + 1)
-            stop("'xmin' has to be of length d + 1")
+        if (length(par_1d$xmax) != d)
+            stop("'xmin' must be a vector with one value for each variable")
     }
     if (length(par_1d$bw) != d && !is.null(par_1d$bw))
-        stop("'bw' hast to be of length d + 1")
+        stop("'bw' must be a vector with one value for each variable")
     if (is.null(par_1d$mult)) {
         par_1d$mult <- 1
     }
     if (length(par_1d$mult) == 1)
-        par_1d$mult <- rep(par_1d$mult, d + 1)
-    if (length(par_1d$mult) != d + 1)
-        stop("mult.1d has to be of length 1 or d + 1")
+        par_1d$mult <- rep(par_1d$mult, d)
+    if (length(par_1d$mult) != d)
+        stop("mult.1d has to be of length 1 or the number of variables")
 
     ## register parallel backend
     if (cores != 1 | is.na(cores)) {
@@ -85,60 +89,59 @@ vinereg <- function(y, x, familyset = "kde", correction = NA, par_1d = list(),
     }
 
     ## estimation of the marginals and transformation to copula data
-    dat <- udat <- cbind(y, x)
+    u <- x
     if (uscale) {
-        V <- y
-        U <- x
         margs <- lapply(seq.int(d + 1), function(i) NULL)
     } else {
         est_margs <- function(k) {
-            fit <- kde1d(dat[, k],
+            fit <- kde1d(x[, k],
                          xmin = par_1d$xmin[k],
                          xmax = par_1d$xmax[k],
                          bw   = par_1d$bw[k],
                          mult = par_1d$mult[k])
-            u <- pkde1d(dat[, k], fit)
-            list(fit = fit, u = u)
+            u_k <- pkde1d(x[, k], fit)
+            list(fit = fit, u = u_k)
         }
         if (cores > 1) {
             k <- 0  # otherwise CRAN check complains
-            margs <- foreach::foreach(k = seq.int(d + 1)) %dopar% est_margs(k)
+            margs <- foreach::foreach(k = seq.int(d)) %dopar% est_margs(k)
         } else {
-            margs <- lapply(seq.int(d + 1), est_margs)
+            margs <- lapply(seq.int(d), est_margs)
         }
-        udat <- sapply(margs, function(x) x$u)
+        u <- sapply(margs, function(x) x$u)
     }
-    V <- udat[, 1]
-    U <- udat[, 2:(d + 1), drop = FALSE]
+    V <- u[, 1]
+    U <- u[, 2:d, drop = FALSE]
 
     ## initialize 1-dimensional D-vine
     if (is.na(familyset) || is.numeric(familyset)) {
         copula.type <- "parametric"
-        vine <- list(RVM = list(Matrix = matrix(1, 1, 1),
-                                family = matrix(0, 1, 1),
-                                par = matrix(0, 1, 1),
-                                par2 = matrix(0, 1, 1)),
-                     V = list(direct = array(V, dim = c(1, 1, n)),
-                              indirect = array(NA, dim = c(1, 1, n))))
+        RVM <- list(
+            Matrix = as.matrix(1),
+            family = as.matrix(0),
+            par = as.matrix(0),
+            par2 = as.matrix(0)
+        )
         update <- update_p
     } else {
         copula.type <- "kernel"
-        RVM <- lapply(1:d, list)
-        names(RVM)[1:d] <- vapply(1:d,
-                                  function(x) paste("T", x, sep = ""), "")
-        RVM$matrix <- matrix(1, 1, 1)
+        RVM <- lapply(seq.int(d - 1), list)
+        names(RVM) <- paste0("T", seq.int(d - 1))
+        RVM$matrix <- as.matrix(1)
         RVM$info <- list()
-        vine <- list(RVM = RVM,
-                     V = list(direct = array(V, dim = c(1, 1, n)),
-                              indirect = array(NA, dim = c(1, 1, n))))
         update <- update_np
     }
+    psobs <- list(
+        direct = array(V, dim = c(1, 1, n)),
+        indirect = array(NA, dim = c(1, 1, n))
+    )
+    vine <- list(RVM = RVM, V = psobs)
 
     ## estimation and variable selection
-    remaining.variables <- 1:d
+    remaining.variables <- seq.int(d - 1)
     my.index <- NULL
     global.max.ll <- -Inf
-    for (i in 1:d) {
+    for (i in seq.int(d - 1)) {
         # check which variable update increases the loglikelihood of the
         # conditional density f_V|U_I the most
         if (cores > 1) {
@@ -199,11 +202,12 @@ vinereg <- function(y, x, familyset = "kde", correction = NA, par_1d = list(),
     ## return results
     out <- list(margins = lapply(margs, function(x) x$fit),
                 DVM = vine$RVM,
-                order = colnames(x)[my.index],
+                order = colnames(x[, -1])[my.index],
                 my.index = my.index,
                 used = sort(my.index),
                 copula.type = copula.type,
-                data = list(y = y, x = x))
+                formula = formula,
+                model_frame = mf)
     class(out) <- "vinereg"
     out
 }

@@ -28,12 +28,13 @@ Predict quantiles from a D-vine regression
 # simulate data
 x <- matrix(rnorm(300), 100, 3)
 y <- x \%*\% c(1, -1, 2)
+dat <- data.frame(y = y, x = x)
 
 # fit vine regression model (parametric)
-fit <- vinereg(y = y, x = x, familyset = NA)
+fit <- vinereg(y ~ ., dat, familyset = NA)
 
 # model predictions (median)
-pred <- predict(fit, newdata = x, alpha = 0.5)
+pred <- predict(fit, newdata = dat, alpha = 0.5)
 
 # observed vs predicted
 plot(y, pred)

@@ -13,12 +13,13 @@
 #' # simulate data
 #' x <- matrix(rnorm(300), 100, 3)
 #' y <- x %*% c(1, -1, 2)
+#' dat <- data.frame(y = y, x = x)
 #'
 #' # fit vine regression model (parametric)
-#' fit <- vinereg(y = y, x = x, familyset = NA)
+#' fit <- vinereg(y ~ ., dat, familyset = NA)
 #'
 #' # model predictions (median)
-#' pred <- predict(fit, newdata = x, alpha = 0.5)
+#' pred <- predict(fit, newdata = dat, alpha = 0.5)
 #'
 #' # observed vs predicted
 #' plot(y, pred)
@@ -33,41 +34,42 @@
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     if (missing(newdata))
-        newdata <- object$data$x
+        newdata <- object$data
     if (is.null(object$margins[[1]]) & (!uscale)) {
         warning("no margins have been estimated, setting uscale = TRUE")
         uscale <- TRUE
     }
-    d <- length(object$margins) - 1
-    X <- matrix(as.matrix(newdata), ncol = d)
-    n <- nrow(X)
-
-    if (uscale) {
-        U <- X
-    } else {
-        U <- matrix(0, n, d)
+    # remove unused variables
+    missing_vars <- setdiff(colnames(object$model_frame)[-1], colnames(newdata))
+    if (length(missing_vars) > 0)
+        stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
+    x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1]])
+    u <- x
+    if (!uscale) {
         for (j in object$used) {
-            U[, j] <- pkde1d(X[, j], object$margins[[j + 1]])
+            u[, j] <- pkde1d(x[, j], object$margins[[j + 1]])
         }
     }
-    U <- U[, object$used, drop = F]
-    DVM <- object$DVM
+    u <- u[, object$order, drop = FALSE]
     if (object$copula.type == "kernel") {
-        my.order <- diag(DVM$matrix)[-1] - 1
-        U <- U[, my.order, drop = F]
-        DVM$matrix <- DVineMatGen(ncol(DVM$matrix))
+        object$DVM$matrix <- DVineMatGen(ncol(object$DVM$matrix))
     } else {
-        my.order <- diag(DVM$Matrix)[-1] - 1
-        U <- U[, my.order, drop = F]
-        DVM$Matrix <- DVineMatGen(ncol(DVM$Matrix))
+        object$DVM$Matrix <- DVineMatGen(ncol(object$DVM$Matrix))
     }
 
-    uq <- get_uq(U, alpha, DVM = DVM, object$copula.type)
+    uq <- get_uq(u, alpha, DVM = object$DVM, object$copula.type)
     if (!uscale) {
         if (NCOL(uq) > 1) {
             q <- apply(uq, 2, qkde1d, obj = object$margins[[1]])
         } else {
             q <- qkde1d(uq, object$margins[[1]])
+        }
+        if (inherits(object$model_frame[[1]], "ordered")) {
+            lvls <- levels(object$model_frame[[1]])
+            q <- round(q)
+            q <- pmax(q, 1)
+            q <- pmin(q, length(lvls))
+            q <- ordered(lvls[q], levels = lvls)
         }
     } else {
         q <- uq

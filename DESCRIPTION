@@ -9,6 +9,6 @@ Description:
   either parameteric or nonparametric pair-cooulas.
 License: GPL-3
 LazyData: TRUE
-Imports: doParallel, parallel, foreach, VineCopula, kdevine, kdecopula
-RoxygenNote: 6.0.0
+Imports: cctools, doParallel, parallel, foreach, VineCopula, kdevine, kdecopula
+RoxygenNote: 6.0.1
 NeedsCompilation: no

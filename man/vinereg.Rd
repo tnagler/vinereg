@@ -4,13 +4,14 @@
 \alias{vinereg}
 \title{D-vine quantile regression}
 \usage{
-vinereg(y, x, familyset = "kde", correction = NA, par_1d = list(),
-  cores = 1, uscale = FALSE, ...)
+vinereg(formula, data, familyset = "kde", correction = NA,
+  par_1d = list(), cores = 1, uscale = FALSE, ...)
 }
 \arguments{
-\item{y}{response vector}
+\item{formula}{an object of class "formula"; same as [stats::lm()].}
 
-\item{x}{covariate matrix}
+\item{data}{matrix, data frame, list or environment (or object coercible by
+[base::as.data.frame()]) containing the variables in the model.}
 
 \item{familyset}{either \code{"kde"} for kernel estimation of the D-vine or a
 vector of integers (see \code{\link{BiCopSelect}}).}
@@ -39,12 +40,13 @@ D-vine quantile regression
 # simulate data
 x <- matrix(rnorm(300), 100, 3)
 y <- x \%*\% c(1, -1, 2)
+dat <- data.frame(y = y, x = x)
 
 # fit vine regression model (parametric)
-fit <- vinereg(y = y, x = x, familyset = NA)
+fit <- vinereg(y ~ ., dat, familyset = NA)
 
 # model predictions (median)
-pred <- predict(fit, newdata = x, alpha = 0.5)
+pred <- predict(fit, newdata = dat, alpha = 0.5)
 
 # observed vs predicted
 plot(y, pred)
