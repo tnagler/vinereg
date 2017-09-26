@@ -208,7 +208,6 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
                 DVM = vine$RVM,
                 order = colnames(x[, -1])[my.index],
                 my.index = my.index,
-                used = sort(my.index),
                 copula.type = copula.type,
                 formula = formula,
                 model_frame = mf)

@@ -44,13 +44,13 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     if (length(missing_vars) > 0)
         stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
     x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1]])
-    u <- x
+    u <- x <- x[, object$my.index]
     if (!uscale) {
-        for (j in object$used) {
+        for (j in object$my.index) {
             u[, j] <- pkde1d(x[, j], object$margins[[j + 1]])
         }
     }
-    u <- u[, object$order, drop = FALSE]
+    # u <- u[, object$order, drop = FALSE]
     if (object$copula.type == "kernel") {
         object$DVM$matrix <- DVineMatGen(ncol(object$DVM$matrix))
     } else {
