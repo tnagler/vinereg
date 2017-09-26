@@ -120,7 +120,6 @@ qDvine_np <- function(u, alpha, DVM) {
                  function(a) rkdevinecop(n, DVM, U = cbind(a, tmp))[, 1])
     if (length(alpha) > 1)
         colnames(uq) <- alpha
-    colnames(uq) <- alpha
     uq
 }
 
