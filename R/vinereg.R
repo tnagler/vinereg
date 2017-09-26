@@ -39,10 +39,7 @@
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
-#' @importFrom VineCopula BiCopSelect BiCopHfunc BiCop
-#' @importFrom VineCopula RVineLogLik RVineMatrix
 #' @importFrom kdevine kde1d pkde1d
-#' @importFrom kdecopula kdecop hkdecop
 #' @importFrom stats model.frame
 #'
 vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = list(),
@@ -114,27 +111,8 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     U <- u[, 2:d, drop = FALSE]
 
     ## initialize 1-dimensional D-vine
-    if (is.na(familyset) || is.numeric(familyset)) {
-        copula.type <- "parametric"
-        RVM <- list(
-            Matrix = as.matrix(1),
-            family = as.matrix(0),
-            par = as.matrix(0),
-            par2 = as.matrix(0)
-        )
-        update <- update_p
-    } else if (familyset == "new") {
-        RVM <- list(pair_copulas = list(list()), matrix = as.matrix(1))
-        update <- update_new
-        copula.type <- "new"
-    } else {
-        copula.type <- "kernel"
-        RVM <- lapply(seq.int(d - 1), list)
-        names(RVM) <- paste0("T", seq.int(d - 1))
-        RVM$matrix <- as.matrix(1)
-        RVM$info <- list()
-        update <- update_np
-    }
+    RVM <- list(pair_copulas = list(list()), matrix = as.matrix(1))
+
     psobs <- list(
         direct = array(V, dim = c(1, 1, n)),
         indirect = array(NA, dim = c(1, 1, n))
@@ -188,54 +166,20 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     ## adjust model matrix and names
     reorder <- my.index
     reorder[order(reorder)] <- 1:length(my.index)
-    if (is.na(familyset) | is.numeric(familyset) | familyset == "new") {
-        vine$RVM$Matrix <- DVineMatGen(elements = c(1, reorder + 1))
-    } else {
-        M <- DVineMatGen(elements = c(1, reorder + 1))
-        vine$RVM$matrix <- M
-        dd <- ncol(vine$RVM$matrix)
-        if (dd < d)
-            vine$RVM[dd:d] <- NULL
-        for (i in (dd - 1):1) {
-            for (j in 1:(dd - i)) {
-                vine$RVM[[i]][[j]]$name <- kdevine:::naming(M[c(j , (dd - i + 1):dd), j])
-            }
-        }
-    }
+    vine$RVM$Matrix <- DVineMatGen(elements = c(1, reorder + 1))
 
     ## return results
     out <- list(margins = lapply(margs, function(x) x$fit),
                 DVM = vine$RVM,
                 order = colnames(x[, -1])[my.index],
                 my.index = my.index,
-                copula.type = copula.type,
                 formula = formula,
                 model_frame = mf)
     class(out) <- "vinereg"
     out
 }
 
-update_p <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
-    # update current D-Vine by adding j-th remaining variable
-    newvine <- xtnd_vine_p(newcolumn = U[, remaining.variables[j]],
-                           currentDvine = vine,
-                           ...)
-    RVM <- newvine$RVM
-    # number of vine's parameters for cll calculation
-    npar <- sum(RVM$par != 0) + sum(RVM$par2 != 0)
-    tmpdat <- cbind(V,
-                    U[, my.index[1:(i - 1)]],
-                    U[, remaining.variables[j]])
-
-    cll <- sum(RVineLogLik(tmpdat, RVM)$V$value[, 1])
-    if (!is.na(correction))
-        cll <- cll - switch(correction,
-                            "AIC" = npar,
-                            "BIC" = npar * log(length(V)) / 2)
-    list(newvine = newvine, cll = cll)
-}
-
-update_new <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
+update <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
     # update current D-Vine by adding j-th remaining variable
     newvine <- xtnd_vine(U[, remaining.variables[j]],
                          currentDvine = vine,
@@ -244,22 +188,6 @@ update_new <- function(j, i, my.index, U, V, remaining.variables, vine, correcti
     # number of vine's parameters for cll calculation
     npar <- RVM$npars
     cll <- newvine$cll
-    if (!is.na(correction))
-        cll <- cll - switch(correction,
-                            "AIC" = npar,
-                            "BIC" = npar * log(length(V)) / 2)
-    list(newvine = newvine, cll = cll)
-}
-
-update_np <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
-    # update current D-Vine by adding j-th remaining variable
-    newvine <- xtnd_vine_np(newcolumn = U[, remaining.variables[j]],
-                            currentDvine = vine,
-                            ...)
-    RVM <- newvine$RVM
-    # number of vine's parameters for cll calculation
-    npar <- sum(RVM$info$pair.effp)
-    cll <- sum(RVM$info$pair.loglik[, 1])
     if (!is.na(correction))
         cll <- cll - switch(correction,
                             "AIC" = npar,
