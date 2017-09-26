@@ -123,6 +123,10 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
             par2 = as.matrix(0)
         )
         update <- update_p
+    } else if (familyset == "new") {
+        RVM <- list(pair_copulas = list(list()), matrix = as.matrix(1))
+        update <- update_new
+        copula.type <- "new"
     } else {
         copula.type <- "kernel"
         RVM <- lapply(seq.int(d - 1), list)
@@ -135,7 +139,7 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
         direct = array(V, dim = c(1, 1, n)),
         indirect = array(NA, dim = c(1, 1, n))
     )
-    vine <- list(RVM = RVM, V = psobs)
+    vine <- list(RVM = RVM, V = psobs, cll = 0)
 
     ## estimation and variable selection
     remaining.variables <- seq.int(d - 1)
@@ -184,7 +188,7 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     ## adjust model matrix and names
     reorder <- my.index
     reorder[order(reorder)] <- 1:length(my.index)
-    if (is.na(familyset) || is.numeric(familyset)) {
+    if (is.na(familyset) | is.numeric(familyset) | familyset == "new") {
         vine$RVM$Matrix <- DVineMatGen(elements = c(1, reorder + 1))
     } else {
         M <- DVineMatGen(elements = c(1, reorder + 1))
@@ -225,6 +229,22 @@ update_p <- function(j, i, my.index, U, V, remaining.variables, vine, correction
                     U[, remaining.variables[j]])
 
     cll <- sum(RVineLogLik(tmpdat, RVM)$V$value[, 1])
+    if (!is.na(correction))
+        cll <- cll - switch(correction,
+                            "AIC" = npar,
+                            "BIC" = npar * log(length(V)) / 2)
+    list(newvine = newvine, cll = cll)
+}
+
+update_new <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
+    # update current D-Vine by adding j-th remaining variable
+    newvine <- xtnd_vine(U[, remaining.variables[j]],
+                         currentDvine = vine,
+                         ...)
+    RVM <- newvine$RVM
+    # number of vine's parameters for cll calculation
+    npar <- RVM$npars
+    cll <- newvine$cll
     if (!is.na(correction))
         cll <- cll - switch(correction,
                             "AIC" = npar,

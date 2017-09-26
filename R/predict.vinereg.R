@@ -79,7 +79,10 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 }
 
 get_uq <- function(u, alpha, DVM, copula.type) {
-    qDvine <- switch(copula.type, "kernel" = qDvine_np, "parametric" = qDvine_p)
+    qDvine <- switch(copula.type,
+                     "kernel" = qDvine_np,
+                     "parametric" = qDvine_p,
+                     "new" = qDvine_new)
     qDvine(u, alpha, DVM)
 }
 
@@ -163,3 +166,38 @@ qDvine_p <- function(u, alpha, DVM) {
         colnames(uq) <- alpha
     uq
 }
+
+qDvine_new <- function(u, alpha, DVM) {
+    d <- ncol(DVM$Matrix)
+    if (ncol(u) != d - 1)
+        stop("Dimensions of u and DVM are not compatible")
+    M <- DVineMatGen(d)
+    DVM$matrix <- M[d:1, ]
+
+    ## obtain diagonal entries in V matrix
+    n <- nrow(u)
+    V <- array(NA, dim = c(d, d, n))
+    V[d, -1, ] <- t(u)
+    V2 <- V
+    if (d > 2) {
+        for (j in (d - 1):2) {
+            for (k in (d - 1):j) {
+                tmp <- cbind(V2[k + 1, j, ], V[k + 1, j + 1, ])
+                V[k, j, ]  < -hbicop(tmp, 1, DVM$pair_copulas[[d - k]][[j]])
+                V2[k, j, ] <- hbicop(tmp, 2, DVM$pair_copulas[[d - k]][[j]])
+            }
+        }
+        tmp <- t(apply(V2, 3, diag)[-1, ])
+    } else {
+        tmp <- u
+    }
+
+    ## predict quantile
+    uq <- sapply(alpha,
+                 function(a)
+                     matrix(rvinecop(n, DVM, U = cbind(a, tmp)), ncol = d)[, 1])
+    if (length(alpha) > 1)
+        colnames(uq) <- alpha
+    uq
+}
+
