@@ -4,7 +4,7 @@
 \alias{xtnd_vine}
 \title{Extend D-vine by one variable}
 \usage{
-xtnd_vine(new_var, currentDvine, ...)
+xtnd_vine(new_var, old_fit, ...)
 }
 \description{
 Extend D-vine by one variable
