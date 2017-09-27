@@ -3,8 +3,6 @@
 #' @param formula an object of class "formula"; same as [stats::lm()].
 #' @param data data frame (or object coercible by
 #'   [base::as.data.frame()]) containing the variables in the model.
-#' @param familyset either \code{"kde"} for kernel estimation of the D-vine or a
-#'   vector of integers (see \code{\link{BiCopSelect}}).
 #' @param correction correction criterion for the conditional log-likelihood.
 #'   \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
 #'   and \code{"BIC"}.
@@ -12,10 +10,7 @@
 #' @param cores integer.
 #' @param uscale logical indicating whether the data are already on copula scale
 #'   (no margins have to be fitted).
-#' @param ... further arguments passed to \code{\link{kde1d}},
-#'   \code{\link{BiCopSelect}} or \code{\link{kdecop}}.
-#'
-#' @return An object of class \code{vinereg}.
+#' @param ... further arguments passed to [rvinecopulib::bicop()].
 #'
 #' @examples
 #' # simulate data
@@ -24,7 +19,7 @@
 #' dat <- data.frame(y = y, x = x)
 #'
 #' # fit vine regression model (parametric)
-#' fit <- vinereg(y ~ ., dat, familyset = NA)
+#' fit <- vinereg(y ~ ., dat, family_set = "parameteric")
 #'
 #' # model predictions (median)
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
@@ -71,8 +66,6 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
 
     ## estimation and variable selection --------
     for (i in seq.int(d - 1)) {
-        # check which variable update increases the conditional log-likelihood
-        # of V|U_I the most
         if (cores > 1) {
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
                 xtnd_vine(u[, k], current_fit, ...)
@@ -227,4 +220,38 @@ calculate_crit <- function(fit, correction) {
     }
 
     crit
+}
+
+#' Extend D-vine by one variable
+#'
+#' @importFrom rvinecopulib bicop hbicop vinecop_dist
+xtnd_vine <- function(new_var, old_fit, ...) {
+    d <- ncol(old_fit$vine$matrix) + 1
+    n <- length(new_var)
+
+    psobs <- list(
+        direct = array(NA, dim = c(d, d, n)),
+        indirect = array(NA, dim = c(d, d, n))
+    )
+    psobs$direct[-1, -d, ] <- old_fit$psobs$direct
+    psobs$indirect[-1, -d, ] <- old_fit$psobs$indirect
+    psobs$direct[d, d, ] <- new_var
+
+    old_fit$vine$pair_copulas[[d - 1]] <- list()
+    npars <- 0
+    for (i in rev(seq.int(d - 1))) {
+        zr1 <- psobs$direct[i + 1, i, ]
+        zr2 <- if (i == d - 1) {
+            psobs$direct[i + 1, i + 1, ]
+        } else {
+            psobs$indirect[i + 1, i + 1, ]
+        }
+        pc_fit <- bicop(cbind(zr2, zr1), ...)
+        old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
+        npars <- npars + pc_fit$npars
+        psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
+        psobs$indirect[i, i, ] <- hbicop(cbind(zr2, zr1), 2, pc_fit)
+    }
+    vine <- vinecop_dist(old_fit$vine$pair_copulas, DVineMatGen(d)[d:1, ])
+    return(list(vine = vine, psobs = psobs, cll = old_fit$cll + logLik(pc_fit)))
 }

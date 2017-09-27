@@ -13,9 +13,6 @@ vinereg(formula, data, familyset = "kde", correction = NA,
 \item{data}{data frame (or object coercible by
 [base::as.data.frame()]) containing the variables in the model.}
 
-\item{familyset}{either \code{"kde"} for kernel estimation of the D-vine or a
-vector of integers (see \code{\link{BiCopSelect}}).}
-
 \item{correction}{correction criterion for the conditional log-likelihood.
 \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
 and \code{"BIC"}.}
@@ -27,11 +24,7 @@ and \code{"BIC"}.}
 \item{uscale}{logical indicating whether the data are already on copula scale
 (no margins have to be fitted).}
 
-\item{...}{further arguments passed to \code{\link{kde1d}},
-\code{\link{BiCopSelect}} or \code{\link{kdecop}}.}
-}
-\value{
-An object of class \code{vinereg}.
+\item{...}{further arguments passed to [rvinecopulib::bicop()].}
 }
 \description{
 D-vine quantile regression
@@ -43,7 +36,7 @@ y <- x \%*\% c(1, -1, 2)
 dat <- data.frame(y = y, x = x)
 
 # fit vine regression model (parametric)
-fit <- vinereg(y ~ ., dat, familyset = NA)
+fit <- vinereg(y ~ ., dat, family_set = "parameteric")
 
 # model predictions (median)
 pred <- predict(fit, newdata = dat, alpha = 0.5)
