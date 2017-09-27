@@ -52,11 +52,8 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     # expand factors and add noise to discrete variable
     x <- cctools::cont_conv(mf)
     d <- ncol(x)
-    # check/expand parameters for marginal kde
-    par_1d <- process_par_1d(par_1d, d)
 
-
-    ## register parallel backend --------
+    ## register parallel backend
     if (cores > 1) {
         cl <- makeCluster(cores)
         registerDoParallel(cl)
@@ -64,31 +61,11 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
         on.exit(try(closeAllConnections(), silent = TRUE), add = TRUE)
     }
 
-    ## estimation of the marginals and transformation to copula data --------
-    u <- x
-    if (uscale) {
-        # data is uniform, no need to estimate margins
-        margs <- lapply(seq.int(d + 1), function(i) NULL)
-    } else {
-        est_margs <- function(k) {
-            fit <- kde1d(x[, k],
-                         xmin = par_1d$xmin[k],
-                         xmax = par_1d$xmax[k],
-                         bw   = par_1d$bw[k],
-                         mult = par_1d$mult[k])
-            u_k <- pkde1d(x[, k], fit)
-            list(fit = fit, u = pkde1d(x[, k], fit))
-        }
-        if (cores > 1) {
-            k <- 0  # otherwise CRAN check complains
-            margs <- foreach::foreach(k = seq.int(d)) %dopar% est_margs(k)
-        } else {
-            margs <- lapply(seq.int(d), est_margs)
-        }
-        u <- sapply(margs, function(x) x$u)
-    }
+    ## estimation of the marginals and transformation to copula data
+    margin_models <- fit_margins(x, par_1d, cores, uscale)
+    u <- get_pits(x, margin_models, cores)
 
-    ## initialization --------
+    ## initialization
     current_fit <- initialize_fit(u)
     status <- initialize_status(d, correction)
 
@@ -117,7 +94,7 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     current_fit$vine$matrix <- DVineMatGen(elements = c(1, reorder + 1))
 
     ## return results
-    out <- list(margins = lapply(margs, function(x) x$fit),
+    out <- list(margins = margin_models,
                 vine = current_fit$vine,
                 order = colnames(x[, -1])[status$selected_vars],
                 selected_vars = status$selected_vars,
@@ -126,6 +103,46 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     class(out) <- "vinereg"
     out
 }
+
+
+fit_margins <- function(x, par_1d, cores, uscale) {
+    d <- ncol(x)
+    par_1d <- process_par_1d(par_1d, d)
+    if (uscale) {
+        # data are uniform, no need to estimate margins
+        margs <- lapply(seq.int(d), function(i) NULL)
+    } else {
+        fit_margin <- function(k) {
+            kde1d(x[, k],
+                  xmin = par_1d$xmin[k],
+                  xmax = par_1d$xmax[k],
+                  bw   = par_1d$bw[k],
+                  mult = par_1d$mult[k])
+        }
+        if (cores > 1) {
+            margs <- foreach::foreach(k = seq.int(d)) %dopar% fit_margin(k)
+        } else {
+            margs <- lapply(seq.int(d), fit_margin)
+        }
+    }
+}
+
+get_pits <- function(x, margin_models, cores) {
+    if (is.null(margin_models[[1]])) {
+        # data are uniform, no need for PIT
+        u <- x
+    } else {
+        get_pit <- function(m) pkde1d(m$x_cc, m)
+        if (cores > 1) {
+            u <- foreach::foreach(m = margin_models) %dopar% get_pit(m)
+        } else {
+            u <- lapply(margin_models, get_pit)
+        }
+    }
+
+    do.call(cbind, u)
+}
+
 
 process_par_1d <- function(pars, d) {
     if (!is.null(pars$xmin)) {
@@ -153,6 +170,9 @@ process_par_1d <- function(pars, d) {
     pars
 }
 
+# u_k <- pkde1d(x[, k], fit)
+# list(fit = fit, u = pkde1d(x[, k], fit))
+#
 initialize_fit <- function(u) {
     list(
         # 1-dimensional (= empty) vine
