@@ -17,5 +17,3 @@ before_install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
   - sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-5 100
 
-r_binary_packages:
-  - kdevine
