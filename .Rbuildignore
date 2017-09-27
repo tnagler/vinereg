@@ -5,3 +5,5 @@ discrete.R
 test.Rmd
 test.html
 LICENSE
+^\.travis\.yml$
+^appveyor\.yml$
