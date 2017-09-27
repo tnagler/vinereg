@@ -32,31 +32,41 @@
 #' @importFrom rvinecopulib rvinecop
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
+    # use training data if none provided
     if (missing(newdata))
         newdata <- object$data
+
+    # check if margins were estimated
     if (is.null(object$margins[[1]]) & (!uscale)) {
         warning("no margins have been estimated, setting uscale = TRUE")
         uscale <- TRUE
     }
-    # remove unused variables
+
+    # check if all variables in the model are in newdata
     missing_vars <- setdiff(colnames(object$model_frame)[-1], colnames(newdata))
     if (length(missing_vars) > 0)
         stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
+
+    # expand factors and make ordered variables numeric
     x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1]])
-    u <- x <- x[, object$selected_vars, drop = FALSE]
+
+    # remove unused variables
+    selected_vars <- match(object$order, colnames(x))
+    u <- x <- x[, selected_vars, drop = FALSE]
+
+    # transform to uniform scale
     if (!uscale) {
-        for (j in seq.int(ncol(x))) {
-            u[, j] <- pkde1d(x[, j], object$margins[[object$selected_vars[j] + 1]])
-        }
+        for (j in seq.int(ncol(x)))
+            u[, j] <- pkde1d(x[, j], object$margins[[selected_vars[j] + 1]])
     }
 
-    uq <- qdvine(u, alpha, vine = object$vine)
+    # calculate quantile on uniform scale
+    q <- qdvine(u, alpha, vine = object$vine)
+
+    # transform to original scale
     if (!uscale) {
-        if (NCOL(uq) > 1) {
-            q <- apply(uq, 2, qkde1d, obj = object$margins[[1]])
-        } else {
-            q <- qkde1d(uq, object$margins[[1]])
-        }
+        q <- apply(q, 2, qkde1d, obj = object$margins[[1]])
+        # when response is discrete, we need to adjust the quantiles accordingly
         if (inherits(object$model_frame[[1]], "ordered")) {
             lvls <- levels(object$model_frame[[1]])
             q <- ceiling(q)
@@ -64,8 +74,6 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
             q <- pmin(q, length(lvls))
             q <- ordered(lvls[q], levels = lvls)
         }
-    } else {
-        q <- uq
     }
 
     q
@@ -100,8 +108,10 @@ qdvine <- function(u, alpha, vine) {
     uq <- sapply(alpha,
                  function(a)
                      matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
-    if (length(alpha) > 1)
-        colnames(uq) <- alpha
+
+    # always return as matrix
+    uq <- matrix(uq, ncol = length(alpha))
+    colnames(uq) <- alpha
     uq
 }
 
