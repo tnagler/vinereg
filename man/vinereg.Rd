@@ -4,8 +4,8 @@
 \alias{vinereg}
 \title{D-vine quantile regression}
 \usage{
-vinereg(formula, data, familyset = "kde", correction = NA,
-  par_1d = list(), cores = 1, uscale = FALSE, ...)
+vinereg(formula, data, correction = NA, par_1d = list(), cores = 1,
+  uscale = FALSE, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula"; same as [stats::lm()].}
@@ -33,10 +33,10 @@ D-vine quantile regression
 # simulate data
 x <- matrix(rnorm(300), 100, 3)
 y <- x \%*\% c(1, -1, 2)
-dat <- data.frame(y = y, x = x)
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 
 # fit vine regression model (parametric)
-fit <- vinereg(y ~ ., dat, family_set = "parameteric")
+fit <- vinereg(y ~ ., dat, family_set = "parametric")
 
 # model predictions (median)
 pred <- predict(fit, newdata = dat, alpha = 0.5)

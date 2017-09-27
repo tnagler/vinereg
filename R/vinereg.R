@@ -16,10 +16,10 @@
 #' # simulate data
 #' x <- matrix(rnorm(300), 100, 3)
 #' y <- x %*% c(1, -1, 2)
-#' dat <- data.frame(y = y, x = x)
+#' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 #'
 #' # fit vine regression model (parametric)
-#' fit <- vinereg(y ~ ., dat, family_set = "parameteric")
+#' fit <- vinereg(y ~ ., dat, family_set = "parametric")
 #'
 #' # model predictions (median)
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
@@ -35,9 +35,10 @@
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
 #' @importFrom kdevine kde1d pkde1d
-#' @importFrom stats model.frame
+#' @importFrom stats model.frame logLik
+#' @importFrom rvinecopulib bicop hbicop vinecop_dist
 #'
-vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = list(),
+vinereg <- function(formula, data, correction = NA, par_1d = list(),
                     cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
     # remove unused variables
@@ -222,9 +223,6 @@ calculate_crit <- function(fit, correction) {
     crit
 }
 
-#' Extend D-vine by one variable
-#'
-#' @importFrom rvinecopulib bicop hbicop vinecop_dist
 xtnd_vine <- function(new_var, old_fit, ...) {
     d <- ncol(old_fit$vine$matrix) + 1
     n <- length(new_var)
