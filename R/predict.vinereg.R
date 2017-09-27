@@ -83,8 +83,7 @@ qdvine <- function(u, alpha, vine) {
     d <- ncol(vine$matrix)
     if (ncol(u) != d - 1)
         stop("Dimensions of u and vine are not compatible")
-    M <- DVineMatGen(d)
-    vine$matrix <- M[d:1, ]
+    vine$matrix <- gen_dvine_mat(d)
 
     ## obtain diagonal entries in V matrix
     n <- nrow(u)
