@@ -44,50 +44,30 @@
 #'
 vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = list(),
                     cores = 1, uscale = FALSE, ...) {
+    ## pre-processing --------
     # remove unused variables
     mf <- model.frame(formula, data)
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
         stop("response must be numeric or ordered")
+    # expand factors and add noise to discrete variable
     x <- cctools::cont_conv(mf)
     d <- ncol(x)
-    n <- nrow(x)
-    if (!is.null(par_1d$xmin)) {
-        if (length(par_1d$xmin) != d)
-            stop("'xmin'  must be a vector with one value for each variable")
-    }
-    if (!is.null(par_1d$xmax)) {
-        if (length(par_1d$xmax) != d)
-            stop("'xmin'  must be a vector with one value for each variable")
-    }
-    if (!is.null(par_1d$xmax)) {
-        if (length(par_1d$xmax) != d)
-            stop("'xmin' must be a vector with one value for each variable")
-    }
-    if (length(par_1d$bw) != d && !is.null(par_1d$bw))
-        stop("'bw' must be a vector with one value for each variable")
-    if (is.null(par_1d$mult)) {
-        par_1d$mult <- 1
-    }
-    if (length(par_1d$mult) == 1)
-        par_1d$mult <- rep(par_1d$mult, d)
-    if (length(par_1d$mult) != d)
-        stop("mult.1d has to be of length 1 or the number of variables")
+    # check/expand parameters for marginal kde
+    par_1d <- process_par_1d(par_1d, d)
 
-    ## register parallel backend
-    if (cores != 1 | is.na(cores)) {
-        if (is.na(cores))
-            cores <- max(1, parallel::detectCores() - 1)
-        if (cores > 1) {
-            cl <- makeCluster(cores)
-            registerDoParallel(cl)
-            on.exit(try(stopCluster(), silent = TRUE))
-            on.exit(try(closeAllConnections(), silent = TRUE), add = TRUE)
-        }
+
+    ## register parallel backend --------
+    if (cores > 1) {
+        cl <- makeCluster(cores)
+        registerDoParallel(cl)
+        on.exit(try(stopCluster(), silent = TRUE))
+        on.exit(try(closeAllConnections(), silent = TRUE), add = TRUE)
     }
 
-    ## estimation of the marginals and transformation to copula data
+    ## estimation of the marginals and transformation to copula data --------
     u <- x
     if (uscale) {
+        # data is uniform, no need to estimate margins
         margs <- lapply(seq.int(d + 1), function(i) NULL)
     } else {
         est_margs <- function(k) {
@@ -97,7 +77,7 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
                          bw   = par_1d$bw[k],
                          mult = par_1d$mult[k])
             u_k <- pkde1d(x[, k], fit)
-            list(fit = fit, u = u_k)
+            list(fit = fit, u = pkde1d(x[, k], fit))
         }
         if (cores > 1) {
             k <- 0  # otherwise CRAN check complains
@@ -107,90 +87,124 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
         }
         u <- sapply(margs, function(x) x$u)
     }
-    V <- u[, 1]
-    U <- u[, 2:d, drop = FALSE]
 
-    ## initialize 1-dimensional D-vine
-    RVM <- list(pair_copulas = list(list()), matrix = as.matrix(1))
+    ## initialization --------
+    current_fit <- initialize_fit(u)
+    status <- initialize_status(d, correction)
 
-    psobs <- list(
-        direct = array(V, dim = c(1, 1, n)),
-        indirect = array(NA, dim = c(1, 1, n))
-    )
-    vine <- list(RVM = RVM, V = psobs, cll = 0)
-
-    ## estimation and variable selection
-    remaining.variables <- seq.int(d - 1)
-    my.index <- NULL
-    global.max.ll <- -Inf
+    ## estimation and variable selection --------
     for (i in seq.int(d - 1)) {
-        # check which variable update increases the loglikelihood of the
-        # conditional density f_V|U_I the most
+        # check which variable update increases the conditional log-likelihood
+        # of V|U_I the most
         if (cores > 1) {
-            newvines <- foreach(k = seq_along(remaining.variables), ...) %dopar%
-                update(k,
-                       i = i,
-                       my.index = my.index,
-                       U = U,
-                       V = V,
-                       remaining.variables = remaining.variables,
-                       vine = vine,
-                       correction = correction,
-                       familyset = familyset,
-                       ...)
+            new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
+                xtnd_vine(u[, k], current_fit, ...)
         } else {
-            newvines <- lapply(seq_along(remaining.variables),
-                               update,
-                               i = i,
-                               my.index = my.index,
-                               U = U,
-                               V = V,
-                               remaining.variables = remaining.variables,
-                               vine = vine,
-                               correction = correction,
-                               familyset = familyset,
-                               ...)
+            new_fits <- lapply(
+                status$remaining_vars + 1,
+                function(k) xtnd_vine(u[, k], current_fit, ...)
+            )
         }
-        # pick the one with the highest cll. If none of the remaining variables
-        # increases the overall cll break the loop
-        cll <- sapply(newvines, function(x) x$cll)
-        maxInd <- which.max(cll)
-        if (cll[maxInd] <= global.max.ll)
+        status <- update_status(status, new_fits)
+        if (status$optimum_found)
             break
-        my.index <- c(my.index, remaining.variables[maxInd])
-        global.max.ll <- max(global.max.ll, cll[maxInd])
-        vine <- newvines[[maxInd]]$newvine
-        remaining.variables <- setdiff(remaining.variables, my.index[i])
+        current_fit <- new_fits[[status$best_ind]]
     }
 
     ## adjust model matrix and names
-    reorder <- my.index
-    reorder[order(reorder)] <- 1:length(my.index)
-    vine$RVM$Matrix <- DVineMatGen(elements = c(1, reorder + 1))
+    reorder <- status$selected_vars
+    reorder[order(reorder)] <- seq_along(status$selected_vars)
+    current_fit$vine$matrix <- DVineMatGen(elements = c(1, reorder + 1))
 
     ## return results
     out <- list(margins = lapply(margs, function(x) x$fit),
-                DVM = vine$RVM,
-                order = colnames(x[, -1])[my.index],
-                my.index = my.index,
+                vine = current_fit$vine,
+                order = colnames(x[, -1])[status$selected_vars],
+                selected_vars = status$selected_vars,
                 formula = formula,
                 model_frame = mf)
     class(out) <- "vinereg"
     out
 }
 
-update <- function(j, i, my.index, U, V, remaining.variables, vine, correction, ...) {
-    # update current D-Vine by adding j-th remaining variable
-    newvine <- xtnd_vine(U[, remaining.variables[j]],
-                         currentDvine = vine,
-                         ...)
-    RVM <- newvine$RVM
-    # number of vine's parameters for cll calculation
-    npar <- RVM$npars
-    cll <- newvine$cll
-    if (!is.na(correction))
-        cll <- cll - switch(correction,
-                            "AIC" = npar,
-                            "BIC" = npar * log(length(V)) / 2)
-    list(newvine = newvine, cll = cll)
+process_par_1d <- function(pars, d) {
+    if (!is.null(pars$xmin)) {
+        if (length(pars$xmin) != d)
+            stop("'xmin'  must be a vector with one value for each variable")
+    }
+    if (!is.null(pars$xmax)) {
+        if (length(pars$xmax) != d)
+            stop("'xmin'  must be a vector with one value for each variable")
+    }
+    if (!is.null(pars$xmax)) {
+        if (length(pars$xmax) != d)
+            stop("'xmin' must be a vector with one value for each variable")
+    }
+    if (length(pars$bw) != d && !is.null(pars$bw))
+        stop("'bw' must be a vector with one value for each variable")
+    if (is.null(pars$mult)) {
+        pars$mult <- 1
+    }
+    if (length(pars$mult) == 1)
+        pars$mult <- rep(pars$mult, d)
+    if (length(pars$mult) != d)
+        stop("mult.1d has to be of length 1 or the number of variables")
+
+    pars
+}
+
+initialize_fit <- function(u) {
+    list(
+        # 1-dimensional (= empty) vine
+        vine = list(pair_copulas = list(list()), matrix = as.matrix(1)),
+        # array for storing pseudo-observations
+        psobs = list(
+            direct = array(u[, 1], dim = c(1, 1, nrow(u))),
+            indirect = array(NA, dim = c(1, 1, nrow(u)))
+        ),
+        # conditional log-likelihood of the model
+        cll = 0
+    )
+}
+
+initialize_status <- function(d, correction) {
+    list(
+        # remaining variable indices to select from
+        remaining_vars = seq.int(d - 1),
+        # variables indices included in the model
+        selected_vars = NULL,
+        # which correction should be used for the selection criterion
+        correction = correction,
+        # current fit criterion (cll + correction)
+        current_crit = -Inf,
+        # TRUE when no improvement is possible
+        optimum_found = FALSE
+    )
+}
+
+update_status <- function(status, new_vines) {
+    crits <- sapply(new_vines, calculate_crit, status$correction)
+    if (max(crits) <= status$current_crit) {
+        # optimum found, keep old fit
+        status$optimum_found <- TRUE
+    } else {
+        status$best_ind <- which.max(crits)
+        status$selected_vars <- c(status$selected_vars,
+                                  status$remaining_vars[status$best_ind])
+        status$current_crit <- max(crits)
+        status$remaining_vars <- setdiff(status$remaining_vars, status$selected_vars)
+    }
+
+    status
+}
+
+calculate_crit <- function(fit, correction) {
+    crit <- fit$cll
+    if (!is.na(correction)) {
+        crit <- crit - switch(correction,
+                              "AIC" = fit$vine$npars,
+                              "BIC" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2)
+    }
+
+    crit
 }
