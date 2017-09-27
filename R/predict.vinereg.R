@@ -56,7 +56,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
     # transform to uniform scale
     if (!uscale) {
-        for (j in seq.int(ncol(x)))
+        for (j in seq_len(ncol(x)))
             u[, j] <- pkde1d(x[, j], object$margins[[selected_vars[j] + 1]])
     }
 

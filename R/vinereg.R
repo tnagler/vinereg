@@ -65,7 +65,7 @@ vinereg <- function(formula, data, familyset = "kde", correction = NA, par_1d = 
     status <- initialize_status(d, correction)
 
     ## estimation and variable selection --------
-    for (i in seq.int(d - 1)) {
+    for (i in seq_len(d - 1)) {
         if (cores > 1) {
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
                 xtnd_vine(u[, k], current_fit, ...)
@@ -103,7 +103,7 @@ fit_margins <- function(x, par_1d, cores, uscale) {
     par_1d <- process_par_1d(par_1d, d)
     if (uscale) {
         # data are uniform, no need to estimate margins
-        margs <- lapply(seq.int(d), function(i) NULL)
+        margs <- lapply(seq_len(d), function(i) NULL)
     } else {
         fit_margin <- function(k) {
             kde1d(x[, k],
@@ -113,9 +113,9 @@ fit_margins <- function(x, par_1d, cores, uscale) {
                   mult = par_1d$mult[k])
         }
         if (cores > 1) {
-            margs <- foreach::foreach(k = seq.int(d)) %dopar% fit_margin(k)
+            margs <- foreach::foreach(k = seq_len(d)) %dopar% fit_margin(k)
         } else {
-            margs <- lapply(seq.int(d), fit_margin)
+            margs <- lapply(seq_len(d), fit_margin)
         }
     }
 }
@@ -183,7 +183,7 @@ initialize_fit <- function(u) {
 initialize_status <- function(d, correction) {
     list(
         # remaining variable indices to select from
-        remaining_vars = seq.int(d - 1),
+        remaining_vars = seq_len(d - 1),
         # variables indices included in the model
         selected_vars = NULL,
         # which correction should be used for the selection criterion
@@ -239,7 +239,7 @@ xtnd_vine <- function(new_var, old_fit, ...) {
 
     old_fit$vine$pair_copulas[[d - 1]] <- list()
     npars <- 0
-    for (i in rev(seq.int(d - 1))) {
+    for (i in rev(seq_len(d - 1))) {
         zr1 <- psobs$direct[i + 1, i, ]
         zr2 <- if (i == d - 1) {
             psobs$direct[i + 1, i + 1, ]
