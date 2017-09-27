@@ -12,4 +12,3 @@ apt_packages:
 
 r_binary_packages:
   - kdevine
-  - rvinecopulib
