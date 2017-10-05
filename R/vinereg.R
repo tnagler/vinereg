@@ -90,7 +90,7 @@ vinereg <- function(formula, data, correction = NA, par_1d = list(),
     ## return results
     out <- list(margins = margin_models,
                 vine = current_fit$vine,
-                order = colnames(x[, -1])[status$selected_vars],
+                order = colnames(x[, -1, drop = FALSE])[status$selected_vars],
                 selected_vars = status$selected_vars,
                 formula = formula,
                 model_frame = mf)

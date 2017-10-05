@@ -48,7 +48,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
         stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
 
     # expand factors and make ordered variables numeric
-    x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1]])
+    x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1], drop = FALSE])
 
     # remove unused variables
     selected_vars <- match(object$order, colnames(x))
