@@ -99,14 +99,21 @@ qdvine <- function(u, alpha, vine) {
             }
         }
         tmp <- t(apply(V2, 3, diag)[-1, ])
+        uq <- sapply(alpha,
+                     function(a)
+                         matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
     } else {
-        tmp <- u
+        uq <- sapply(alpha,
+                     function(a)
+                         hbicop(cbind(a, u), 2,
+                                vine$pair_copulas[[1]][[1]],
+                                inverse = TRUE))
     }
 
     ## predict quantile
-    uq <- sapply(alpha,
-                 function(a)
-                     matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
+    # uq <- sapply(alpha,
+    #              function(a)
+    #                  matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
 
     # always return as matrix
     uq <- matrix(uq, ncol = length(alpha))
