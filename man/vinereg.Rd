@@ -4,30 +4,49 @@
 \alias{vinereg}
 \title{D-vine quantile regression}
 \usage{
-vinereg(formula, data, correction = NA, par_1d = list(), cores = 1,
-  uscale = FALSE, ...)
+vinereg(formula, data, family_set = NA, correction = NA, par_1d = list(),
+  cores = 1, uscale = FALSE, ...)
 }
 \arguments{
-\item{formula}{an object of class "formula"; same as [stats::lm()].}
+\item{formula}{an object of class "formula"; same as \code{\link[=lm]{lm()}}.}
 
 \item{data}{data frame (or object coercible by
-[base::as.data.frame()]) containing the variables in the model.}
+\code{\link[=as.data.frame]{as.data.frame()}}) containing the variables in the model.}
+
+\item{family_set}{see \code{family_set} argument of \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
 
 \item{correction}{correction criterion for the conditional log-likelihood.
 \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
 and \code{"BIC"}.}
 
-\item{par_1d}{list of options passed to [kdevine::kde1d()].}
+\item{par_1d}{list of options passed to \code{\link[kdevine:kde1d]{kdevine::kde1d()}}, must be one value
+for each margin, e.g. \code{list(xmin = c(0, 0, -Inf))} if the response and
+first covariate have non-negative support.}
 
 \item{cores}{integer.}
 
 \item{uscale}{logical indicating whether the data are already on copula scale
 (no margins have to be fitted).}
 
-\item{...}{further arguments passed to [rvinecopulib::bicop()].}
+\item{...}{further arguments passed to \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
+}
+\value{
+An object of class vinereg. It is a list containing the elements
+\describe{
+\item{margins}{list of marginal models fitted by \code{\link[kdevine:kde1d]{kdevine::kde1d()}}.}
+\item{vine}{an \code{\link[rvinecopulib:vinecop_dist]{rvinecopulib::vinecop_dist()}} object containing the fitted
+D-vine.}
+\item{order}{order of the covariates chosen by the variable selection algorithm.}
+\item{selected_vars}{indices of selected variables.}
+\item{formula}{the model formula specified by the user.}
+\item{model_frame}{the data used to fit the D-vine.}
+}
+This object can be plugged into \code{\link[=predict.vinereg]{predict.vinereg()}} to predict conditional
+quantiles.
 }
 \description{
-D-vine quantile regression
+Sequential estimation of a regression D-vine for the purpose of quantile
+prediction as described in Kraus and Czado (2017).
 }
 \examples{
 # simulate data
@@ -44,6 +63,10 @@ pred <- predict(fit, newdata = dat, alpha = 0.5)
 # observed vs predicted
 plot(y, pred)
 
+}
+\references{
+Kraus and Czado (2017), D-vine copula based quantile regression,
+Computational Statistics and Data Analysis, 110, 1-18
 }
 \seealso{
 \code{\link{predict.vinereg}}

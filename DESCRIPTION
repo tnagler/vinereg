@@ -12,3 +12,5 @@ LazyData: TRUE
 Imports: cctools, rvinecopulib, doParallel, parallel, foreach, kdevine
 RoxygenNote: 6.0.1
 NeedsCompilation: no
+Roxygen: list(markdown = TRUE)
+

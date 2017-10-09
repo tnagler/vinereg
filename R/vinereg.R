@@ -1,16 +1,41 @@
 #' D-vine quantile regression
 #'
-#' @param formula an object of class "formula"; same as [stats::lm()].
+#' Sequential estimation of a regression D-vine for the purpose of quantile
+#' prediction as described in Kraus and Czado (2017).
+#'
+#' @param formula an object of class "formula"; same as [lm()].
 #' @param data data frame (or object coercible by
-#'   [base::as.data.frame()]) containing the variables in the model.
+#'   [as.data.frame()]) containing the variables in the model.
+#' @param family_set see `family_set` argument of [rvinecopulib::bicop()].
 #' @param correction correction criterion for the conditional log-likelihood.
 #'   \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
 #'   and \code{"BIC"}.
-#' @param par_1d list of options passed to [kdevine::kde1d()].
+#' @param par_1d list of options passed to [kdevine::kde1d()], must be one value
+#'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
+#'   first covariate have non-negative support.
 #' @param cores integer.
 #' @param uscale logical indicating whether the data are already on copula scale
 #'   (no margins have to be fitted).
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
+#'
+#' @return
+#' An object of class vinereg. It is a list containing the elements
+#' \describe{
+#' \item{margins}{list of marginal models fitted by [kdevine::kde1d()].}
+#' \item{vine}{an [rvinecopulib::vinecop_dist()] object containing the fitted
+#'   D-vine.}
+#' \item{order}{order of the covariates chosen by the variable selection algorithm.}
+#' \item{selected_vars}{indices of selected variables.}
+#' \item{formula}{the model formula specified by the user.}
+#' \item{model_frame}{the data used to fit the D-vine.}
+#' }
+#' This object can be plugged into [predict.vinereg()] to predict conditional
+#' quantiles.
+#'
+#' @references
+#'
+#' Kraus and Czado (2017), D-vine copula based quantile regression,
+#' Computational Statistics and Data Analysis, 110, 1-18
 #'
 #' @examples
 #' # simulate data
@@ -38,7 +63,7 @@
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop hbicop vinecop_dist
 #'
-vinereg <- function(formula, data, correction = NA, par_1d = list(),
+vinereg <- function(formula, data, family_set = NA, correction = NA, par_1d = list(),
                     cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
     # remove unused variables
@@ -69,11 +94,11 @@ vinereg <- function(formula, data, correction = NA, par_1d = list(),
     for (i in seq_len(d - 1)) {
         if (cores > 1) {
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
-                xtnd_vine(u[, k], current_fit, ...)
+                xtnd_vine(u[, k], current_fit, family_set, ...)
         } else {
             new_fits <- lapply(
                 status$remaining_vars + 1,
-                function(k) xtnd_vine(u[, k], current_fit, ...)
+                function(k) xtnd_vine(u[, k], current_fit, family_set, ...)
             )
         }
         status <- update_status(status, new_fits)
@@ -223,7 +248,7 @@ calculate_crit <- function(fit, correction) {
     crit
 }
 
-xtnd_vine <- function(new_var, old_fit, ...) {
+xtnd_vine <- function(new_var, old_fit, family_set, ...) {
     d <- ncol(old_fit$vine$matrix) + 1
     n <- length(new_var)
 
@@ -244,7 +269,7 @@ xtnd_vine <- function(new_var, old_fit, ...) {
         } else {
             psobs$indirect[i + 1, i + 1, ]
         }
-        pc_fit <- bicop(cbind(zr2, zr1), ...)
+        pc_fit <- bicop(cbind(zr2, zr1), family_set = family_set, ...)
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
         npars <- npars + pc_fit$npars
         psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
