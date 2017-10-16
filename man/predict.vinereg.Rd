@@ -18,8 +18,8 @@
 \item{...}{unused.}
 }
 \value{
-A vector of quantiles if alpha is a single number; a matrix of
-quantiles with \code{length(alpha)} columns otherwise.
+A data.frame of quantiles where each column corresponds to one
+value of \code{alpha}.
 }
 \description{
 Predict quantiles from a D-vine regression

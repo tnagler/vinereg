@@ -6,8 +6,8 @@
 #' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
 #' @param ... unused.
 #'
-#' @return A vector of quantiles if alpha is a single number; a matrix of
-#' quantiles with \code{length(alpha)} columns otherwise.
+#' @return A data.frame of quantiles where each column corresponds to one
+#' value of `alpha`.
 #'
 #' @examples
 #' # simulate data
@@ -65,17 +65,23 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
     # transform to original scale
     if (!uscale) {
-        q <- apply(q, 2, qkde1d, obj = object$margins[[1]])
+        q <- lapply(q, qkde1d, obj = object$margins[[1]])
         # when response is discrete, we need to adjust the quantiles accordingly
-        if (inherits(object$model_frame[[1]], "ordered")) {
-            lvls <- levels(object$model_frame[[1]])
-            q <- ceiling(q)
-            q <- pmax(q, 1)
-            q <- pmin(q, length(lvls))
-            q <- ordered(lvls[q], levels = lvls)
-        }
+        if (inherits(object$model_frame[[1]], "ordered"))
+            q <- lapply(q, with_levels, lvls = levels(object$model_frame[[1]]))
     }
 
+    ## always return as data frame
+    q <- as.data.frame(q)
+    names(q) <- alpha
+    q
+}
+
+with_levels <- function(q, lvls) {
+    q <- ceiling(q)
+    q <- pmax(q, 1)
+    q <- pmin(q, length(lvls))
+    q <- ordered(lvls[q], levels = lvls)
     q
 }
 
@@ -99,25 +105,18 @@ qdvine <- function(u, alpha, vine) {
             }
         }
         tmp <- t(apply(V2, 3, diag)[-1, ])
-        uq <- sapply(alpha,
+        uq <- lapply(alpha,
                      function(a)
                          matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
     } else {
-        uq <- sapply(alpha,
+        uq <- lapply(alpha,
                      function(a)
                          hbicop(cbind(a, u), 2,
                                 vine$pair_copulas[[1]][[1]],
                                 inverse = TRUE))
     }
 
-    ## predict quantile
-    # uq <- sapply(alpha,
-    #              function(a)
-    #                  matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
-
-    # always return as matrix
-    uq <- matrix(uq, ncol = length(alpha))
-    colnames(uq) <- alpha
+    # return as list (will be processed further)
     uq
 }
 
