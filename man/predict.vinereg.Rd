@@ -2,9 +2,12 @@
 % Please edit documentation in R/predict.vinereg.R
 \name{predict.vinereg}
 \alias{predict.vinereg}
+\alias{fitted.vinereg}
 \title{Predict quantiles from a D-vine regression}
 \usage{
 \method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE, ...)
+
+\method{fitted}{vinereg}(object, alpha)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
@@ -35,6 +38,9 @@ fit <- vinereg(y ~ ., dat, family_set = "parametric")
 
 # model predictions (median)
 pred <- predict(fit, newdata = dat, alpha = 0.5)
+
+# since we evaluate at the training data, this is equivalent to
+pred <- fitted(fit, alpha = 0.5)
 
 # observed vs predicted
 plot(y, pred)

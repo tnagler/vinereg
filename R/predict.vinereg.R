@@ -21,6 +21,9 @@
 #' # model predictions (median)
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
 #'
+#' # since we evaluate at the training data, this is equivalent to
+#' pred <- fitted(fit, alpha = 0.5)
+#'
 #' # observed vs predicted
 #' plot(y, pred)
 #'
@@ -32,10 +35,6 @@
 #' @importFrom rvinecopulib rvinecop
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
-    # use training data if none provided
-    if (missing(newdata))
-        newdata <- object$data
-
     # check if margins were estimated
     if (is.null(object$margins[[1]]) & (!uscale)) {
         warning("no margins have been estimated, setting uscale = TRUE")
@@ -75,6 +74,12 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     q <- as.data.frame(q)
     names(q) <- alpha
     q
+}
+
+#' @rdname predict.vinereg
+#' @export
+fitted.vinereg <- function(object, alpha) {
+    predict(object, newdata = object[["model_frame"]], alpha = alpha)
 }
 
 with_levels <- function(q, lvls) {
