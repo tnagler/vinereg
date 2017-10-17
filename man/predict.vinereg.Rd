@@ -7,7 +7,7 @@
 \usage{
 \method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE, ...)
 
-\method{fitted}{vinereg}(object, alpha)
+\method{fitted}{vinereg}(object, alpha, ...)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
@@ -43,7 +43,7 @@ pred <- predict(fit, newdata = dat, alpha = 0.5)
 pred <- fitted(fit, alpha = 0.5)
 
 # observed vs predicted
-plot(y, pred)
+plot(cbind(y, pred))
 
 }
 \seealso{

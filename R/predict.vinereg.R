@@ -25,7 +25,7 @@
 #' pred <- fitted(fit, alpha = 0.5)
 #'
 #' # observed vs predicted
-#' plot(y, pred)
+#' plot(cbind(y, pred))
 #'
 #' @seealso \code{\link{vinereg}}
 #'
@@ -78,8 +78,8 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
 #' @rdname predict.vinereg
 #' @export
-fitted.vinereg <- function(object, alpha) {
-    predict(object, newdata = object[["model_frame"]], alpha = alpha)
+fitted.vinereg <- function(object, alpha, ...) {
+    predict.vinereg(object, newdata = object[["model_frame"]], alpha = alpha)
 }
 
 with_levels <- function(q, lvls) {

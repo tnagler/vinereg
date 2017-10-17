@@ -50,7 +50,7 @@
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
 #'
 #' # observed vs predicted
-#' plot(y, pred)
+#' plot(cbind(y, pred))
 #'
 #' @seealso \code{\link{predict.vinereg}}
 #'

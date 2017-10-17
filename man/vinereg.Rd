@@ -61,7 +61,7 @@ fit <- vinereg(y ~ ., dat, family_set = "parametric")
 pred <- predict(fit, newdata = dat, alpha = 0.5)
 
 # observed vs predicted
-plot(y, pred)
+plot(cbind(y, pred))
 
 }
 \references{
