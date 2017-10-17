@@ -1,0 +1,229 @@
+---
+title: "Example usage of the vinereg package"
+author: "Daniel Kraus and Claudia Czado"
+date: "September 2017"
+output: 
+    rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{PExample usage of the vinereg package}
+    %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+  
+This file contains the source code of an exemplary application of the D-vine 
+copula based quantile regression approach implemented in the R-package *vinereg*
+and presented in Kraus and Czado (2017): 
+*D-vine copula based quantile regression*, 
+Computational Statistics and Data Analysis, 110, 1-18. 
+Please, feel free to address questions to <daniel.kraus@tum.de>.
+  
+# Load required packages 
+```{r, message = FALSE}
+# install.packages("devtools")
+# devtools::install_github("tnagler/vinereg")
+library(vinereg) 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+
+
+# Data analysis
+
+
+We consider the data set `abalone` from the UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets/abalone) and focus on the female
+sub-population. In a first application we only consider continuous variables and
+fit models to predict the quantiles of weight (`whole`) given the predictors 
+`length`, `diameter`, and `height`. 
+
+## Load and clean data
+
+```{r, cache = TRUE}
+data(abalone, package = "PivotalR")
+abalone_f <- abalone %>%
+    dplyr::filter(sex == "F") %>%        # select female abalones
+    dplyr::select(-id, -sex) %>%         # remove id and sex variables
+    dplyr::filter(height < max(height))  # remove height outlier
+```
+
+```{r, cache = TRUE, fig.width=7, fig.height=6}
+pairs(abalone_f, pch = ".")
+```
+
+
+# D-vine regression models
+
+## Parametric D-vine quantile regression
+
+We consider the female subset and fit a parametric regression D-vine for the
+response weight given the covariates len, diameter and height (ignoring the 
+discreteness of some of the variables). The D-vine based model is selected 
+sequentially by maximizinig the conditional log-likelihood of the response 
+given the covariates. Covariates are only added if they increase the (possibly 
+AIC- or BIC-corrected) conditional log-likelihood.
+
+We use the function `vinereg()` to fit a regression D-vine for predicting the 
+response weight given the covariates `length`, `diameter`, and `height`. The 
+argument `family_set` determines how the pair-copulas are estimated. We will
+only use one-parameter families and the *t* copula here. The 
+`correction` argument specifies the penalty type for the conditional 
+log-likelihood criterion for variable selection.
+
+```{r}
+fit_vine_par <- vinereg(
+    whole ~ length + diameter + height, 
+    data = abalone_f, 
+    family_set = c("onepar", "t"), 
+    correction = "AIC"
+)
+```
+
+The result has a field `order` that shows the selected covariates and their 
+ranking order in the D-vine.
+```{r, cache = TRUE}
+fit_vine_par$order
+```
+
+The field `vine` contains the fitted D-vine, where the first variable 
+corresponds to the response. The object is of class `"vinecop_dist"` so we can
+use `rvineocpulib`'s functionality to summarize the model
+```{r, cache = TRUE}
+summary(fit_vine_par$vine)
+```
+
+We can also plot the contours of the fitted pair-copulas.
+```{r, cache = TRUE, fig.width=7, fig.height=7}
+contour(fit_vine_par$vine)
+```
+
+
+## Estimation of corresponding conditional quantiles
+
+In order to visualize the predicted influence of the covariates, we plot the 
+estimated quantiles arising from the D-vine model at levels 0.1, 0.5 and 0.9 
+against each of the covariates. 
+
+
+```{r, cache = TRUE}
+# quantile levels
+alpha_vec <- c(0.1, 0.5, 0.9) 
+```
+
+We call the `fitted()` function on `fit_vine_par` to extract the fitted values
+for multiple quantile levels. This is equivalent to predicting the quantile at
+the training data. The latter function is more useful for out-of-sample 
+predictions.
+
+```{r, cache = TRUE}
+pred_vine_par <- fitted(fit_vine_par, alpha = alpha_vec)
+# equivalent to:
+# predict(fit_vine_par, newdata = abalone.f, alpha = alpha_vec)
+head(pred_vine_par)
+```
+
+To examine the effect of the individual variables, we will plot the predicted
+quantiles against each of the variables. To visualize the relationship more 
+clrearly, we add a smoothed line for each quantile level. We will use 
+this kind of plot more than once, so it's a good idea to write a small function 
+for it. 
+
+```{r, cache = TRUE}
+plot_marginal_effects <- function(covs, preds) {
+    cbind(covs, preds) %>%
+        tidyr::gather(alpha, prediction, -seq_len(NCOL(covs))) %>%
+        dplyr::mutate(prediction = as.numeric(prediction)) %>%
+        tidyr::gather(variable, value, -(alpha:prediction)) %>%
+        ggplot(aes(value, prediction, color = alpha)) +
+            geom_point(alpha = 0.15) + 
+            geom_smooth(se = FALSE) + 
+            facet_wrap(~ variable, scale = "free_x") +
+            ylab(quote(q(y* "|" * x[1] * ",...," * x[p]))) +
+            xlab(quote(x[k])) +
+            theme(legend.position = "bottom")
+}
+```
+```{r, fig.width=7, fig.height=4}
+plot_marginal_effects(abalone_f[, 1:3], pred_vine_par)
+```
+
+The fitted quantile curves suggest a non-linear effect of all three variables.
+
+## Comparison to the benchmark model: linear quantile regression
+
+This can be compared to linear quantile regression:
+```{r, cache = TRUE, fig.width=7, fig.height=6}
+pred_lqr <- pred_vine_par
+for (a in seq_along(alpha_vec)) {
+    my.rq <- quantreg::rq(
+        whole ~ length + diameter + height, 
+        tau = alpha_vec[a], 
+        data = abalone_f
+    )
+    pred_lqr[, a] <- quantreg::predict.rq(my.rq)
+}
+plot_marginal_effects(abalone_f[, 1:3], pred_lqr)
+```
+
+## Nonparametric D-vine quantile regression
+
+We also want to check whether these results change, when we estimate the 
+pair-copulas nonparametrically.
+
+```{r, cache = TRUE, fig.width=4.6, fig.height=4.6}
+fit_vine_np <- vinereg(
+    whole ~ length + diameter + height,
+    data = abalone_f,
+    family_set = "nonpar",
+    correction = "AIC"
+)
+fit_vine_np$order
+contour(fit_vine_np$vine)
+```
+
+Now only the length and height variables are selected as predictors. Let's have 
+a look at the marginal effects.
+
+```{r, fig.width=7, fig.height=4}
+pred_np <- predict(fit_vine_np, newdata = abalone_f, alpha = alpha_vec)
+plot_marginal_effects(abalone_f[, 1:3], pred_np)
+```
+
+The effects look similar to the parametric one, but slightly more wiggly. Note
+that even the diameter was not selected as a covariate, it's marginal effect 
+is captured by the model. It just does not provide additional information when
+height and length are already accounted for.
+
+## Discrete D-vine quantile regression
+
+To deal with discrete variables, we use the theory which is developed in 
+Nagler (2017) and applied to D-vine quantile regression in 
+Schallhorn et al. (2017). For the estimation the discrete variable(s) are 
+transformed to continuous ones by jittering. 
+
+We let `vinereg()` know that a variable is discrete by declaring it `ordered`.
+
+```{r, cache = TRUE, fig.width=4.7, fig.height=4}
+abalone_f$rings <- as.ordered(abalone_f$rings)
+fit_disc <- vinereg(
+    rings ~ .,
+    data = abalone_f,
+    family_set = "nonparametric", 
+    correction = "AIC"
+)
+fit_disc$order
+contour(fit_disc$vine)
+pred_disc <- predict(fit_disc, newdata = abalone_f, alpha = alpha_vec)
+plot_marginal_effects(abalone_f[, fit_disc$selected_vars], pred_disc)
+```
+
+
+# References
+Kraus and Czado (2017), **D-vine copula based quantile regression**, *Computational Statistics and Data Analysis, 110, 1-18*
+
+Nagler (2017), **A generic approach to nonparametric function estimation with mixed data**, *arXiv preprint*
+
+Schallhorn, Kraus, Nagler and Czado (2017), **D-vine quantile regression with discrete variables**, *arXiv preprint*
