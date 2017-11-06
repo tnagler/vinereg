@@ -63,11 +63,16 @@
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop hbicop vinecop_dist
 #'
-vinereg <- function(formula, data, family_set = NA, correction = NA, par_1d = list(),
-                    cores = 1, uscale = FALSE, ...) {
+vinereg <- function(formula, data, family_set = "parametric", correction = NA,
+                    par_1d = list(), cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
     # remove unused variables
-    mf <- model.frame(formula, data)
+    if (!missing(data)) {
+        mf <- model.frame(formula, data)
+    } else {
+        mf <- model.frame(formula, as.list(globalenv()))
+    }
+
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
         stop("response must be numeric or ordered")
     # expand factors and add noise to discrete variable
