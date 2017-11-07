@@ -70,7 +70,7 @@ vinereg <- function(formula, data, family_set = "parametric", correction = NA,
     if (!missing(data)) {
         mf <- model.frame(formula, data)
     } else {
-        mf <- model.frame(formula, as.list(globalenv()))
+        mf <- model.frame(formula, parent.frame())
     }
 
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
@@ -245,9 +245,11 @@ update_status <- function(status, new_vines) {
 calculate_crit <- function(fit, correction) {
     crit <- fit$cll
     if (!is.na(correction)) {
-        crit <- crit - switch(correction,
-                              "AIC" = fit$vine$npars,
-                              "BIC" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2)
+        crit <- crit - switch(
+            correction,
+            "AIC" = fit$vine$npars,
+            "BIC" = fit$vine$npars * log(dim(fit$psobs$direct)[3]) / 2
+        )
     }
 
     crit
