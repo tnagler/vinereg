@@ -110,18 +110,13 @@ qdvine <- function(u, alpha, vine) {
             }
         }
         tmp <- t(apply(V2, 3, diag)[-1, ])
-        uq <- lapply(alpha,
-                     function(a)
-                         matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
     } else {
-        uq <- lapply(alpha,
-                     function(a)
-                         hbicop(cbind(a, u), 2,
-                                vine$pair_copulas[[1]][[1]],
-                                inverse = TRUE))
+        tmp <- V[d, 2, ]
     }
 
     # return as list (will be processed further)
-    uq
+    lapply(alpha,
+           function(a)
+               matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
 }
 
