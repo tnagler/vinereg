@@ -1,0 +1,119 @@
+---
+title: 'D-vine quantile regression with discrete variables: analysis of bike rental
+  data'
+author: "Dani Kraus and Thomas Nagler"
+date: "November 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Seeding
+
+```{r, cache=TRUE}
+set.seed(1)  # jittering is random
+```
+
+
+#### Required packages
+```{r, message = FALSE}
+library(vinereg)
+library(quantreg)
+library(ggplot2)
+library(dplyr)
+```
+
+#### Plot function for marginal effects
+
+```{r}
+plot_marginal_effects <- function(covs, preds) {
+    cbind(covs, preds) %>%
+        tidyr::gather(alpha, prediction, -seq_len(NCOL(covs))) %>%
+        dplyr::mutate(prediction = as.numeric(prediction)) %>%
+        tidyr::gather(variable, value, -(alpha:prediction)) %>%
+        ggplot(aes(value, prediction, color = alpha)) +
+            geom_point(alpha = 0.15) + 
+            geom_smooth(se = FALSE) + 
+            facet_wrap(~ variable, scale = "free_x")
+}
+```
+
+
+## Data preparation
+
+#### Load data
+```{r, cache=TRUE}
+bikedata <- read.csv("day.csv")
+bikedata[, 2] <- as.Date(bikedata[, 2])
+head(bikedata)
+```
+
+#### Show trend
+```{r cnt_with_trend, cache=TRUE}
+lm.trend <- lm(cnt ~ instant, data = bikedata)
+trend.pred <- predict(lm.trend)
+ggplot(bikedata, aes(dteday, cnt)) +
+    geom_line() + 
+    scale_x_date(labels = scales::date_format("%b %y")) + 
+    xlab("date") + 
+    ylab("rental count") + 
+    stat_smooth(method = "lm", se = FALSE, linetype = "dashed") + 
+    theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) +
+    theme(text = element_text(size = 18))
+```
+
+#### Remove trend
+```{r cnt_detrended, cache=TRUE}
+bikedata$cnt <- bikedata$cnt/trend.pred
+ggplot(bikedata, aes(dteday, cnt)) + 
+    geom_line() + 
+    scale_x_date(labels = scales::date_format("%b %y")) + 
+    xlab("date") + 
+    ylab("detrended rental count") + 
+    theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) + 
+    theme(text = element_text(size = 18))
+```
+
+#### Drop useless variables
+```{r, cache=TRUE}
+bikedata <- bikedata %>%
+    select(-instant, -dteday, -yr) %>%  # time indices
+    select(-casual, -registered) %>%    # casual + registered = cnt
+    select(-holiday) %>%                # we use 'workingday' instead
+    select(-temp)                       # we use 'atemp' (adjusted temperature)
+```
+
+#### Declare discrete variables as `ordered`
+
+```{r, cache=TRUE}
+disc_vars <- c("season", "mnth", "weekday", "workingday", "weathersit")
+bikedata <- bikedata %>%
+    mutate(weekday = ifelse(weekday == 0, 7, weekday)) %>%  # sun at end of week
+    purrr::modify_at(disc_vars, as.ordered)
+```
+
+
+## Nonparametric D-vine regression model
+
+#### Fit model
+```{r, cache=TRUE}
+npdvqr_fit <- vinereg(cnt ~ atemp, data = bikedata, family_set = "nonpar")
+colnames(bikedata)[npdvqr_fit$selected_vars]
+```
+
+#### In-sample predictions
+```{r, cache=TRUE}
+alpha_vec <- c(0.1, 0.5, 0.8, 0.9)
+npdvqr_pred <- fitted(npdvqr_fit, alpha_vec)
+```
+
+#### Plot marginal effects
+```{r, cache=TRUE}
+plot_marginal_effects(covs = select(bikedata, atemp), pred = npdvqr_pred)
+```
+
+
+
