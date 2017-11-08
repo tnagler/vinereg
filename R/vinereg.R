@@ -7,9 +7,9 @@
 #' @param data data frame (or object coercible by
 #'   [as.data.frame()]) containing the variables in the model.
 #' @param family_set see `family_set` argument of [rvinecopulib::bicop()].
-#' @param correction correction criterion for the conditional log-likelihood.
-#'   \code{NA} (default) imposes no correction; other choices are \code{"AIC"}
-#'   and \code{"BIC"}.
+#' @param selcrit selection criterion based on conditional log-likelihood.
+#'   \code{"loglik"} (default) imposes no correction; other choices are
+#'   \code{"aic"} and \code{"bic"}.
 #' @param par_1d list of options passed to [kdevine::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
 #'   first covariate have non-negative support.
@@ -63,7 +63,7 @@
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop hbicop vinecop_dist
 #'
-vinereg <- function(formula, data, family_set = "parametric", correction = NA,
+vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
                     par_1d = list(), cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
     # remove unused variables
@@ -71,6 +71,13 @@ vinereg <- function(formula, data, family_set = "parametric", correction = NA,
         mf <- model.frame(formula, data)
     } else {
         mf <- model.frame(formula, as.list(globalenv()))
+    }
+
+    if (any(sapply(mf, is.factor)) &
+        is.na(pmatch(family_set, "nonparametric")) &
+        is.na(pmatch(family_set, "tll"))) {
+        family_set <- "nonparametric"
+        warning('discrete variables are present, using `family_set = "nonparametric"')
     }
 
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
@@ -93,17 +100,18 @@ vinereg <- function(formula, data, family_set = "parametric", correction = NA,
 
     ## initialization
     current_fit <- initialize_fit(u)
-    status <- initialize_status(d, correction)
+    status <- initialize_status(d, selcrit)
 
     ## estimation and variable selection --------
     for (i in seq_len(d - 1)) {
         if (cores > 1) {
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
-                xtnd_vine(u[, k], current_fit, family_set, ...)
+                xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
         } else {
             new_fits <- lapply(
                 status$remaining_vars + 1,
-                function(k) xtnd_vine(u[, k], current_fit, family_set, ...)
+                function(k)
+                    xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
             )
         }
         status <- update_status(status, new_fits)
@@ -211,14 +219,14 @@ initialize_fit <- function(u) {
     )
 }
 
-initialize_status <- function(d, correction) {
+initialize_status <- function(d, selcrit) {
     list(
         # remaining variable indices to select from
         remaining_vars = seq_len(d - 1),
         # variables indices included in the model
         selected_vars = NULL,
-        # which correction should be used for the selection criterion
-        correction = correction,
+        # selection criterion
+        selcrit = selcrit,
         # current fit criterion (cll + correction)
         current_crit = -Inf,
         # TRUE when no improvement is possible
@@ -227,7 +235,7 @@ initialize_status <- function(d, correction) {
 }
 
 update_status <- function(status, new_vines) {
-    crits <- sapply(new_vines, calculate_crit, status$correction)
+    crits <- sapply(new_vines, calculate_crit, status$selcrit)
     if (max(crits) <= status$current_crit) {
         # optimum found, keep old fit
         status$optimum_found <- TRUE
@@ -242,18 +250,19 @@ update_status <- function(status, new_vines) {
     status
 }
 
-calculate_crit <- function(fit, correction) {
+calculate_crit <- function(fit, selcrit) {
     crit <- fit$cll
-    if (!is.na(correction)) {
-        crit <- crit - switch(correction,
-                              "AIC" = fit$vine$npars,
-                              "BIC" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2)
-    }
+    crit <- crit - switch(
+        selcrit,
+        "loglik" = 0,
+        "aic" = fit$vine$npars,
+        "bic" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2
+    )
 
     crit
 }
 
-xtnd_vine <- function(new_var, old_fit, family_set, ...) {
+xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     d <- ncol(old_fit$vine$matrix) + 1
     n <- length(new_var)
 
@@ -268,15 +277,32 @@ xtnd_vine <- function(new_var, old_fit, family_set, ...) {
     old_fit$vine$pair_copulas[[d - 1]] <- list()
     npars <- 0
     for (i in rev(seq_len(d - 1))) {
+        # get data for current edge
         zr1 <- psobs$direct[i + 1, i, ]
         zr2 <- if (i == d - 1) {
             psobs$direct[i + 1, i + 1, ]
         } else {
             psobs$indirect[i + 1, i + 1, ]
         }
-        pc_fit <- bicop(cbind(zr2, zr1), family_set = family_set, ...)
+
+        # correct bandwidth for regression context
+        # (optimal rate is n^(-1/5) instead of n^(-1/6))
+        n <- length(zr2)
+        dots <- modifyList(list(mult = n^(1/6 - 1/5)), list(...))
+        args <- modifyList(
+            list(
+                data = cbind(zr2, zr1),
+                family_set = family_set,
+                selcrit = selcrit
+            ),
+            dots
+        )
+        # fit
+        pc_fit <- do.call(bicop, args)
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
         npars <- npars + pc_fit$npars
+
+        # pseudo observations for next tree
         psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
         psobs$indirect[i, i, ] <- hbicop(cbind(zr2, zr1), 2, pc_fit)
     }
