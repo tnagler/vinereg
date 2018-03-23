@@ -105,6 +105,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     ## estimation and variable selection --------
     for (i in seq_len(d - 1)) {
         if (cores > 1) {
+            k <- NULL  # for CRAN checks
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
                 xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
         } else {
@@ -158,6 +159,7 @@ fit_margins <- function(x, par_1d, cores, uscale) {
             m
         }
         if (cores > 1) {
+            k <- NULL  #  for CRAN checks
             margs <- foreach::foreach(k = seq_len(d)) %dopar% fit_margin(k)
         } else {
             margs <- lapply(seq_len(d), fit_margin)
@@ -171,6 +173,7 @@ get_pits <- function(x, margin_models, cores) {
         u <- x
     } else {
         get_pit <- function(m) pkde1d(m$x_cc, m)
+        m <- NULL  # for cran checks
         if (cores > 1) {
             u <- foreach::foreach(m = margin_models) %dopar% get_pit(m)
         } else {
