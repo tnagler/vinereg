@@ -70,7 +70,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     if (!missing(data)) {
         mf <- model.frame(formula, data)
     } else {
-        mf <- model.frame(formula, as.list(globalenv()))
+        mf <- model.frame(formula, parent.frame())
     }
 
     if (any(sapply(mf, is.factor)) &
@@ -170,7 +170,6 @@ get_pits <- function(x, margin_models, cores) {
         # data are uniform, no need for PIT
         u <- x
     } else {
-        browser()
         get_pit <- function(m) pkde1d(m$x_cc, m)
         if (cores > 1) {
             u <- foreach::foreach(m = margin_models) %dopar% get_pit(m)
@@ -265,7 +264,6 @@ calculate_crit <- function(fit, selcrit) {
         "aic" = fit$vine$npars,
         "bic" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2
     )
-
     crit
 }
 
