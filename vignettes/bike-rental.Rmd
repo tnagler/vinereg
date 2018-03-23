@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 #### Seeding
 
-```{r, cache=TRUE}
+```{r}
 set.seed(5)  # jittering is random
 ```
 
@@ -54,14 +54,14 @@ plot_marginal_effects <- function(covs, preds) {
 ## Data preparation
 
 #### Load data
-```{r, cache=TRUE}
+```{r}
 bikedata <- read.csv("day.csv")
 bikedata[, 2] <- as.Date(bikedata[, 2])
 head(bikedata)
 ```
 
 #### Rename variables
-```{r, cache=TRUE}
+```{r}
 bikedata  <- bikedata %>%
     rename(
         temperature = atemp, 
@@ -74,7 +74,7 @@ bikedata  <- bikedata %>%
 
 #### Un-normalize variables
 See variable description on UCI web page.
-```{r, cache=TRUE}
+```{r}
 bikedata  <- bikedata %>%
     mutate(
         temperature = 66 * temperature + 16,
@@ -85,7 +85,7 @@ bikedata  <- bikedata %>%
 
 
 #### Show trend
-```{r count_with_trend, cache=TRUE}
+```{r count_with_trend}
 ggplot(bikedata, aes(dteday, count)) +
     geom_line() + 
     scale_x_date(labels = scales::date_format("%b %y")) + 
@@ -97,7 +97,7 @@ ggplot(bikedata, aes(dteday, count)) +
 ```
 
 #### Remove trend
-```{r count_detrended, cache=TRUE}
+```{r count_detrended}
 lm_trend <- lm(count ~ instant, data = bikedata)
 trend <- predict(lm_trend)
 bikedata <- mutate(bikedata, count = count / trend)
@@ -111,7 +111,7 @@ ggplot(bikedata, aes(dteday, count)) +
 ```
 
 #### Drop useless variables
-```{r, cache=TRUE}
+```{r}
 bikedata <- bikedata %>%
     select(-instant, -dteday, -yr) %>%  # time indices
     select(-casual, -registered) %>%    # casual + registered = count
@@ -121,7 +121,7 @@ bikedata <- bikedata %>%
 
 #### Declare discrete variables as `ordered`
 
-```{r, cache=TRUE}
+```{r}
 disc_vars <- c("season", "month", "weekday", "workingday", "weathersituation")
 bikedata <- bikedata %>%
     mutate(weekday = ifelse(weekday == 0, 7, weekday)) %>%  # sun at end of week
@@ -132,56 +132,56 @@ bikedata <- bikedata %>%
 ## Nonparametric D-vine regression model
 
 #### Fit model
-```{r, cache=TRUE}
-npdvqr_fit <- vinereg(count ~ ., data = bikedata, family_set = "nonpar")
+```{r}
+npdvqr_fit <- vinereg(count ~ ., data = bikedata, family_set = "nonpar", selcrit = "aic")
 colnames(bikedata)[npdvqr_fit$selected_vars]
 ```
 
 #### In-sample predictions
-```{r, cache=TRUE}
+```{r}
 alpha_vec <- c(0.1, 0.5, 0.9)
 npdvqr_pred <- fitted(npdvqr_fit, alpha_vec)
 ```
 
 ### Marginal effects
 
-```{r me_temperature, cache=TRUE, fig.width=4, fig.height=4}
+```{r me_temperature, fig.width=4, fig.height=4}
 plot_marginal_effects(
     covs = select(bikedata, temperature), 
     preds = npdvqr_pred
 )
 ```
-```{r me_humidity, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_humidity, fig.width=4, fig.height=4, message=FALSE}
 plot_marginal_effects(covs = select(bikedata, humidity), preds = npdvqr_pred) +
     xlim(c(25, 100))
 ```
-```{r me_windspeed, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_windspeed, fig.width=4, fig.height=4, message=FALSE}
 plot_marginal_effects(covs = select(bikedata, windspeed), preds = npdvqr_pred) 
 ```
-```{r me_month, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_month, fig.width=4, fig.height=4, message=FALSE}
 month_labs <- c("Jan","", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")
 plot_marginal_effects(covs = select(bikedata, month), preds = npdvqr_pred) +
         scale_x_discrete(limits = 1:12, labels = month_labs)
 
 ```
-```{r me_weathersituation, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_weathersituation, fig.width=4, fig.height=4, message=FALSE}
 plot_marginal_effects(covs = select(bikedata, weathersituation), 
                       preds = npdvqr_pred) +
     scale_x_discrete(limits = 1:3,labels = c("good", "medium", "bad"))
 ```
 
-```{r me_weekday, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_weekday, fig.width=4, fig.height=4, message=FALSE}
 weekday_labs <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 plot_marginal_effects(covs = select(bikedata, weekday), preds = npdvqr_pred) +
     scale_x_discrete(limits = 1:7, labels = weekday_labs)
 ```
-```{r me_workingday, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_workingday, fig.width=4, fig.height=4, message=FALSE}
 plot_marginal_effects(covs = select(bikedata, workingday), preds = npdvqr_pred) +
     scale_x_discrete(limits = 0:1, labels = c("no", "yes")) +
     geom_smooth(method = "lm", se = FALSE) +
     xlim(c(0, 1))
 ```
-```{r me_season, cache=TRUE, fig.width=4, fig.height=4, message=FALSE}
+```{r me_season, fig.width=4, fig.height=4, message=FALSE}
 season_labs <- c("spring", "summer", "fall", "winter")
 plot_marginal_effects(covs = select(bikedata, season), preds = npdvqr_pred) +
     scale_x_discrete(limits = 1:4, labels = season_labs)

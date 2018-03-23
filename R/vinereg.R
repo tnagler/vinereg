@@ -306,6 +306,7 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
             ),
             dots
         )
+
         # fit
         pc_fit <- do.call(bicop, args)
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
