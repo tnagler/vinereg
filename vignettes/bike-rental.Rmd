@@ -3,7 +3,10 @@ title: 'D-vine quantile regression with discrete variables: analysis of bike ren
   data'
 author: "Dani Kraus and Thomas Nagler"
 date: "November 8, 2017"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{PExample usage of the vinereg package}
+    %\VignetteEngine{knitr::knitr}
 ---
 
 ```{r setup, include=FALSE}
@@ -24,6 +27,8 @@ library(vinereg)
 library(quantreg)
 library(ggplot2)
 library(dplyr)
+library(purrr)
+library(scales)
 ```
 
 #### Plot function for marginal effects
@@ -39,7 +44,6 @@ plot_marginal_effects <- function(covs, preds) {
         geom_point(alpha = 0.15) + 
         geom_smooth(span = 0.5, se = FALSE) + 
         facet_wrap(~ variable, scale = "free_x") +
-        naglr::theme_naglr() +
         theme(legend.position = "none") +
         theme(plot.margin = unit(c(0, 0, 0, 0), "mm")) +
         xlab("")

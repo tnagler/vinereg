@@ -4,8 +4,8 @@
 \alias{vinereg}
 \title{D-vine quantile regression}
 \usage{
-vinereg(formula, data, family_set = NA, correction = NA, par_1d = list(),
-  cores = 1, uscale = FALSE, ...)
+vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
+  par_1d = list(), cores = 1, uscale = FALSE, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula"; same as \code{\link[=lm]{lm()}}.}
@@ -15,11 +15,11 @@ vinereg(formula, data, family_set = NA, correction = NA, par_1d = list(),
 
 \item{family_set}{see \code{family_set} argument of \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
 
-\item{correction}{correction criterion for the conditional log-likelihood.
-\code{NA} (default) imposes no correction; other choices are \code{"AIC"}
-and \code{"BIC"}.}
+\item{selcrit}{selection criterion based on conditional log-likelihood.
+\code{"loglik"} (default) imposes no correction; other choices are
+\code{"aic"} and \code{"bic"}.}
 
-\item{par_1d}{list of options passed to \code{\link[kdevine:kde1d]{kdevine::kde1d()}}, must be one value
+\item{par_1d}{list of options passed to \code{\link[kde1d:kde1d]{kde1d::kde1d()}}, must be one value
 for each margin, e.g. \code{list(xmin = c(0, 0, -Inf))} if the response and
 first covariate have non-negative support.}
 
@@ -33,7 +33,7 @@ first covariate have non-negative support.}
 \value{
 An object of class vinereg. It is a list containing the elements
 \describe{
-\item{margins}{list of marginal models fitted by \code{\link[kdevine:kde1d]{kdevine::kde1d()}}.}
+\item{margins}{list of marginal models fitted by \code{\link[kde1d:kde1d]{kde1d::kde1d()}}.}
 \item{vine}{an \code{\link[rvinecopulib:vinecop_dist]{rvinecopulib::vinecop_dist()}} object containing the fitted
 D-vine.}
 \item{order}{order of the covariates chosen by the variable selection algorithm.}

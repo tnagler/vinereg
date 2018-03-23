@@ -31,7 +31,7 @@
 #'
 #' @export
 #'
-#' @importFrom kdevine pkde1d qkde1d
+#' @importFrom kde1d pkde1d qkde1d
 #' @importFrom rvinecopulib rvinecop
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
