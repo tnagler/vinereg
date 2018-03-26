@@ -8,11 +8,12 @@ An R package for D-vine quantile regression.
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("tnagler/vinereg")
+devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
 ```
 
-For an example of its usage, have a look at the vignette with
+For an example of its usage, have a look at the vignettes with
 
 ``` r
 vignette("abalone-example", package = "vinereg")
+vignette("bike-rental", package = "vinereg")
 ```

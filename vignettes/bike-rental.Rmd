@@ -5,8 +5,8 @@ author: "Dani Kraus and Thomas Nagler"
 date: "November 8, 2017"
 output: rmarkdown::html_vignette
 vignette: >
-    %\VignetteIndexEntry{PExample usage of the vinereg package}
-    %\VignetteEngine{knitr::knitr}
+    %\VignetteIndexEntry{Analysis of bike rental data}
+    %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}

@@ -5,8 +5,8 @@ date: "September 2017"
 output: 
     rmarkdown::html_vignette
 vignette: >
-    %\VignetteIndexEntry{PExample usage of the vinereg package}
-    %\VignetteEngine{knitr::knitr}
+    %\VignetteIndexEntry{Example usage of the vinereg package}
+    %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}
@@ -42,7 +42,7 @@ fit models to predict the quantiles of weight (`whole`) given the predictors
 
 ## Load and clean data
 
-```{r, cache = TRUE}
+```{r,}
 data(abalone, package = "PivotalR")
 abalone_f <- abalone %>%
     dplyr::filter(sex == "F") %>%        # select female abalones
@@ -50,7 +50,7 @@ abalone_f <- abalone %>%
     dplyr::filter(height < max(height))  # remove height outlier
 ```
 
-```{r, cache = TRUE, fig.width=7, fig.height=6}
+```{r,, fig.width=7, fig.height=6}
 pairs(abalone_f, pch = ".")
 ```
 
@@ -83,19 +83,19 @@ fit_vine_par <- vinereg(
 
 The result has a field `order` that shows the selected covariates and their 
 ranking order in the D-vine.
-```{r, cache = TRUE}
+```{r,}
 fit_vine_par$order
 ```
 
 The field `vine` contains the fitted D-vine, where the first variable 
 corresponds to the response. The object is of class `"vinecop_dist"` so we can
 use `rvineocpulib`'s functionality to summarize the model
-```{r, cache = TRUE}
+```{r,}
 summary(fit_vine_par$vine)
 ```
 
 We can also plot the contours of the fitted pair-copulas.
-```{r, cache = TRUE, fig.width=7, fig.height=7}
+```{r,, fig.width=7, fig.height=7}
 contour(fit_vine_par$vine)
 ```
 
@@ -107,7 +107,7 @@ estimated quantiles arising from the D-vine model at levels 0.1, 0.5 and 0.9
 against each of the covariates. 
 
 
-```{r, cache = TRUE}
+```{r,}
 # quantile levels
 alpha_vec <- c(0.1, 0.5, 0.9) 
 ```
@@ -117,7 +117,7 @@ for multiple quantile levels. This is equivalent to predicting the quantile at
 the training data. The latter function is more useful for out-of-sample 
 predictions.
 
-```{r, cache = TRUE}
+```{r,}
 pred_vine_par <- fitted(fit_vine_par, alpha = alpha_vec)
 # equivalent to:
 # predict(fit_vine_par, newdata = abalone.f, alpha = alpha_vec)
@@ -130,7 +130,7 @@ clrearly, we add a smoothed line for each quantile level. We will use
 this kind of plot more than once, so it's a good idea to write a small function 
 for it. 
 
-```{r, cache = TRUE}
+```{r,}
 plot_marginal_effects <- function(covs, preds) {
     cbind(covs, preds) %>%
         tidyr::gather(alpha, prediction, -seq_len(NCOL(covs))) %>%
@@ -154,7 +154,7 @@ The fitted quantile curves suggest a non-linear effect of all three variables.
 ## Comparison to the benchmark model: linear quantile regression
 
 This can be compared to linear quantile regression:
-```{r, cache = TRUE, fig.width=7, fig.height=6}
+```{r,, fig.width=7, fig.height=6}
 pred_lqr <- pred_vine_par
 for (a in seq_along(alpha_vec)) {
     my.rq <- quantreg::rq(
@@ -172,7 +172,7 @@ plot_marginal_effects(abalone_f[, 1:3], pred_lqr)
 We also want to check whether these results change, when we estimate the 
 pair-copulas nonparametrically.
 
-```{r, cache = TRUE, fig.width=4.6, fig.height=4.6}
+```{r,, fig.width=4.6, fig.height=4.6}
 fit_vine_np <- vinereg(
     whole ~ length + diameter + height,
     data = abalone_f,
@@ -205,7 +205,7 @@ transformed to continuous ones by jittering.
 
 We let `vinereg()` know that a variable is discrete by declaring it `ordered`.
 
-```{r, cache = TRUE, fig.width=4.7, fig.height=4}
+```{r,, fig.width=4.7, fig.height=4}
 abalone_f$rings <- as.ordered(abalone_f$rings)
 fit_disc <- vinereg(
     rings ~ .,
