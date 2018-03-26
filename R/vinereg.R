@@ -10,7 +10,7 @@
 #' @param selcrit selection criterion based on conditional log-likelihood.
 #'   \code{"loglik"} (default) imposes no correction; other choices are
 #'   \code{"aic"} and \code{"bic"}.
-#' @param par_1d list of options passed to [kdevine::kde1d()], must be one value
+#' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
 #'   first covariate have non-negative support.
 #' @param cores integer.
@@ -21,7 +21,7 @@
 #' @return
 #' An object of class vinereg. It is a list containing the elements
 #' \describe{
-#' \item{margins}{list of marginal models fitted by [kdevine::kde1d()].}
+#' \item{margins}{list of marginal models fitted by [kde1d::kde1d()].}
 #' \item{vine}{an [rvinecopulib::vinecop_dist()] object containing the fitted
 #'   D-vine.}
 #' \item{order}{order of the covariates chosen by the variable selection algorithm.}
@@ -59,7 +59,7 @@
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
-#' @importFrom kdevine kde1d pkde1d
+#' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop hbicop vinecop_dist
 #'
@@ -105,6 +105,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     ## estimation and variable selection --------
     for (i in seq_len(d - 1)) {
         if (cores > 1) {
+            k <- NULL  # for CRAN checks
             new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
                 xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
         } else {
@@ -145,13 +146,20 @@ fit_margins <- function(x, par_1d, cores, uscale) {
         margs <- lapply(seq_len(d), function(i) NULL)
     } else {
         fit_margin <- function(k) {
-            kde1d(x[, k],
-                  xmin = par_1d$xmin[k],
-                  xmax = par_1d$xmax[k],
-                  bw   = par_1d$bw[k],
-                  mult = par_1d$mult[k])
+            arg_lst <- list(
+                x = x[, k],
+                xmin = par_1d$xmin[k],
+                xmax = par_1d$xmax[k],
+                bw   = par_1d$bw[k],
+                mult = par_1d$mult[k]
+            )
+            arg_lst[sapply(arg_lst, is.null)] <- NULL
+            m <- do.call(kde1d, arg_lst)
+            m$x_cc <- x[, k]
+            m
         }
         if (cores > 1) {
+            k <- NULL  #  for CRAN checks
             margs <- foreach::foreach(k = seq_len(d)) %dopar% fit_margin(k)
         } else {
             margs <- lapply(seq_len(d), fit_margin)
@@ -165,6 +173,7 @@ get_pits <- function(x, margin_models, cores) {
         u <- x
     } else {
         get_pit <- function(m) pkde1d(m$x_cc, m)
+        m <- NULL  # for cran checks
         if (cores > 1) {
             u <- foreach::foreach(m = margin_models) %dopar% get_pit(m)
         } else {
@@ -261,6 +270,7 @@ calculate_crit <- function(fit, selcrit) {
     crit
 }
 
+#' @importFrom utils modifyList
 xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     d <- ncol(old_fit$vine$matrix) + 1
     n <- length(new_var)
@@ -296,6 +306,7 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
             ),
             dots
         )
+
         # fit
         pc_fit <- do.call(bicop, args)
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit

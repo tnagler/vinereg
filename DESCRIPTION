@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.1.3
+Version: 0.1.4
 Author: Thomas Nagler, Daniel Kraus
 Maintainer: Thomas Nagler <thomas.nagler@tum.de>
 Description: 
@@ -15,9 +15,18 @@ Imports:
     doParallel, 
     parallel, 
     foreach, 
-    kdevine
+    kde1d
 RoxygenNote: 6.0.1
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
-Suggests: knitr, rmarkdown, ggplot2, PivotalR, quantreg, tidyr, dplyr
+Suggests: 
+    knitr,
+    rmarkdown,
+    ggplot2,
+    PivotalR,
+    quantreg,
+    tidyr,
+    dplyr,
+    purrr,
+    scales
 VignetteBuilder: knitr
