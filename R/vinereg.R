@@ -179,9 +179,10 @@ get_pits <- function(x, margin_models, cores) {
         } else {
             u <- lapply(margin_models, get_pit)
         }
+        u <- do.call(cbind, u)
     }
 
-    do.call(cbind, u)
+    u
 }
 
 
