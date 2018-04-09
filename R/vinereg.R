@@ -245,7 +245,8 @@ initialize_status <- function(d, selcrit) {
 }
 
 update_status <- function(status, new_vines) {
-    crits <- sapply(new_vines, calculate_crit, status$selcrit)
+    crits <- sapply(new_vines, calculate_crit, selcrit = status$selcrit)
+
     if (max(crits) <= status$current_crit) {
         # optimum found, keep old fit
         status$optimum_found <- TRUE
@@ -266,7 +267,7 @@ calculate_crit <- function(fit, selcrit) {
         selcrit,
         "loglik" = 0,
         "aic" = fit$vine$npars,
-        "bic" = fit$vine$npars * log(dim(fit$psobs)[3]) / 2
+        "bic" = fit$vine$npars * log(dim(fit$psobs$direct)[3]) / 2
     )
     crit
 }
