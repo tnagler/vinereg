@@ -308,9 +308,20 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
             ),
             dots
         )
+        args$threshold <- NULL
 
         # fit
-        pc_fit <- do.call(bicop, args)
+        if (!is.null(dots$threshold)) {
+            if (abs(cor(args$data, method = "kendall")[1, 2]) < dots$threshold) {
+                pc_fit <- bicop_dist()
+                class(pc_fit) <- c("bicop", "bicop_dist")
+                pc_fit$data <- args$data
+            } else {
+                pc_fit <- do.call(bicop, args)
+            }
+        } else {
+            pc_fit <- do.call(bicop, args)
+        }
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
         npars <- npars + pc_fit$npars
 
@@ -321,3 +332,4 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
     return(list(vine = vine, psobs = psobs, cll = old_fit$cll + logLik(pc_fit)))
 }
+
