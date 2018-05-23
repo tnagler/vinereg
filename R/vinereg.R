@@ -61,7 +61,7 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
-#' @importFrom rvinecopulib bicop hbicop vinecop_dist
+#' @importFrom rvinecopulib bicop dbicop hbicop vinecop_dist
 #'
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
                     par_1d = list(), cores = 1, uscale = FALSE, ...) {
@@ -273,6 +273,8 @@ calculate_crit <- function(fit, selcrit) {
 }
 
 #' @importFrom utils modifyList
+#' @importFrom stats cor
+#' @importFrom rvinecopulib bicop_dist
 xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     d <- ncol(old_fit$vine$matrix) + 1
     n <- length(new_var)
