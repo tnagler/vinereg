@@ -28,5 +28,6 @@ Suggests:
     tidyr,
     dplyr,
     purrr,
-    scales
+    scales,
+    mgcv
 VignetteBuilder: knitr
