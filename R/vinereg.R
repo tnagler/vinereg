@@ -330,6 +330,7 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
         psobs$indirect[i, i, ] <- hbicop(cbind(zr2, zr1), 2, pc_fit)
     }
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
-    return(list(vine = vine, psobs = psobs, cll = old_fit$cll + logLik(pc_fit)))
+    cll <- old_fit$cll + sum(log(dbicop(cbind(zr2, zr1), pc_fit)))
+    list(vine = vine, psobs = psobs, cll = cll)
 }
 
