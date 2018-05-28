@@ -62,7 +62,7 @@ pairs(abalone_f, pch = ".")
 We consider the female subset and fit a parametric regression D-vine for the
 response weight given the covariates len, diameter and height (ignoring the 
 discreteness of some of the variables). The D-vine based model is selected 
-sequentially by maximizinig the conditional log-likelihood of the response 
+sequentially by maximizing the conditional log-likelihood of the response 
 given the covariates. Covariates are only added if they increase the (possibly 
 AIC- or BIC-corrected) conditional log-likelihood.
 
@@ -126,7 +126,7 @@ head(pred_vine_par)
 
 To examine the effect of the individual variables, we will plot the predicted
 quantiles against each of the variables. To visualize the relationship more 
-clrearly, we add a smoothed line for each quantile level. We will use 
+clearly, we add a smoothed line for each quantile level. We will use 
 this kind of plot more than once, so it's a good idea to write a small function 
 for it. 
 

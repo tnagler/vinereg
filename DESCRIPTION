@@ -3,10 +3,12 @@ Type: Package
 Title: D-Vine Quantile Regression
 Version: 0.2.0
 Author: Thomas Nagler, Daniel Kraus
-Maintainer: Thomas Nagler <thomas.nagler@tum.de>
+Maintainer: Thomas Nagler <mail@tnagler.com>
 Description: 
-  Fits and predicts a D-vine quantile regression model with
-  parameteric or nonparametric pair-copulas.
+  Implements D-vine quantile regression models with
+  parametric or nonparametric pair-copulas. See 
+  Kraus and Czado (2017) <doi:10.1016/j.csda.2016.12.009> and
+  Schallhorn et al. (2017) <arXiv:1705.08310>.
 License: GPL-3
 LazyData: TRUE
 Imports: 
