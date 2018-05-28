@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.1.4
+Version: 0.2.0
 Author: Thomas Nagler, Daniel Kraus
 Maintainer: Thomas Nagler <thomas.nagler@tum.de>
 Description: 
