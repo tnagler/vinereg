@@ -5,7 +5,7 @@
 \title{D-vine quantile regression}
 \usage{
 vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
-  par_1d = list(), cores = 1, uscale = FALSE, ...)
+  order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...)
 }
 \arguments{
 \item{formula}{an object of class "formula"; same as \code{\link[=lm]{lm()}}.}
@@ -18,6 +18,10 @@ vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
 \item{selcrit}{selection criterion based on conditional log-likelihood.
 \code{"loglik"} (default) imposes no correction; other choices are
 \code{"aic"} and \code{"bic"}.}
+
+\item{order}{the order of covariates in the D-vine, provided as vector
+of variable names (after calling \code{cctools::cont_conv()} on the
+\code{model.frame()}); selected automatically if \code{order = NA} (default).}
 
 \item{par_1d}{list of options passed to \code{\link[kde1d:kde1d]{kde1d::kde1d()}}, must be one value
 for each margin, e.g. \code{list(xmin = c(0, 0, -Inf))} if the response and
@@ -62,6 +66,7 @@ pred <- predict(fit, newdata = dat, alpha = 0.5)
 
 # observed vs predicted
 plot(cbind(y, pred))
+
 
 }
 \references{
