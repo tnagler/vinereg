@@ -56,6 +56,10 @@
 #' plot(cbind(y, pred))
 #'
 #'
+#' ## fixed variable order (no selection)
+#' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
+#' fit$order
+#'
 #' @seealso \code{\link{predict.vinereg}}
 #'
 #' @export

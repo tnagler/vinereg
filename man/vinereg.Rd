@@ -68,6 +68,10 @@ pred <- predict(fit, newdata = dat, alpha = 0.5)
 plot(cbind(y, pred))
 
 
+## fixed variable order (no selection)
+fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
+fit$order
+
 }
 \references{
 Kraus and Czado (2017), D-vine copula based quantile regression,
