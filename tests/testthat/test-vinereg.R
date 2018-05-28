@@ -43,7 +43,7 @@ test_that("works with fixed order", {
 
     fit_auto <- vinereg(y ~ ., dat[-5], selcrit = "bic")
     fit_ord <- vinereg(y ~ ., dat[-5], selcrit = "bic", order = fit_auto$order)
-    expect_equal(fit_auto, fit_ord)
+    expect_equal(fit_auto$vine, fit_ord$vine)
 })
 
 context("methods")
