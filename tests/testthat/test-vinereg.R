@@ -1,4 +1,4 @@
-context("vinereg() function")
+context("vinereg()")
 
 # simulate data
 x <- matrix(rnorm(300), 100, 3)
@@ -12,6 +12,7 @@ test_that("catches wrong arguments", {
     expect_error(vinereg(asdf ~ ., dat))
     expect_error(vinereg(y ~ ., selcrit = "asdf"))
     expect_error(vinereg(y ~ ., order = c("a", "s", "d", "f")))
+    expect_error(vinereg(y ~ ., order = c("y", "x.1")))
     expect_error(vinereg(z ~ .))
 })
 
@@ -32,6 +33,8 @@ test_that("works with discrete variables", {
             order
         )
     )
+    dat$y <- as.ordered(dat$y)
+    expect_silent(vinereg(y ~ ., dat, fam = "tll")$order)
 })
 
 test_that("works with fixed order", {
@@ -43,13 +46,42 @@ test_that("works with fixed order", {
 
     fit_auto <- vinereg(y ~ ., dat[-5], selcrit = "bic")
     fit_ord <- vinereg(y ~ ., dat[-5], selcrit = "bic", order = fit_auto$order)
-    expect_equal(fit_auto, fit_ord)
+    expect_equal(fit_auto$vine, fit_ord$vine)
 })
 
-context("methods")
+test_that("works on uscale", {
+    fit <- vinereg(y ~ ., dat[-5])
+    u <- vinereg:::get_pits(model.frame(y ~ ., dat[-5]), fit$margins, 1)
+    fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
 
-test_that("predict method works", {
-    expect_warning(fit <- vinereg(y ~ ., dat, selcrit = "bic"))
+    expect_equal(fit$vine, fit_uscale$vine)
+})
+
+test_that("works with threshold", {
+    expect_silent(vinereg(y ~ ., dat[-5], threshold = 0.3))
+})
+
+
+test_that("works in parallel", {
+    fit <- vinereg(y ~ ., dat[-5])
+    fit_par <- vinereg(y ~ ., dat[-5], cores = 2)
+    expect_equal(fit$vine, fit_par$vine)
+})
+
+context("predict.vinereg()")
+
+test_that("catches missing variables", {
+    fit <- vinereg(y ~ ., dat[1:3])
+    expect_error(predict(fit, dat[2]))
+})
+
+test_that("works in bivariate case", {
+    fit <- vinereg(y ~ ., dat[1:2])
+    expect_silent(predict(fit, dat[2]))
+})
+
+test_that("works with continuous response", {
+    expect_warning(fit <- vinereg(y ~ ., dat, selcrit = "loglik"))
     expect_equal(fitted(fit), predict(fit, dat))
     expect_equal(
         cbind(fitted(fit, alpha = 0.2), fitted(fit, alpha = 0.8)),
@@ -61,4 +93,22 @@ test_that("predict method works", {
         tol = 1e-1
     )
 })
+
+test_that("works with discrete response", {
+    dat$y <- as.ordered(dat$y)
+    fit <- vinereg(y ~ ., dat, fam = "tll")
+    expect_equal(fitted(fit), predict(fit, dat))
+})
+
+test_that("works on uscale", {
+    fit <- vinereg(y ~ ., dat[-5])
+    u <- vinereg:::get_pits(model.frame(y ~ ., dat[-5]), fit$margins, 1)
+    fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
+
+    expect_warning(
+        expect_equal(predict(fit, u, uscale = TRUE), fitted(fit_uscale))
+    )
+})
+
+
 
