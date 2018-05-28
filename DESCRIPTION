@@ -30,5 +30,6 @@ Suggests:
     purrr,
     scales,
     mgcv,
-    testthat
+    testthat,
+    covr
 VignetteBuilder: knitr
