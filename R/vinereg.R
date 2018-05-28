@@ -101,6 +101,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     ## estimation of the marginals and transformation to copula data
     margin_models <- fit_margins(x, par_1d, cores, uscale)
     u <- get_pits(x, margin_models, cores)
+    var_nms <- colnames(u)
 
     ## initialization
     current_fit <- initialize_fit(u)
@@ -126,8 +127,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
                 break
             current_fit <- new_fits[[status$best_ind]]
         }
+        names(status$selected_vars) <- var_nms[status$selected_vars + 1]
     } else {
-        var_nms <- colnames(u)
         if (!all(order %in% var_nms))
             stop("unknown variable name in 'order'; ",
                  "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'.")

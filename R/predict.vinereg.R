@@ -78,7 +78,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
 #' @rdname predict.vinereg
 #' @export
-fitted.vinereg <- function(object, alpha, ...) {
+fitted.vinereg <- function(object, alpha = 0.5, ...) {
     predict.vinereg(object, newdata = object[["model_frame"]], alpha = alpha)
 }
 
