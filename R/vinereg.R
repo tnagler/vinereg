@@ -10,6 +10,9 @@
 #' @param selcrit selection criterion based on conditional log-likelihood.
 #'   \code{"loglik"} (default) imposes no correction; other choices are
 #'   \code{"aic"} and \code{"bic"}.
+#' @param order the order of covariates in the D-vine, provided as vector
+#'   of variable names (after calling `cctools::cont_conv()` on the
+#'   `model.frame()`); selected automatically if `order = NA` (default).
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
 #'   first covariate have non-negative support.
@@ -52,6 +55,11 @@
 #' # observed vs predicted
 #' plot(cbind(y, pred))
 #'
+#'
+#' ## fixed variable order (no selection)
+#' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
+#' fit$order
+#'
 #' @seealso \code{\link{predict.vinereg}}
 #'
 #' @export
@@ -64,7 +72,7 @@
 #' @importFrom rvinecopulib bicop dbicop hbicop vinecop_dist
 #'
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
-                    par_1d = list(), cores = 1, uscale = FALSE, ...) {
+                    order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
     # remove unused variables
     if (!missing(data)) {
@@ -76,8 +84,9 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     if (any(sapply(mf, is.factor)) &
         is.na(pmatch(family_set, "nonparametric")) &
         is.na(pmatch(family_set, "tll"))) {
-        family_set <- "nonparametric"
-        warning('discrete variables are present, using `family_set = "nonparametric"')
+        warning('parametric copula families are misspecified ',
+                'for jittered discrete variables; ',
+                'use family_set = "nonparametric" to maintain consistency')
     }
 
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
@@ -85,7 +94,6 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     # expand factors and add noise to discrete variable
     x <- cctools::cont_conv(mf)
     d <- ncol(x)
-
     ## register parallel backend
     if (cores > 1) {
         cl <- makeCluster(cores)
@@ -97,28 +105,43 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     ## estimation of the marginals and transformation to copula data
     margin_models <- fit_margins(x, par_1d, cores, uscale)
     u <- get_pits(x, margin_models, cores)
+    var_nms <- colnames(u)
 
     ## initialization
     current_fit <- initialize_fit(u)
     status <- initialize_status(d, selcrit)
 
-    ## estimation and variable selection --------
-    for (i in seq_len(d - 1)) {
-        if (cores > 1) {
-            k <- NULL  # for CRAN checks
-            new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
-                xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
-        } else {
-            new_fits <- lapply(
-                status$remaining_vars + 1,
-                function(k)
+    ## estimation --------
+    if (any(is.na(order))) {
+        ## automatic variable selection
+        for (i in seq_len(d - 1)) {
+            if (cores > 1) {
+                k <- NULL  # for CRAN checks
+                new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
                     xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
-            )
+            } else {
+                new_fits <- lapply(
+                    status$remaining_vars + 1,
+                    function(k)
+                        xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
+                )
+            }
+            status <- update_status(status, new_fits)
+            if (status$optimum_found)
+                break
+            current_fit <- new_fits[[status$best_ind]]
         }
-        status <- update_status(status, new_fits)
-        if (status$optimum_found)
-            break
-        current_fit <- new_fits[[status$best_ind]]
+        names(status$selected_vars) <- var_nms[status$selected_vars + 1]
+    } else {
+        if (!all(order %in% var_nms))
+            stop("unknown variable name in 'order'; ",
+                 "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'.")
+        if (any(order == var_nms[1]))
+            stop("response variable '", var_nms[1],
+                 "' must not appear in 'order'.")
+        for (var in order)
+            current_fit <- xtnd_vine(u[, var], current_fit, family_set, selcrit, ...)
+        status$selected_vars <- sapply(order, function(nm) which(var_nms == nm) - 1)
     }
 
     ## adjust model matrix and names
@@ -129,7 +152,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     ## return results
     out <- list(margins = margin_models,
                 vine = current_fit$vine,
-                order = colnames(x[, -1, drop = FALSE])[status$selected_vars],
+                order = var_nms[status$selected_vars + 1],
                 selected_vars = status$selected_vars,
                 formula = formula,
                 model_frame = mf)
@@ -180,6 +203,7 @@ get_pits <- function(x, margin_models, cores) {
             u <- lapply(margin_models, get_pit)
         }
         u <- do.call(cbind, u)
+        colnames(u) <- colnames(x)
     }
 
     u

@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.1.4
+Version: 0.2.0
 Author: Thomas Nagler, Daniel Kraus
 Maintainer: Thomas Nagler <thomas.nagler@tum.de>
 Description: 
@@ -11,11 +11,11 @@ License: GPL-3
 LazyData: TRUE
 Imports: 
     cctools, 
-    rvinecopulib (>= 0.2.0), 
+    rvinecopulib (>= 0.2.8), 
     doParallel, 
     parallel, 
     foreach, 
-    kde1d
+    kde1d (>= 0.2.0),
 RoxygenNote: 6.0.1
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
@@ -29,5 +29,7 @@ Suggests:
     dplyr,
     purrr,
     scales,
-    mgcv
+    mgcv,
+    testthat,
+    covr
 VignetteBuilder: knitr
