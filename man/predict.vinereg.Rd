@@ -14,7 +14,8 @@
 
 \item{newdata}{matrix of covariate values for which to predict the quantile.}
 
-\item{alpha}{vector of quantile levels.}
+\item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
+average of the \code{1:20 / 21}-quantiles.}
 
 \item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
 
@@ -33,20 +34,18 @@ x <- matrix(rnorm(300), 100, 3)
 y <- x \%*\% c(1, -1, 2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 
-# fit vine regression model (parametric)
+# fit vine regression model
 fit <- vinereg(y ~ ., dat)
 fit
 summary(fit)
 
-# model predictions (median)
-pred <- predict(fit, newdata = dat, alpha = 0.5)
-
-# since we evaluate at the training data, this is equivalent to
-pred <- fitted(fit, alpha = 0.5)
+# model predictions
+mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
+med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+pred    <- predict(fit, newdata = dat, alpha = c(NA, 0.5))  # both
 
 # observed vs predicted
-plot(cbind(y, pred))
-
+plot(cbind(y, mu_hat))
 
 ## fixed variable order (no selection)
 fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))

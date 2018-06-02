@@ -74,6 +74,15 @@ test_that("catches missing variables", {
     expect_error(predict(fit, dat[2]))
 })
 
+test_that("handles alpha correctly", {
+    fit <- vinereg(y ~ ., dat[1:3])
+    expect_equal(colnames(predict(fit, alpha = c(NA, 0.5))), c("mean", "0.5"))
+    expect_equal(colnames(predict(fit, alpha = c(0.1, 0.5))), c("0.1", "0.5"))
+    expect_error(predict(fit, alpha = NULL))
+    expect_error(predict(fit, alpha = "0.2"))
+    expect_error(predict(fit, alpha = 1.1))
+})
+
 test_that("works in bivariate case", {
     fit <- vinereg(y ~ ., dat[1:2])
     expect_silent(predict(fit, dat[2]))
@@ -97,13 +106,14 @@ test_that("works with discrete response", {
     dat$y <- as.ordered(dat$y)
     fit <- vinereg(y ~ ., dat, fam = "tll")
     expect_equal(fitted(fit), predict(fit, dat))
+    expect_error(fitted(fit, alpha = NA))
 })
 
-test_that("works on uscale", {
-    fit <- vinereg(y ~ ., dat[-5])
-    u <- vinereg:::get_pits(fit$margins, 1)
-    fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
+fit <- vinereg(y ~ ., dat[-5])
+u <- vinereg:::get_pits(fit$margins, 1)
+fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
 
+test_that("works on uscale", {
     expect_warning(
         expect_equal(predict(fit, u, uscale = TRUE), fitted(fit_uscale))
     )
@@ -112,11 +122,6 @@ test_that("works on uscale", {
 
 ## -------------------------------------------------------------
 context("generics")
-
-fit <- vinereg(y ~ ., dat[-5])
-u <- vinereg:::get_pits(fit$margins, 1)
-fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
-
 
 test_that("print() works", {
     expect_output(test <- print(fit))
@@ -138,7 +143,8 @@ test_that("summary() works", {
 
 
 test_that("plot_effects()", {
-    expect_s3_class(plot_effects(fit), "gg")
+    expect_s3_class(plot_effects(fit, NA), "gg")
     expect_warning(plot_effects(fit_uscale))
+    expect_error(plot_effects(fit, vars = "asdf"))
 })
 

@@ -58,11 +58,13 @@
 #' fit
 #' summary(fit)
 #'
-#' # model predictions (median)
-#' pred <- predict(fit, newdata = dat, alpha = 0.5)
+#' # model predictions
+#' mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
+#' med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+#' pred    <- predict(fit, newdata = dat, alpha = c(NA, 0.5))  # both
 #'
 #' # observed vs predicted
-#' plot(cbind(y, pred))
+#' plot(cbind(y, mu_hat))
 #'
 #' ## fixed variable order (no selection)
 #' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))

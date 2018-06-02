@@ -52,7 +52,6 @@ plot_effects <- function(object,
                          vars = NULL) {
     if (!requireNamespace("ggplot2", quietly = TRUE))
         stop("The 'ggplot2' package must be installed to plot.")
-    stopifnot(all(alpha > 0) & all(alpha < 1))
 
     mf <- cctools::expand_as_numeric(object$model_frame)
     if (is.null(vars))

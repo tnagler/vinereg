@@ -2,7 +2,8 @@
 #'
 #' @param object an object of class \code{vinereg}.
 #' @param newdata matrix of covariate values for which to predict the quantile.
-#' @param alpha vector of quantile levels.
+#' @param alpha vector of quantile levels; `NA` predicts the mean based on an
+#'   average of the `1:20 / 21`-quantiles.
 #' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
 #' @param ... unused.
 #'
@@ -15,20 +16,18 @@
 #' y <- x %*% c(1, -1, 2)
 #' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 #'
-#' # fit vine regression model (parametric)
+#' # fit vine regression model
 #' fit <- vinereg(y ~ ., dat)
 #' fit
 #' summary(fit)
 #'
-#' # model predictions (median)
-#' pred <- predict(fit, newdata = dat, alpha = 0.5)
-#'
-#' # since we evaluate at the training data, this is equivalent to
-#' pred <- fitted(fit, alpha = 0.5)
+#' # model predictions
+#' mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
+#' med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+#' pred    <- predict(fit, newdata = dat, alpha = c(NA, 0.5))  # both
 #'
 #' # observed vs predicted
-#' plot(cbind(y, pred))
-#'
+#' plot(cbind(y, mu_hat))
 #'
 #' ## fixed variable order (no selection)
 #' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
@@ -40,8 +39,14 @@
 #'
 #' @importFrom kde1d pkde1d qkde1d
 #' @importFrom rvinecopulib rvinecop
-#'
+#' @importFrom stats predict
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
+    if (missing(newdata))
+        return(fitted.vinereg(object, alpha, uscale))
+    stopifnot(length(alpha) > 0)
+    if (any(is.na(alpha)) & inherits(object$model_frame[[1]], "ordered"))
+        stop("cannot predict mean for ordered response.")
+
     # check if margins were estimated
     if (!is.null(object$margins[[1]]$u) & (!uscale)) {
         warning("no margins have been estimated, setting uscale = TRUE")
@@ -53,43 +58,77 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
         newdata <- as.data.frame(newdata)
     missing_vars <- setdiff(colnames(object$model_frame)[-1], colnames(newdata))
     if (length(missing_vars) > 0)
-        stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
+        stop("'newdata' is missing variables ",
+             paste(missing_vars, collapse = ", "))
 
-    # expand factors and make ordered variables numeric
-    x <- cctools::expand_as_numeric(newdata[colnames(object$model_frame)[-1]])
-
-    # remove unused variables
-    selected_vars <- match(object$order, colnames(x))
-    u <- x <- x[, selected_vars, drop = FALSE]
-
-    # transform to uniform scale
-    if (!uscale) {
-        for (j in seq_len(ncol(x)))
-            u[, j] <- pkde1d(x[, j], object$margins[[selected_vars[j] + 1]])
+    # predict the mean if alpha contains NA
+    if (any(is.na(alpha))) {
+        alpha <- alpha[!is.na(alpha)]
+        preds <- predict_mean(object, newdata, uscale)
+    } else {
+        preds <- NULL
     }
 
-    # calculate quantile on uniform scale
-    q <- qdvine(u, alpha, vine = object$vine)
+    if (length(alpha) > 0) {
+        stopifnot(is.numeric(alpha))
+        stopifnot(all(alpha > 0) & all(alpha < 1))
 
-    # transform to original scale
-    if (!uscale) {
-        q <- lapply(q, qkde1d, obj = object$margins[[1]])
-        # when response is discrete, we need to adjust the quantiles accordingly
-        if (inherits(object$model_frame[[1]], "ordered"))
-            q <- lapply(q, with_levels, lvls = levels(object$model_frame[[1]]))
+        # expand factors and make ordered variables numeric
+        x <- cctools::expand_as_numeric(newdata[colnames(object$model_frame)[-1]])
+
+        # remove unused variables
+        selected_vars <- match(object$order, colnames(x))
+        u <- x <- x[, selected_vars, drop = FALSE]
+
+        # transform to uniform scale
+        if (!uscale) {
+            for (j in seq_len(ncol(x)))
+                u[, j] <- pkde1d(x[, j], object$margins[[selected_vars[j] + 1]])
+        }
+
+        # calculate quantile on uniform scale
+        q_hat <- qdvine(u, alpha, vine = object$vine)
+
+        # transform to original scale
+        if (!uscale) {
+            q_hat <- lapply(q_hat, qkde1d, obj = object$margins[[1]])
+            if (inherits(object$model_frame[[1]], "ordered")) {
+                # when response is discrete, we need to adjust the quantiles
+                lvls <- levels(object$model_frame[[1]])
+                q_hat <- lapply(q_hat, with_levels, lvls = lvls)
+            }
+        }
+
+        ## always return as data frame
+        q_hat <- as.data.frame(q_hat)
+        names(q_hat) <- alpha
+        if (!is.null(preds)) {
+            preds <- cbind(preds, q_hat)
+            alpha <- c("mean", alpha)
+        } else {
+            preds <- q_hat
+        }
+    } else {
+        alpha <- "mean"
     }
 
-    ## always return as data frame
-    q <- as.data.frame(q)
-    names(q) <- alpha
-    q
+
+    preds <- as.data.frame(preds)
+    names(preds) <- alpha
+    preds
 }
 
 #' @rdname predict.vinereg
 #' @importFrom stats fitted
 #' @export
 fitted.vinereg <- function(object, alpha = 0.5, ...) {
-    predict.vinereg(object, newdata = object[["model_frame"]], alpha = alpha)
+    predict.vinereg(object, newdata = object$model_frame, alpha = alpha)
+}
+
+
+predict_mean <- function(object, newdata, uscale) {
+    preds <- predict.vinereg(object, newdata, alpha = 1:20 / 21, uscale)
+    data.frame(mean = rowMeans(preds))
 }
 
 with_levels <- function(q, lvls) {
