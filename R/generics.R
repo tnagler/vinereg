@@ -49,13 +49,11 @@ summary.vinereg <- function(object, ...) {
 #' plot_effects(fit)
 plot_effects <- function(object,
                          alpha = c(0.1, 0.5, 0.9),
-                         vars = NULL) {
+                         vars = object$order) {
     if (!requireNamespace("ggplot2", quietly = TRUE))
         stop("The 'ggplot2' package must be installed to plot.")
 
     mf <- cctools::expand_as_numeric(object$model_frame)
-    if (is.null(vars))
-        vars <- colnames(mf)[-1]
     if (!all(vars %in% colnames(mf)[-1]))
         stop("unknown variable in 'vars'; allowed values: ",
              paste(colnames(mf)[-1], collapse = ", "))
