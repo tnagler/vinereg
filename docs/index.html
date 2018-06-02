@@ -119,8 +119,8 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 
 <span class="co"># fit model</span>
 (fit &lt;-<span class="st"> </span><span class="kw"><a href="reference/vinereg.html">vinereg</a></span>(mpg <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> mtcars))
-<span class="co">#&gt; D-vine regression model: mpg | disp, hp, wt, gear, qsec, vs, am.1, carb, drat, cyl </span>
-<span class="co">#&gt; nobs = 32, edf = 97, cll = -58.38, caic = 310.76, cbic = 452.93</span>
+<span class="co">#&gt; D-vine regression model: mpg | disp, hp, wt, cyl, am.1, gear, qsec, drat, carb, vs </span>
+<span class="co">#&gt; nobs = 32, edf = 94, cll = -58.62, caic = 305.23, cbic = 443.01</span>
 
 <span class="kw">summary</span>(fit)
 <span class="co">#&gt;     var     edf         cll       caic       cbic      p_value</span>
@@ -128,13 +128,13 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 <span class="co">#&gt; 2  disp 2.0e+00  29.5342816 -55.068563 -52.137091 1.490817e-13</span>
 <span class="co">#&gt; 3    hp 3.0e+00   2.3323113   1.335377   5.732585 1.980680e-01</span>
 <span class="co">#&gt; 4    wt 5.0e+00   2.1311112   5.737778  13.066457 5.123126e-01</span>
-<span class="co">#&gt; 5  gear 8.0e+00   1.1624461  13.675108  25.400995 9.693970e-01</span>
-<span class="co">#&gt; 6  qsec 8.0e+00   2.4220762  11.155848  22.881735 7.740961e-01</span>
-<span class="co">#&gt; 7    vs 1.1e+01   0.8857229  20.228554  36.351649 9.991517e-01</span>
-<span class="co">#&gt; 8  am.1 1.3e+01   0.7933419  24.413316  43.467883 9.999401e-01</span>
-<span class="co">#&gt; 9  carb 1.6e+01   0.1476674  31.704665  55.156440 1.000000e+00</span>
-<span class="co">#&gt; 10 drat 1.5e+01   0.1608192  29.678362  51.664400 1.000000e+00</span>
-<span class="co">#&gt; 11  cyl 1.6e+01   0.6447536  30.710493  54.162267 9.999996e-01</span>
+<span class="co">#&gt; 5   cyl 6.0e+00   0.9693088  10.061382  18.855798 9.252564e-01</span>
+<span class="co">#&gt; 6  am.1 1.0e+01   1.1281264  17.743747  32.401106 9.939721e-01</span>
+<span class="co">#&gt; 7  gear 8.0e+00   1.8733336  12.253333  23.979220 8.792262e-01</span>
+<span class="co">#&gt; 8  qsec 1.3e+01   0.4839598  25.032080  44.086647 9.999969e-01</span>
+<span class="co">#&gt; 9  drat 1.4e+01   0.9098683  26.180263  46.700566 9.999536e-01</span>
+<span class="co">#&gt; 10 carb 1.6e+01   0.1488835  31.702233  55.154008 1.000000e+00</span>
+<span class="co">#&gt; 11   vs 1.7e+01   0.4643179  33.071364  57.988875 1.000000e+00</span>
 
 <span class="co"># show marginal effects for all selected variables</span>
 <span class="kw"><a href="reference/plot_effects.html">plot_effects</a></span>(fit)
@@ -144,10 +144,10 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 <span class="co"># predict mean and median</span>
 <span class="kw">head</span>(<span class="kw">predict</span>(fit, mtcars, <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="ot">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)
 <span class="co">#&gt;       mean      0.5</span>
-<span class="co">#&gt; 1 22.16391 21.89673</span>
-<span class="co">#&gt; 2 22.94884 22.64158</span>
-<span class="co">#&gt; 3 24.26142 23.99222</span>
-<span class="co">#&gt; 4 19.64130 19.49158</span></code></pre></div>
+<span class="co">#&gt; 1 21.57121 21.38293</span>
+<span class="co">#&gt; 2 21.35704 21.22061</span>
+<span class="co">#&gt; 3 25.30125 25.05928</span>
+<span class="co">#&gt; 4 19.76451 19.63392</span></code></pre></div>
 </div>
 <div id="vignettes" class="section level2">
 <h2 class="hasAnchor">
