@@ -23,6 +23,11 @@ install.packages("vinereg")
 devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
 ```
 
+Functionality
+-------------
+
+See the [package website](https://tnagler.github.io/vinereg).
+
 Example
 -------
 
@@ -37,25 +42,26 @@ mtcars[["am"]] <- as.factor(mtcars[["am"]])
 
 # fit model
 (fit <- vinereg(mpg ~ ., data = mtcars))
-#> D-vine regression model: mpg | disp, cyl, wt, hp, am.1, gear, drat, vs, qsec, carb 
-#> nobs = 32, edf = 92, cll = -56.4, caic = 296.8, cbic = 431.65
+#> D-vine regression model: mpg | disp, cyl, wt, carb, gear, hp, qsec, vs, am.1, drat 
+#> nobs = 32, edf = 91, cll = -53.89, caic = 289.78, cbic = 423.17
 
 summary(fit)
-#>     var     edf         cll        caic       cbic      p_value
-#> 1   mpg 3.2e-11 -98.5927195 197.1854390 197.185439           NA
-#> 2  disp 2.0e+00  29.5342816 -55.0685632 -52.137091 1.490817e-13
-#> 3   cyl 3.0e+00   3.2125562  -0.4251125   3.972095 9.266313e-02
-#> 4    wt 4.0e+00   1.8040933   4.3918134  10.254757 4.616201e-01
-#> 5    hp 8.0e+00   1.9098413  12.1803174  23.906205 8.730147e-01
-#> 6  am.1 9.0e+00   1.4655935  15.0688130  28.260436 9.669607e-01
-#> 7  gear 1.1e+01   1.0700775  19.8598449  35.982940 9.979398e-01
-#> 8  drat 1.2e+01   0.5924805  22.8150390  40.403870 9.999637e-01
-#> 9    vs 1.0e+01   0.7494010  18.5011979  33.158557 9.989390e-01
-#> 10 qsec 1.6e+01   1.4835459  29.0329081  52.484683 9.998425e-01
-#> 11 carb 1.7e+01   0.3701619  33.2596762  58.177187 1.000000e+00
+#>     var     edf         cll         caic        cbic      p_value
+#> 1   mpg 3.2e-11 -98.5927195 197.18543898 197.1854390           NA
+#> 2  disp 2.0e+00  29.5342816 -55.06856318 -52.1370914 1.490817e-13
+#> 3   cyl 3.0e+00   5.3128672  -4.62573447  -0.2285268 1.393178e-02
+#> 4    wt 4.0e+00   4.0383425  -0.07668494   5.7862587 8.880917e-02
+#> 5  carb 7.0e+00   1.5845952  10.83080969  21.0909610 8.689220e-01
+#> 6  gear 1.0e+01   1.2307931  17.53841376  32.1957728 9.914238e-01
+#> 7    hp 1.0e+01   1.5297458  16.94050837  31.5978674 9.799891e-01
+#> 8  qsec 1.3e+01   0.4923380  25.01532409  44.0698908 9.999965e-01
+#> 9    vs 1.2e+01   0.5492991  22.90140188  40.4902327 9.999761e-01
+#> 10 am.1 1.5e+01   0.2353038  29.52939230  51.5154308 1.000000e+00
+#> 11 drat 1.5e+01   0.1931010  29.61379802  51.5998366 1.000000e+00
 
 # show marginal effects for all selected variables
 plot_effects(fit)
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 ```
 
 <img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" />
@@ -65,10 +71,10 @@ plot_effects(fit)
 # predict mean and median
 head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
 #>       mean      0.5
-#> 1 21.05510 20.88661
-#> 2 20.89661 20.77428
-#> 3 28.01396 28.49054
-#> 4 21.26247 21.35846
+#> 1 19.12384 19.01768
+#> 2 19.14141 19.04763
+#> 3 28.28939 28.52435
+#> 4 21.30317 20.99698
 ```
 
 Vignettes

@@ -72,11 +72,13 @@ plot_effects <- function(object,
     df$alpha <- as.factor(df$alpha)
 
     value <- prediction <- NULL  # for CRAN checks
-    ggplot2::ggplot(df, ggplot2::aes(value, prediction, color = alpha)) +
-        ggplot2::geom_point(alpha = 0.15) +
-        ggplot2::geom_smooth(se = FALSE, method = "gam") +
-        ggplot2::facet_wrap(~ var, scale = "free_x") +
-        ggplot2::ylab(quote(Q(y* "|" * x[1] * ",...," * x[p]))) +
-        ggplot2::xlab(quote(x[k])) +
-        ggplot2::theme(legend.position = "bottom")
+    suppressWarnings(
+        ggplot2::ggplot(df, ggplot2::aes(value, prediction, color = alpha)) +
+            ggplot2::geom_point(alpha = 0.15) +
+            ggplot2::geom_smooth(se = FALSE) +
+            ggplot2::facet_wrap(~ var, scale = "free_x") +
+            ggplot2::ylab(quote(Q(y* "|" * x[1] * ",...," * x[p]))) +
+            ggplot2::xlab(quote(x[k])) +
+            ggplot2::theme(legend.position = "bottom")
+    )
 }

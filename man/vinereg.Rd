@@ -2,7 +2,7 @@
 % Please edit documentation in R/vinereg.R
 \name{vinereg}
 \alias{vinereg}
-\title{D-vine quantile regression}
+\title{D-vine regression models}
 \usage{
 vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
   order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...)
@@ -66,9 +66,11 @@ y <- x \%*\% c(1, -1, 2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 
 # fit vine regression model
-fit <- vinereg(y ~ ., dat)
-fit
+(fit <- vinereg(y ~ ., dat))
+
+# inspect model
 summary(fit)
+plot_effects(fit)
 
 # model predictions
 mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean

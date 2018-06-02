@@ -1,4 +1,4 @@
-#' Predict quantiles from a D-vine regression
+#' Predict conditional mean and quantiles from a D-vine regression model
 #'
 #' @param object an object of class \code{vinereg}.
 #' @param newdata matrix of covariate values for which to predict the quantile.

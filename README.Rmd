@@ -36,9 +36,13 @@ install.packages("vinereg")
 devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
 ```
 
+## Functionality
+
+See the [package website](https://tnagler.github.io/vinereg).
+
 ## Example
 
-```{r}
+```{r, warning=FALSE}
 library(vinereg)
 data(mtcars)
 

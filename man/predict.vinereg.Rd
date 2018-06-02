@@ -3,7 +3,7 @@
 \name{predict.vinereg}
 \alias{predict.vinereg}
 \alias{fitted.vinereg}
-\title{Predict quantiles from a D-vine regression}
+\title{Predict conditional mean and quantiles from a D-vine regression model}
 \usage{
 \method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE, ...)
 
@@ -26,7 +26,7 @@ A data.frame of quantiles where each column corresponds to one
 value of \code{alpha}.
 }
 \description{
-Predict quantiles from a D-vine regression
+Predict conditional mean and quantiles from a D-vine regression model
 }
 \examples{
 # simulate data
@@ -35,9 +35,11 @@ y <- x \%*\% c(1, -1, 2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 
 # fit vine regression model
-fit <- vinereg(y ~ ., dat)
-fit
+(fit <- vinereg(y ~ ., dat))
+
+# inspect model
 summary(fit)
+plot_effects(fit)
 
 # model predictions
 mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean

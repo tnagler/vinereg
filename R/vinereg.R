@@ -1,4 +1,4 @@
-#' D-vine quantile regression
+#' D-vine regression models
 #'
 #' Sequential estimation of a regression D-vine for the purpose of quantile
 #' prediction as described in Kraus and Czado (2017). If discrete variables

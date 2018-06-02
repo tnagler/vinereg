@@ -4,7 +4,7 @@
 \alias{plot_effects}
 \title{Plot marginal effects of a D-vine regression model}
 \usage{
-plot_effects(object, alpha = c(0.1, 0.5, 0.9), vars = NULL)
+plot_effects(object, alpha = c(0.1, 0.5, 0.9), vars = object$order)
 }
 \arguments{
 \item{object}{a \code{vinereg} object}

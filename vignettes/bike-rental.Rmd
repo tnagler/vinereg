@@ -75,7 +75,7 @@ bikedata  <- bikedata %>%
 #### Un-normalize variables
 See variable description on UCI web page.
 ```{r}
-bikedata  <- bikedata %>%
+bikedata <- bikedata %>%
     mutate(
         temperature = 66 * temperature + 16,
         windspeed = 67 * windspeed,
