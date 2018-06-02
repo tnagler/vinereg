@@ -110,4 +110,35 @@ test_that("works on uscale", {
 })
 
 
+## -------------------------------------------------------------
+context("generics")
+
+fit <- vinereg(y ~ ., dat[-5])
+u <- vinereg:::get_pits(fit$margins, 1)
+fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
+
+
+test_that("print() works", {
+    expect_output(test <- print(fit))
+    expect_equal(test, fit)
+    expect_output(print(fit_uscale))
+})
+
+test_that("summary() works", {
+    expect_silent(smr <- summary(fit))
+    expect_silent(smr_uscale <- summary(fit_uscale))
+
+    smr_vars <- c("var", "edf", "cll", "caic", "cbic", "p_value")
+    expect_equal(colnames(smr), smr_vars)
+    expect_equal(colnames(smr_uscale), smr_vars)
+    expect_equal(nrow(smr), 4)
+    expect_equal(nrow(smr_uscale),  4)
+    expect_equal(unname(unlist(smr_uscale[1, -1])), c(rep(0, 4), NA))
+})
+
+
+test_that("plot_effects()", {
+    expect_s3_class(plot_effects(fit), "gg")
+    expect_warning(plot_effects(fit_uscale))
+})
 

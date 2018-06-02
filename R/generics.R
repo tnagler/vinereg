@@ -12,6 +12,7 @@ print.vinereg <- function(x, ...) {
     stats <- unlist(x$stats[1:5])
     stats <- paste(names(stats), round(stats, 2), sep = " = ")
     cat(paste(stats, collapse = ", "))
+    invisible(x)
 }
 
 #' @export
