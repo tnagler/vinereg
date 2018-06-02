@@ -140,7 +140,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 #' @noRd
 #' @importFrom stats pchisq
 finalize_vinereg_object <- function(formula, model_frame, margins, vine,
-                                  status, var_nms) {
+                                    status, var_nms) {
     ## adjust model matrix and names
     reorder <- status$selected_vars
     reorder[order(reorder)] <- seq_along(status$selected_vars)
@@ -149,24 +149,24 @@ finalize_vinereg_object <- function(formula, model_frame, margins, vine,
 
     ## compute fit statistics
     nobs <- nrow(model_frame)
-    var_npars <- status$npars
+    var_edf <- status$edf
     var_cll <- status$cll
-    var_caic <- -2 * var_cll + 2 * var_npars
-    var_cbic <- -2 * var_cll + log(nobs) * var_npars
-    var_p_value <- pchisq(2 * var_cll, var_npars, lower.tail = FALSE)
+    var_caic <- -2 * var_cll + 2 * var_edf
+    var_cbic <- -2 * var_cll + log(nobs) * var_edf
+    var_p_value <- pchisq(2 * var_cll, var_edf, lower.tail = FALSE)
     var_p_value[1] <- NA
     cll <- sum(var_cll)
-    npars <- sum(var_npars)
+    edf <- sum(var_edf)
     caic <- sum(var_caic)
     cbic <- sum(var_cbic)
 
     stats <- list(
         nobs = nobs,
-        npars = npars,
+        edf = edf,
         cll = cll,
         caic = caic,
         cbic = cbic,
-        var_npars = var_npars,
+        var_edf = var_edf,
         var_cll = var_cll,
         var_caic = var_caic,
         var_cbic = var_cbic,
@@ -310,7 +310,7 @@ initialize_status <- function(margin_fits, selcrit) {
         # conditional logliklihood (only unconditional margin so for)
         clls = margin_fits[[1]]$loglik,
         # number of parameters in current model
-        npars = margin_fits[[1]]$edf,
+        edf = margin_fits[[1]]$edf,
         # TRUE when no improvement is possible
         optimum_found = FALSE
     )
@@ -318,9 +318,9 @@ initialize_status <- function(margin_fits, selcrit) {
 
 update_status <- function(status, new_vines) {
     clls <- sapply(new_vines, function(vine) vine$cll)
-    npars <- sapply(new_vines, function(vine) vine$npars)
+    edf <- sapply(new_vines, function(vine) vine$edf)
     n <- nrow(new_vines[[1]]$psobs[[1]])
-    crits <- calculate_crits(clls, npars, n, status$selcrit)
+    crits <- calculate_crits(clls, edf, n, status$selcrit)
 
     if (max(crits) < 0) {
         # optimum found, keep old fit
@@ -336,18 +336,18 @@ update_status <- function(status, new_vines) {
             status$selected_vars
         )
         status$clls = c(status$clls, clls[status$best_ind])
-        status$npars = c(status$npars, npars[status$best_ind])
+        status$edf = c(status$edf, edf[status$best_ind])
     }
 
     status
 }
 
-calculate_crits <- function(clls, npars, n, selcrit) {
+calculate_crits <- function(clls, edf, n, selcrit) {
     clls - switch(
         selcrit,
         "loglik" = 0,
-        "aic" = npars,
-        "bic" = npars * log(n) / 2,
+        "aic" = edf,
+        "bic" = edf * log(n) / 2,
         "keep_all" = -Inf
     )
 }
@@ -368,7 +368,7 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     psobs$direct[d, d, ] <- new_var
 
     old_fit$vine$pair_copulas[[d - 1]] <- list()
-    npars <- 0
+    edf <- 0
     for (i in rev(seq_len(d - 1))) {
         # get data for current edge
         zr1 <- psobs$direct[i + 1, i, ]
@@ -405,7 +405,7 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
             pc_fit <- do.call(bicop, args)
         }
         old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
-        npars <- npars + pc_fit$npars
+        edf <- edf + pc_fit$npars
 
         # pseudo observations for next tree
         psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
@@ -414,6 +414,6 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
 
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
     cll <- sum(log(dbicop(cbind(zr2, zr1), pc_fit)))
-    list(vine = vine, psobs = psobs, cll = cll, npars = npars)
+    list(vine = vine, psobs = psobs, cll = cll, edf = edf)
 }
 

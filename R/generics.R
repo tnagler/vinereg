@@ -13,3 +13,15 @@ print.vinereg <- function(x, ...) {
     stats <- paste(names(stats), round(stats, 2), sep = " = ")
     cat(paste(stats, collapse = ", "))
 }
+
+#' @export
+summary.vinereg <- function(object, ...) {
+    data.frame(
+        var = c(names(object$model_frame)[1], object$order),
+        edf = object$stats$var_edf,
+        cll = object$stats$var_cll,
+        caic = object$stats$var_caic,
+        cbic = object$stats$var_cbic,
+        p_value = object$stats$var_p_value
+    )
+}

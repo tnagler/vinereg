@@ -3,6 +3,7 @@
 S3method(fitted,vinereg)
 S3method(predict,vinereg)
 S3method(print,vinereg)
+S3method(summary,vinereg)
 export(vinereg)
 importFrom(furrr,future_map)
 importFrom(future,availableCores)
