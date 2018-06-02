@@ -1,7 +1,10 @@
 #' D-vine quantile regression
 #'
 #' Sequential estimation of a regression D-vine for the purpose of quantile
-#' prediction as described in Kraus and Czado (2017).
+#' prediction as described in Kraus and Czado (2017). If discrete variables
+#' are declared as `ordered()` or `factor()`, jittering is used
+#' to make them continuous (see `cctools::cont_conv()`). Although this may
+#' make the model estimate inconsistent, predictions are usually still reasonable.
 #'
 #' @param formula an object of class "formula"; same as [lm()].
 #' @param data data frame (or object coercible by
@@ -24,16 +27,20 @@
 #' @return
 #' An object of class vinereg. It is a list containing the elements
 #' \describe{
+#' \item{formula}{the formula used for the fit.}
+#' \item{selcrit}{criterion used for variable selection.}
+#' \item{model_frame}{the data used to fit the regression model.}
 #' \item{margins}{list of marginal models fitted by [kde1d::kde1d()].}
 #' \item{vine}{an [rvinecopulib::vinecop_dist()] object containing the fitted
 #'   D-vine.}
+#' \item{stats}{fit statistics such as conditional log-likelihood/AIC/BIC and
+#' p-values for each variable's contribution.}
 #' \item{order}{order of the covariates chosen by the variable selection algorithm.}
 #' \item{selected_vars}{indices of selected variables.}
-#' \item{formula}{the model formula specified by the user.}
-#' \item{model_frame}{the data used to fit the D-vine.}
 #' }
-#' This object can be plugged into [predict.vinereg()] to predict conditional
-#' quantiles.
+#' Use [predict.vinereg()] to predict conditional
+#' quantiles. `summary.vinereg()` shows the contribution of each selected
+#' variable with the associated p-value derived from a likelihood ratio test.
 #'
 #' @references
 #'
@@ -46,8 +53,10 @@
 #' y <- x %*% c(1, -1, 2)
 #' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 #'
-#' # fit vine regression model (parametric)
-#' fit <- vinereg(y ~ ., dat, family_set = "parametric")
+#' # fit vine regression model
+#' fit <- vinereg(y ~ ., dat)
+#' fit
+#' summary(fit)
 #'
 #' # model predictions (median)
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
@@ -55,10 +64,9 @@
 #' # observed vs predicted
 #' plot(cbind(y, pred))
 #'
-#'
 #' ## fixed variable order (no selection)
 #' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
-#' fit$order
+#' fit
 #'
 #' @seealso \code{\link{predict.vinereg}}
 #'
@@ -79,7 +87,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     } else {
         mf <- model.frame(formula, parent.frame())
     }
-    check_model_frame(mf, family_set)
+    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
+        stop("response must be numeric or ordered")
 
     # expand factors and add noise to discrete variable
     x <- cctools::cont_conv(mf)
@@ -188,18 +197,6 @@ finalize_vinereg_object <- function(formula, model_frame, margins, vine,
     out
 }
 
-check_model_frame <- function(mf, family_set) {
-    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
-        stop("response must be numeric or ordered")
-
-    if (any(sapply(mf, is.factor)) &
-        is.na(pmatch(family_set, "nonparametric")) &
-        is.na(pmatch(family_set, "tll"))) {
-        warning('parametric copula families are misspecified ',
-                'for jittered discrete variables; ',
-                'use family_set = "nonparametric" to maintain consistency')
-    }
-}
 
 check_order <- function(order, var_nms) {
     if (!all(order %in% var_nms))

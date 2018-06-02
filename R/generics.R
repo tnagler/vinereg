@@ -25,3 +25,60 @@ summary.vinereg <- function(object, ...) {
         p_value = object$stats$var_p_value
     )
 }
+
+#' Plot marginal effects of a D-vine regression model
+#'
+#' The marginal effects of a variable is the expected effect, where expectation
+#' is meant with respect to all other variables.
+#'
+#' @param object a `vinereg` object
+#'
+#' @param alpha vector of quantile levels.
+#' @param vars vector of variable names.
+#'
+#' @export
+#' @examples
+#' # simulate data
+#' x <- matrix(rnorm(300), 100, 3)
+#' y <- x %*% c(1, -1, 2)
+#' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
+#'
+#' # fit vine regression model (parametric)
+#' fit <- vinereg(y ~ ., dat, family_set = "parametric")
+#' plot_effects(fit)
+plot_effects <- function(object,
+                         alpha = c(0.1, 0.5, 0.9),
+                         vars = NULL) {
+    if (!requireNamespace("ggplot2", quietly = TRUE))
+        stop("The 'ggplot2' package must be installed to plot.")
+    stopifnot(all(alpha > 0) & all(alpha < 1))
+
+    mf <- cctools::expand_as_numeric(object$model_frame)
+    if (is.null(vars))
+        vars <- colnames(mf)[-1]
+    if (!all(vars %in% colnames(mf)[-1]))
+        stop("unknown variable in 'vars'; allowed values: ",
+             paste(colnames(mf)[-1], collapse = ", "))
+
+    preds <- fitted(object, alpha)
+    preds <- lapply(seq_along(alpha), function(a)
+        cbind(data.frame(alpha = alpha[a], prediction = preds[[a]]))
+    )
+    preds <- do.call(rbind, preds)
+
+    df <- lapply(vars, function(var)
+        cbind(data.frame(var = var, value = unname(mf[, var])), preds)
+    )
+    df <- do.call(rbind, df)
+    df$value <- as.numeric(df$value)
+    df$alpha <- as.factor(df$alpha)
+
+    value <- prediction <- NULL  # for CRAN checks
+    ggplot2::ggplot(df, ggplot2::aes(value, prediction, color = alpha)) +
+        ggplot2::geom_point(alpha = 0.15) +
+        ggplot2::geom_smooth(se = FALSE, method = "gam") +
+        ggplot2::facet_wrap(~ var, scale = "free_x") +
+        ggplot2::ylab(quote(Q(y* "|" * x[1] * ",...," * x[p]))) +
+        ggplot2::xlab(quote(x[k])) +
+        ggplot2::theme(legend.position = "bottom")
+}

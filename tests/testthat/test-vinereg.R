@@ -27,11 +27,9 @@ test_that("all selcrits work", {
 
 test_that("works with discrete variables", {
     order <- c("x.1", "x.2", "x.3")
-    expect_warning(
-        expect_setequal(
-            vinereg(y ~ ., dat, fam = "gauss", selcrit = "bic")$order,
-            order
-        )
+    expect_setequal(
+        vinereg(y ~ ., dat, fam = "gauss", selcrit = "bic")$order,
+        order
     )
     dat$y <- as.ordered(dat$y)
     expect_silent(vinereg(y ~ ., dat, fam = "tll")$order)
@@ -82,7 +80,7 @@ test_that("works in bivariate case", {
 })
 
 test_that("works with continuous response", {
-    expect_warning(fit <- vinereg(y ~ ., dat, selcrit = "loglik"))
+    fit <- vinereg(y ~ ., dat, selcrit = "loglik")
     expect_equal(fitted(fit), predict(fit, dat))
     expect_equal(
         cbind(fitted(fit, alpha = 0.2), fitted(fit, alpha = 0.8)),

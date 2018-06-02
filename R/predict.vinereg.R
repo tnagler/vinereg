@@ -16,10 +16,9 @@
 #' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 #'
 #' # fit vine regression model (parametric)
-#' fit <- vinereg(y ~ ., dat, family_set = "parametric")
-#'
-#' # selected variables and their order in the D-vine
-#' fit$order
+#' fit <- vinereg(y ~ ., dat)
+#' fit
+#' summary(fit)
 #'
 #' # model predictions (median)
 #' pred <- predict(fit, newdata = dat, alpha = 0.5)
@@ -33,7 +32,7 @@
 #'
 #' ## fixed variable order (no selection)
 #' fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
-#' fit$order
+#' fit
 #'
 #' @seealso \code{\link{vinereg}}
 #'
@@ -87,6 +86,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 }
 
 #' @rdname predict.vinereg
+#' @importFrom stats fitted
 #' @export
 fitted.vinereg <- function(object, alpha = 0.5, ...) {
     predict.vinereg(object, newdata = object[["model_frame"]], alpha = alpha)
