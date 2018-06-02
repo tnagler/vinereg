@@ -44,18 +44,20 @@
 #'
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     # check if margins were estimated
-    if (is.null(object$margins[[1]]) & (!uscale)) {
+    if (!is.null(object$margins[[1]]$u) & (!uscale)) {
         warning("no margins have been estimated, setting uscale = TRUE")
         uscale <- TRUE
     }
 
     # check if all variables in the model are in newdata
+    if (is.matrix(newdata))
+        newdata <- as.data.frame(newdata)
     missing_vars <- setdiff(colnames(object$model_frame)[-1], colnames(newdata))
     if (length(missing_vars) > 0)
         stop("'newdata' is missing variables '", paste(missing_vars, sep = "', '"), "'")
 
     # expand factors and make ordered variables numeric
-    x <- cctools::expand_as_numeric(newdata[, colnames(object$model_frame)[-1], drop = FALSE])
+    x <- cctools::expand_as_numeric(newdata[colnames(object$model_frame)[-1]])
 
     # remove unused variables
     selected_vars <- match(object$order, colnames(x))

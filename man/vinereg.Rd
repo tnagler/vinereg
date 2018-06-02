@@ -27,7 +27,7 @@ of variable names (after calling \code{cctools::cont_conv()} on the
 for each margin, e.g. \code{list(xmin = c(0, 0, -Inf))} if the response and
 first covariate have non-negative support.}
 
-\item{cores}{integer.}
+\item{cores}{integer; the number of cores to use for computations.}
 
 \item{uscale}{logical indicating whether the data are already on copula scale
 (no margins have to be fitted).}

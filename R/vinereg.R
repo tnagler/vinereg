@@ -16,7 +16,7 @@
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
 #'   first covariate have non-negative support.
-#' @param cores integer.
+#' @param cores integer; the number of cores to use for computations.
 #' @param uscale logical indicating whether the data are already on copula scale
 #'   (no margins have to be fitted).
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
@@ -64,9 +64,8 @@
 #'
 #' @export
 #'
-#' @importFrom parallel makeCluster stopCluster detectCores
-#' @importFrom foreach foreach %dopar%
-#' @importFrom doParallel registerDoParallel
+#' @importFrom future plan multiprocess availableCores
+#' @importFrom furrr future_map
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop dbicop hbicop vinecop_dist
@@ -80,31 +79,22 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     } else {
         mf <- model.frame(formula, parent.frame())
     }
+    check_model_frame(mf, family_set)
 
-    if (any(sapply(mf, is.factor)) &
-        is.na(pmatch(family_set, "nonparametric")) &
-        is.na(pmatch(family_set, "tll"))) {
-        warning('parametric copula families are misspecified ',
-                'for jittered discrete variables; ',
-                'use family_set = "nonparametric" to maintain consistency')
-    }
-
-    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
-        stop("response must be numeric or ordered")
     # expand factors and add noise to discrete variable
     x <- cctools::cont_conv(mf)
     d <- ncol(x)
+
     ## register parallel backend
+    cores <- min(cores, future::availableCores())
     if (cores > 1) {
-        cl <- makeCluster(cores)
-        registerDoParallel(cl)
-        on.exit(try(stopCluster(), silent = TRUE))
-        on.exit(try(closeAllConnections(), silent = TRUE), add = TRUE)
+        future::plan(future::multiprocess, workers = cores)
+        on.exit(future::plan(), add = TRUE)
     }
 
     ## estimation of the marginals and transformation to copula data
     margin_models <- fit_margins(x, par_1d, cores, uscale)
-    u <- get_pits(x, margin_models, cores)
+    u <- get_pits(margin_models, cores)
     var_nms <- colnames(u)
 
     ## initialization
@@ -115,17 +105,10 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     if (any(is.na(order))) {
         ## automatic variable selection
         for (i in seq_len(d - 1)) {
-            if (cores > 1) {
-                k <- NULL  # for CRAN checks
-                new_fits <- foreach(k = status$remaining_vars + 1, ...) %dopar%
-                    xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
-            } else {
-                new_fits <- lapply(
-                    status$remaining_vars + 1,
-                    function(k)
-                        xtnd_vine(u[, k], current_fit, family_set, selcrit, ...)
-                )
-            }
+            new_fits <- furrr::future_map(
+                status$remaining_vars + 1,
+                ~ xtnd_vine(u[, .], current_fit, family_set, selcrit, ...)
+            )
             status <- update_status(status, new_fits)
             if (status$optimum_found)
                 break
@@ -162,6 +145,19 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     out
 }
 
+check_model_frame <- function(mf, family_set) {
+    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
+        stop("response must be numeric or ordered")
+
+    if (any(sapply(mf, is.factor)) &
+        is.na(pmatch(family_set, "nonparametric")) &
+        is.na(pmatch(family_set, "tll"))) {
+        warning('parametric copula families are misspecified ',
+                'for jittered discrete variables; ',
+                'use family_set = "nonparametric" to maintain consistency')
+    }
+}
+
 check_order <- function(order, var_nms) {
     if (!all(order %in% var_nms))
         stop("unknown variable name in 'order'; ",
@@ -177,7 +173,10 @@ fit_margins <- function(x, par_1d, cores, uscale) {
     par_1d <- process_par_1d(par_1d, d)
     if (uscale) {
         # data are uniform, no need to estimate margins
-        margs <- lapply(seq_len(d), function(i) NULL)
+        margs <- lapply(
+            seq_len(d),
+            function(i) list(u = x[, i], loglik = 0, edf = 0)
+        )
     } else {
         fit_margin <- function(k) {
             arg_lst <- list(
@@ -192,34 +191,24 @@ fit_margins <- function(x, par_1d, cores, uscale) {
             m$x_cc <- x[, k]
             m
         }
-        if (cores > 1) {
-            k <- NULL  #  for CRAN checks
-            margs <- foreach::foreach(k = seq_len(d)) %dopar% fit_margin(k)
-        } else {
-            margs <- lapply(seq_len(d), fit_margin)
-        }
+        margs <- furrr::future_map(seq_len(d), fit_margin)
     }
 
     names(margs) <- colnames(x)
     margs
 }
 
-get_pits <- function(x, margin_models, cores) {
-    if (is.null(margin_models[[1]])) {
+get_pits <- function(margin_models, cores) {
+    if (!is.null(margin_models[[1]]$u)) {
         # data are uniform, no need for PIT
-        u <- x
+        u <- sapply(margin_models, function(m) m$u)
     } else {
         get_pit <- function(m) pkde1d(m$x_cc, m)
-        m <- NULL  # for cran checks
-        if (cores > 1) {
-            u <- foreach::foreach(m = margin_models) %dopar% get_pit(m)
-        } else {
-            u <- lapply(margin_models, get_pit)
-        }
+        u <- furrr::future_map(margin_models, ~ pkde1d(.$x_cc, .))
         u <- do.call(cbind, u)
-        colnames(u) <- colnames(x)
     }
 
+    colnames(u) <- names(margin_models)
     u
 }
 

@@ -51,7 +51,7 @@ test_that("works with fixed order", {
 
 test_that("works on uscale", {
     fit <- vinereg(y ~ ., dat[-5])
-    u <- vinereg:::get_pits(model.frame(y ~ ., dat[-5]), fit$margins, 1)
+    u <- vinereg:::get_pits(fit$margins, 1)
     fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
 
     expect_equal(fit$vine, fit_uscale$vine)
@@ -68,6 +68,7 @@ test_that("works in parallel", {
     expect_equal(fit$vine, fit_par$vine)
 })
 
+## -------------------------------------------------------------
 context("predict.vinereg()")
 
 test_that("catches missing variables", {
@@ -102,7 +103,7 @@ test_that("works with discrete response", {
 
 test_that("works on uscale", {
     fit <- vinereg(y ~ ., dat[-5])
-    u <- vinereg:::get_pits(model.frame(y ~ ., dat[-5]), fit$margins, 1)
+    u <- vinereg:::get_pits(fit$margins, 1)
     fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
 
     expect_warning(
