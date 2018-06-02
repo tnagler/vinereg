@@ -116,6 +116,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         }
         names(status$selected_vars) <- var_nms[status$selected_vars + 1]
     } else {
+        ## fixed variable order
         check_order(order, var_nms)
         status$selcrit <- "keep_all"
         for (var in order) {
@@ -126,18 +127,60 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         status$remaining_vars <- numeric(0)
     }
 
+    finalize_vinereg_object(
+        formula = formula,
+        model_frame = mf,
+        margins = margin_models,
+        vine = current_fit$vine,
+        status = status,
+        var_nms = var_nms
+    )
+}
+
+#' @noRd
+#' @importFrom stats pchisq
+finalize_vinereg_object <- function(formula, model_frame, margins, vine,
+                                  status, var_nms) {
     ## adjust model matrix and names
     reorder <- status$selected_vars
     reorder[order(reorder)] <- seq_along(status$selected_vars)
-    current_fit$vine$matrix <- gen_dvine_mat(elements = c(1, reorder + 1))
+    vine$matrix <- gen_dvine_mat(elements = c(1, reorder + 1))
+    vine$names <- c(var_nms[1], names(reorder)[reorder])
+
+    ## compute fit statistics
+    nobs <- nrow(model_frame)
+    var_npars <- status$npars
+    var_cll <- status$cll
+    var_caic <- -2 * var_cll + 2 * var_npars
+    var_cbic <- -2 * var_cll + log(nobs) * var_npars
+    var_p_value <- pchisq(2 * var_cll, var_npars, lower.tail = FALSE)
+    var_p_value[1] <- NA
+    cll <- sum(var_cll)
+    npars <- sum(var_npars)
+    caic <- sum(var_caic)
+    cbic <- sum(var_cbic)
+
+    stats <- list(
+        nobs = nobs,
+        npars = npars,
+        cll = cll,
+        caic = caic,
+        cbic = cbic,
+        var_npars = var_npars,
+        var_cll = var_cll,
+        var_caic = var_caic,
+        var_cbic = var_cbic,
+        var_p_value = var_p_value
+    )
 
     ## return results as S3 object
     out <- list(
-        margins = margin_models,
-        vine = current_fit$vine,
         formula = formula,
-        model_frame = mf,
-        status = status,
+        selcrit = status$selcrit,
+        model_frame = model_frame,
+        margins = margins,
+        vine = vine,
+        stats = stats,
         order = var_nms[status$selected_vars + 1],
         selected_vars = status$selected_vars
     )
