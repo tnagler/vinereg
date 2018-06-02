@@ -54,9 +54,11 @@
 #' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
 #'
 #' # fit vine regression model
-#' fit <- vinereg(y ~ ., dat)
-#' fit
+#' (fit <- vinereg(y ~ ., dat))
+#'
+#' # inspect model
 #' summary(fit)
+#' plot_effects(fit)
 #'
 #' # model predictions
 #' mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean

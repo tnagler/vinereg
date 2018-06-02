@@ -10,3 +10,4 @@ LICENSE
 ^codecov\.yml$
 ^cran-comments\.md$
 ^CRAN-RELEASE$
+^README\.Rmd$
