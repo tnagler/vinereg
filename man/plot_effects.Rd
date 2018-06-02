@@ -19,11 +19,11 @@ is meant with respect to all other variables.
 }
 \examples{
 # simulate data
-x <- matrix(rnorm(300), 100, 3)
-y <- x \%*\% c(1, -1, 2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
+x <- matrix(rnorm(300), 100, 2)
+y <- x \%*\% c(1, -2)
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
 
-# fit vine regression model (parametric)
-fit <- vinereg(y ~ ., dat, family_set = "parametric")
+# fit vine regression model
+fit <- vinereg(y ~ ., dat)
 plot_effects(fit)
 }

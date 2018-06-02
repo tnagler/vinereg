@@ -30,9 +30,9 @@ Predict conditional mean and quantiles from a D-vine regression model
 }
 \examples{
 # simulate data
-x <- matrix(rnorm(300), 100, 3)
-y <- x \%*\% c(1, -1, 2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
+x <- matrix(rnorm(300), 100, 2)
+y <- x \%*\% c(1, -2)
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
 
 # fit vine regression model
 (fit <- vinereg(y ~ ., dat))
@@ -44,14 +44,12 @@ plot_effects(fit)
 # model predictions
 mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
 med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
-pred    <- predict(fit, newdata = dat, alpha = c(NA, 0.5))  # both
 
 # observed vs predicted
 plot(cbind(y, mu_hat))
 
 ## fixed variable order (no selection)
-fit <- vinereg(y ~ ., dat, order = c("x.3", "x.1", "x.2", "z.1"))
-fit
+(fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
 
 }
 \seealso{
