@@ -109,7 +109,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 
     ## initialization
     current_fit <- initialize_fit(u)
-    status <- initialize_status(d, selcrit)
+    status <- initialize_status(margin_models, selcrit)
 
     ## estimation --------
     if (any(is.na(order))) {
@@ -133,15 +133,14 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         }
         names(status$selected_vars) <- var_nms[status$selected_vars + 1]
     } else {
-        if (!all(order %in% var_nms))
-            stop("unknown variable name in 'order'; ",
-                 "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'.")
-        if (any(order == var_nms[1]))
-            stop("response variable '", var_nms[1],
-                 "' must not appear in 'order'.")
-        for (var in order)
+        check_order(order, var_nms)
+        status$selcrit <- "keep_all"
+        for (var in order) {
             current_fit <- xtnd_vine(u[, var], current_fit, family_set, selcrit, ...)
+            status <- update_status(status, list(current_fit))
+        }
         status$selected_vars <- sapply(order, function(nm) which(var_nms == nm) - 1)
+        status$remaining_vars <- numeric(0)
     }
 
     ## adjust model matrix and names
@@ -149,15 +148,27 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     reorder[order(reorder)] <- seq_along(status$selected_vars)
     current_fit$vine$matrix <- gen_dvine_mat(elements = c(1, reorder + 1))
 
-    ## return results
-    out <- list(margins = margin_models,
-                vine = current_fit$vine,
-                order = var_nms[status$selected_vars + 1],
-                selected_vars = status$selected_vars,
-                formula = formula,
-                model_frame = mf)
+    ## return results as S3 object
+    out <- list(
+        margins = margin_models,
+        vine = current_fit$vine,
+        formula = formula,
+        model_frame = mf,
+        status = status,
+        order = var_nms[status$selected_vars + 1],
+        selected_vars = status$selected_vars
+    )
     class(out) <- "vinereg"
     out
+}
+
+check_order <- function(order, var_nms) {
+    if (!all(order %in% var_nms))
+        stop("unknown variable name in 'order'; ",
+             "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'.")
+    if (any(order == var_nms[1]))
+        stop("response variable '", var_nms[1],
+             "' must not appear in 'order'.")
 }
 
 
@@ -188,6 +199,9 @@ fit_margins <- function(x, par_1d, cores, uscale) {
             margs <- lapply(seq_len(d), fit_margin)
         }
     }
+
+    names(margs) <- colnames(x)
+    margs
 }
 
 get_pits <- function(x, margin_models, cores) {
@@ -253,47 +267,57 @@ initialize_fit <- function(u) {
     )
 }
 
-initialize_status <- function(d, selcrit) {
+initialize_status <- function(margin_fits, selcrit) {
     list(
         # remaining variable indices to select from
-        remaining_vars = seq_len(d - 1),
+        remaining_vars = seq_len(length(margin_fits) - 1),
         # variables indices included in the model
         selected_vars = NULL,
         # selection criterion
         selcrit = selcrit,
-        # current fit criterion (cll + correction)
-        current_crit = -Inf,
+        # conditional logliklihood (only unconditional margin so for)
+        clls = margin_fits[[1]]$loglik,
+        # number of parameters in current model
+        npars = margin_fits[[1]]$edf,
         # TRUE when no improvement is possible
         optimum_found = FALSE
     )
 }
 
 update_status <- function(status, new_vines) {
-    crits <- sapply(new_vines, calculate_crit, selcrit = status$selcrit)
+    clls <- sapply(new_vines, function(vine) vine$cll)
+    npars <- sapply(new_vines, function(vine) vine$npars)
+    n <- nrow(new_vines[[1]]$psobs[[1]])
+    crits <- calculate_crits(clls, npars, n, status$selcrit)
 
-    if (max(crits) <= status$current_crit) {
+    if (max(crits) < 0) {
         # optimum found, keep old fit
         status$optimum_found <- TRUE
     } else {
         status$best_ind <- which.max(crits)
-        status$selected_vars <- c(status$selected_vars,
-                                  status$remaining_vars[status$best_ind])
-        status$current_crit <- max(crits)
-        status$remaining_vars <- setdiff(status$remaining_vars, status$selected_vars)
+        status$selected_vars <- c(
+            status$selected_vars,
+            status$remaining_vars[status$best_ind]
+        )
+        status$remaining_vars <- setdiff(
+            status$remaining_vars,
+            status$selected_vars
+        )
+        status$clls = c(status$clls, clls[status$best_ind])
+        status$npars = c(status$npars, npars[status$best_ind])
     }
 
     status
 }
 
-calculate_crit <- function(fit, selcrit) {
-    crit <- fit$cll
-    crit <- crit - switch(
+calculate_crits <- function(clls, npars, n, selcrit) {
+    clls - switch(
         selcrit,
         "loglik" = 0,
-        "aic" = fit$vine$npars,
-        "bic" = fit$vine$npars * log(dim(fit$psobs$direct)[3]) / 2
+        "aic" = npars,
+        "bic" = npars * log(n) / 2,
+        "keep_all" = -Inf
     )
-    crit
 }
 
 #' @importFrom utils modifyList
@@ -355,8 +379,9 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
         psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
         psobs$indirect[i, i, ] <- hbicop(cbind(zr2, zr1), 2, pc_fit)
     }
+
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
-    cll <- old_fit$cll + sum(log(dbicop(cbind(zr2, zr1), pc_fit)))
-    list(vine = vine, psobs = psobs, cll = cll)
+    cll <- sum(log(dbicop(cbind(zr2, zr1), pc_fit)))
+    list(vine = vine, psobs = psobs, cll = cll, npars = npars)
 }
 
