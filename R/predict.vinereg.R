@@ -42,7 +42,7 @@
 #' @importFrom stats predict
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     if (missing(newdata))
-        return(fitted.vinereg(object, alpha, uscale))
+        return(fitted.vinereg(object, alpha = alpha, uscale = uscale))
     stopifnot(length(alpha) > 0)
     if (any(is.na(alpha)) & inherits(object$model_frame[[1]], "ordered"))
         stop("cannot predict mean for ordered response.")
@@ -122,7 +122,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 #' @importFrom stats fitted
 #' @export
 fitted.vinereg <- function(object, alpha = 0.5, ...) {
-    predict.vinereg(object, newdata = object$model_frame, alpha = alpha)
+    predict.vinereg(object, newdata = object$model_frame, alpha = alpha, ...)
 }
 
 
