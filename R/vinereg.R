@@ -370,8 +370,9 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     edf <- 0
     for (i in rev(seq_len(d - 1))) {
         # get data for current edge
-        zr1 <- psobs$direct[i + 1, i, ]
-        zr2 <- if (i == d - 1) {
+        u_e <- matrix(NA, n, 2)
+        u_e[, 1] <- psobs$direct[i + 1, i, ]
+        u_e[, 2] <- if (i == d - 1) {
             psobs$direct[i + 1, i + 1, ]
         } else {
             psobs$indirect[i + 1, i + 1, ]
@@ -379,11 +380,11 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
 
         # correct bandwidth for regression context
         # (optimal rate is n^(-1/5) instead of n^(-1/6))
-        n <- length(zr2)
-        dots <- modifyList(list(mult = n^(1/6 - 1/5)), list(...))
+        mult <- ifelse(is.null(list(...)$mult), 1, list(...)$mult)
+        dots <- modifyList(list(mult = n^(1/6 - 1/5) * mult), list(...))
         args <- modifyList(
             list(
-                data = cbind(zr2, zr1),
+                data = u_e,
                 family_set = family_set,
                 selcrit = selcrit
             ),
@@ -407,12 +408,12 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
         edf <- edf + pc_fit$npars
 
         # pseudo observations for next tree
-        psobs$direct[i, i, ] <- hbicop(cbind(zr2, zr1), 1, pc_fit)
-        psobs$indirect[i, i, ] <- hbicop(cbind(zr2, zr1), 2, pc_fit)
+        psobs$direct[i, i, ] <- hbicop(u_e, 2, pc_fit)
+        psobs$indirect[i, i, ] <- hbicop(u_e, 1, pc_fit)
     }
 
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
-    cll <- sum(log(dbicop(cbind(zr2, zr1), pc_fit)))
+    cll <- sum(log(dbicop(u_e, pc_fit)))
     list(vine = vine, psobs = psobs, cll = cll, edf = edf)
 }
 
