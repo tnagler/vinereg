@@ -37,3 +37,5 @@ Suggests:
     testthat,
     covr
 VignetteBuilder: knitr
+URL: https://tnagler.github.io/vinereg
+BugReports: https://github.com/tnagler/vinereg/issues

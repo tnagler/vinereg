@@ -32,6 +32,9 @@ library(tidyr)
 
 # Data analysis
 
+```{r}
+set.seed(5)
+```
 
 We consider the data set `abalone` from the UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets/abalone) and focus on the female
 sub-population. In a first application we only consider continuous variables and

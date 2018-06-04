@@ -24,17 +24,17 @@ An R package for D-vine copula based mean and quantile regression.
 ## How to install
 
 - the stable release from CRAN:
-
-``` r
-install.packages("vinereg")
-```
+     
+    ``` r
+    install.packages("vinereg")
+    ```
 
 - the latest development version:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
-```
+    
+    ``` r
+    # install.packages("devtools")
+    devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
+    ```
 
 ## Functionality
 
@@ -42,7 +42,8 @@ See the [package website](https://tnagler.github.io/vinereg).
 
 ## Example
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, cache = TRUE}
+set.seed(5)
 library(vinereg)
 data(mtcars)
 

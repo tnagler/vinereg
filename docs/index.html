@@ -92,14 +92,16 @@
 <h2 class="hasAnchor">
 <a href="#how-to-install" class="anchor"></a>How to install</h2>
 <ul>
-<li>the stable release from CRAN:</li>
-</ul>
+<li>
+<p>the stable release from CRAN:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"vinereg"</span>)</code></pre></div>
-<ul>
-<li>the latest development version:</li>
-</ul>
+</li>
+<li>
+<p>the latest development version:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages("devtools")</span>
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"tnagler/vinereg"</span>, <span class="dt">build_vignettes =</span> <span class="ot">TRUE</span>)</code></pre></div>
+</li>
+</ul>
 </div>
 <div id="functionality" class="section level2">
 <h2 class="hasAnchor">
@@ -109,7 +111,8 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(vinereg)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">5</span>)
+<span class="kw">library</span>(vinereg)
 <span class="kw">data</span>(mtcars)
 
 <span class="co"># declare factors and discrete variables</span>
@@ -119,22 +122,22 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 
 <span class="co"># fit model</span>
 (fit &lt;-<span class="st"> </span><span class="kw"><a href="reference/vinereg.html">vinereg</a></span>(mpg <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> mtcars))
-<span class="co">#&gt; D-vine regression model: mpg | disp, hp, am.1, gear, carb, wt, cyl, drat, vs, qsec </span>
-<span class="co">#&gt; nobs = 32, edf = 97, cll = -53.64, caic = 301.29, cbic = 443.47</span>
+<span class="co">#&gt; D-vine regression model: mpg | disp, hp, gear, carb, cyl, am.1, wt, vs, qsec, drat </span>
+<span class="co">#&gt; nobs = 32, edf = 95, cll = -56.09, caic = 302.19, cbic = 441.43</span>
 
 <span class="kw">summary</span>(fit)
-<span class="co">#&gt;     var     edf         cll       caic       cbic      p_value</span>
-<span class="co">#&gt; 1   mpg 3.2e-11 -98.5927195 197.185439 197.185439           NA</span>
-<span class="co">#&gt; 2  disp 2.0e+00  29.5342816 -55.068563 -52.137091 1.490817e-13</span>
-<span class="co">#&gt; 3    hp 3.0e+00   2.3323113   1.335377   5.732585 1.980680e-01</span>
-<span class="co">#&gt; 4  am.1 5.0e+00   3.7942851   2.411430   9.740109 1.804156e-01</span>
-<span class="co">#&gt; 5  gear 7.0e+00   3.1502384   7.699523  17.959675 5.051348e-01</span>
-<span class="co">#&gt; 6  carb 9.0e+00   2.6022129  12.795574  25.987197 8.161362e-01</span>
-<span class="co">#&gt; 7    wt 1.1e+01   1.7728358  18.454328  34.577423 9.813775e-01</span>
-<span class="co">#&gt; 8   cyl 1.3e+01   0.8955617  24.208877  43.263443 9.998792e-01</span>
-<span class="co">#&gt; 9  drat 1.4e+01   0.5427778  26.914444  47.434747 9.999983e-01</span>
-<span class="co">#&gt; 10   vs 1.6e+01   0.0810181  31.837964  55.289738 1.000000e+00</span>
-<span class="co">#&gt; 11 qsec 1.7e+01   0.2422327  33.515535  58.433045 1.000000e+00</span>
+<span class="co">#&gt;     var     edf          cll       caic       cbic      p_value</span>
+<span class="co">#&gt; 1   mpg 3.2e-11 -98.59271949 197.185439 197.185439           NA</span>
+<span class="co">#&gt; 2  disp 2.0e+00  29.53428159 -55.068563 -52.137091 1.490817e-13</span>
+<span class="co">#&gt; 3    hp 3.0e+00   2.33231128   1.335377   5.732585 1.980680e-01</span>
+<span class="co">#&gt; 4  gear 5.0e+00   2.16379041   5.672419  13.001099 5.032784e-01</span>
+<span class="co">#&gt; 5  carb 7.0e+00   2.25663902   9.486722  19.746873 7.191178e-01</span>
+<span class="co">#&gt; 6   cyl 9.0e+00   1.57187334  14.856253  28.047876 9.583219e-01</span>
+<span class="co">#&gt; 7  am.1 1.0e+01   1.75059329  16.498813  31.156172 9.670581e-01</span>
+<span class="co">#&gt; 8    wt 1.3e+01   1.62623809  22.747524  41.802091 9.968597e-01</span>
+<span class="co">#&gt; 9    vs 1.3e+01   0.52958111  24.940838  43.995405 9.999946e-01</span>
+<span class="co">#&gt; 10 qsec 1.6e+01   0.70430954  30.591381  54.043155 9.999992e-01</span>
+<span class="co">#&gt; 11 drat 1.7e+01   0.02886845  33.942263  58.859773 1.000000e+00</span>
 
 <span class="co"># show marginal effects for all selected variables</span>
 <span class="kw"><a href="reference/plot_effects.html">plot_effects</a></span>(fit)
@@ -144,10 +147,10 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 <span class="co"># predict mean and median</span>
 <span class="kw">head</span>(<span class="kw">predict</span>(fit, mtcars, <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="ot">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)
 <span class="co">#&gt;       mean      0.5</span>
-<span class="co">#&gt; 1 22.45385 22.11842</span>
-<span class="co">#&gt; 2 22.21468 21.88954</span>
-<span class="co">#&gt; 3 24.97617 24.73290</span>
-<span class="co">#&gt; 4 20.29704 20.26773</span></code></pre></div>
+<span class="co">#&gt; 1 19.34836 19.36129</span>
+<span class="co">#&gt; 2 19.17641 19.19810</span>
+<span class="co">#&gt; 3 25.28064 25.13942</span>
+<span class="co">#&gt; 4 19.70841 19.67779</span></code></pre></div>
 </div>
 <div id="vignettes" class="section level2">
 <h2 class="hasAnchor">
@@ -171,7 +174,7 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=vinereg">https://​cloud.r-project.org/​package=vinereg</a>
 </li>
-<li>Report a bug at <br><a href="NA">NA</a>
+<li>Report a bug at <br><a href="https://github.com/tnagler/vinereg/issues">https://​github.com/​tnagler/​vinereg/​issues</a>
 </li>
 </ul>
 </div>
