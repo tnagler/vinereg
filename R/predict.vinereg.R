@@ -3,7 +3,7 @@
 #' @param object an object of class \code{vinereg}.
 #' @param newdata matrix of covariate values for which to predict the quantile.
 #' @param alpha vector of quantile levels; `NA` predicts the mean based on an
-#'   average of the `1:20 / 21`-quantiles.
+#'   average of the `1:10 / 11`-quantiles.
 #' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
 #' @param ... unused.
 #'
@@ -127,7 +127,7 @@ fitted.vinereg <- function(object, alpha = 0.5, ...) {
 
 
 predict_mean <- function(object, newdata, uscale) {
-    preds <- predict.vinereg(object, newdata, alpha = 1:20 / 21, uscale)
+    preds <- predict.vinereg(object, newdata, alpha = 1:10/ 11, uscale)
     data.frame(mean = rowMeans(preds))
 }
 
