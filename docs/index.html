@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">vinereg</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.3.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.4.0</span>
       </span>
     </div>
 
@@ -119,22 +119,22 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 
 <span class="co"># fit model</span>
 (fit &lt;-<span class="st"> </span><span class="kw"><a href="reference/vinereg.html">vinereg</a></span>(mpg <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> mtcars))
-<span class="co">#&gt; D-vine regression model: mpg | disp, hp, wt, cyl, am.1, gear, qsec, drat, carb, vs </span>
-<span class="co">#&gt; nobs = 32, edf = 94, cll = -58.62, caic = 305.23, cbic = 443.01</span>
+<span class="co">#&gt; D-vine regression model: mpg | disp, hp, am.1, gear, carb, wt, cyl, drat, vs, qsec </span>
+<span class="co">#&gt; nobs = 32, edf = 97, cll = -53.64, caic = 301.29, cbic = 443.47</span>
 
 <span class="kw">summary</span>(fit)
 <span class="co">#&gt;     var     edf         cll       caic       cbic      p_value</span>
 <span class="co">#&gt; 1   mpg 3.2e-11 -98.5927195 197.185439 197.185439           NA</span>
 <span class="co">#&gt; 2  disp 2.0e+00  29.5342816 -55.068563 -52.137091 1.490817e-13</span>
 <span class="co">#&gt; 3    hp 3.0e+00   2.3323113   1.335377   5.732585 1.980680e-01</span>
-<span class="co">#&gt; 4    wt 5.0e+00   2.1311112   5.737778  13.066457 5.123126e-01</span>
-<span class="co">#&gt; 5   cyl 6.0e+00   0.9693088  10.061382  18.855798 9.252564e-01</span>
-<span class="co">#&gt; 6  am.1 1.0e+01   1.1281264  17.743747  32.401106 9.939721e-01</span>
-<span class="co">#&gt; 7  gear 8.0e+00   1.8733336  12.253333  23.979220 8.792262e-01</span>
-<span class="co">#&gt; 8  qsec 1.3e+01   0.4839598  25.032080  44.086647 9.999969e-01</span>
-<span class="co">#&gt; 9  drat 1.4e+01   0.9098683  26.180263  46.700566 9.999536e-01</span>
-<span class="co">#&gt; 10 carb 1.6e+01   0.1488835  31.702233  55.154008 1.000000e+00</span>
-<span class="co">#&gt; 11   vs 1.7e+01   0.4643179  33.071364  57.988875 1.000000e+00</span>
+<span class="co">#&gt; 4  am.1 5.0e+00   3.7942851   2.411430   9.740109 1.804156e-01</span>
+<span class="co">#&gt; 5  gear 7.0e+00   3.1502384   7.699523  17.959675 5.051348e-01</span>
+<span class="co">#&gt; 6  carb 9.0e+00   2.6022129  12.795574  25.987197 8.161362e-01</span>
+<span class="co">#&gt; 7    wt 1.1e+01   1.7728358  18.454328  34.577423 9.813775e-01</span>
+<span class="co">#&gt; 8   cyl 1.3e+01   0.8955617  24.208877  43.263443 9.998792e-01</span>
+<span class="co">#&gt; 9  drat 1.4e+01   0.5427778  26.914444  47.434747 9.999983e-01</span>
+<span class="co">#&gt; 10   vs 1.6e+01   0.0810181  31.837964  55.289738 1.000000e+00</span>
+<span class="co">#&gt; 11 qsec 1.7e+01   0.2422327  33.515535  58.433045 1.000000e+00</span>
 
 <span class="co"># show marginal effects for all selected variables</span>
 <span class="kw"><a href="reference/plot_effects.html">plot_effects</a></span>(fit)
@@ -144,10 +144,10 @@ mtcars[[<span class="st">"am"</span>]] &lt;-<span class="st"> </span><span class
 <span class="co"># predict mean and median</span>
 <span class="kw">head</span>(<span class="kw">predict</span>(fit, mtcars, <span class="dt">alpha =</span> <span class="kw">c</span>(<span class="ot">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)
 <span class="co">#&gt;       mean      0.5</span>
-<span class="co">#&gt; 1 21.57121 21.38293</span>
-<span class="co">#&gt; 2 21.35704 21.22061</span>
-<span class="co">#&gt; 3 25.30125 25.05928</span>
-<span class="co">#&gt; 4 19.76451 19.63392</span></code></pre></div>
+<span class="co">#&gt; 1 22.45385 22.11842</span>
+<span class="co">#&gt; 2 22.21468 21.88954</span>
+<span class="co">#&gt; 3 24.97617 24.73290</span>
+<span class="co">#&gt; 4 20.29704 20.26773</span></code></pre></div>
 </div>
 <div id="vignettes" class="section level2">
 <h2 class="hasAnchor">

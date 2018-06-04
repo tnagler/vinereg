@@ -15,7 +15,7 @@
 \item{newdata}{matrix of covariate values for which to predict the quantile.}
 
 \item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
-average of the \code{1:20 / 21}-quantiles.}
+average of the \code{1:10 / 11}-quantiles.}
 
 \item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
 

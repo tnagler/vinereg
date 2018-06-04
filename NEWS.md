@@ -1,3 +1,14 @@
+# vinereg 0.4.0
+
+BUG FIXES
+
+* Fix handling of `uscale` in `fitted.vinereg()`.
+
+* Fix handling of `mult` parameter for pair-copula fits in `vinereg()`.
+
+* Fix orientation of asymmetric pair-copulas.
+  
+
 # vinereg 0.3.0
 
 DEPENDS
