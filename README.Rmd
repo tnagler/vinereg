@@ -42,7 +42,7 @@ See the [package website](https://tnagler.github.io/vinereg).
 
 ## Example
 
-```{r, warning=FALSE, cache = TRUE}
+```{r, warning=FALSE}
 set.seed(5)
 library(vinereg)
 data(mtcars)

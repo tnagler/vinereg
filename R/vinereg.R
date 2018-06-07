@@ -101,6 +101,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     if (cores > 1) {
         future::plan(future::multiprocess, workers = cores)
         on.exit(future::plan(), add = TRUE)
+    } else {
+        future::plan(future::sequential)
     }
 
     ## estimation of the marginals and transformation to copula data
