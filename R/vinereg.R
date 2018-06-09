@@ -415,7 +415,8 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
     }
 
     vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
-    cll <- sum(log(dbicop(u_e, pc_fit)))
+    cll <- sum(log(dbicop(u_e, pc_fit)), na.rm = TRUE)
+
     list(vine = vine, psobs = psobs, cll = cll, edf = edf)
 }
 
