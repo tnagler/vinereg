@@ -127,7 +127,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
                 break
             current_fit <- new_fits[[status$best_ind]]
         }
-        names(status$selected_vars) <- var_nms[status$selected_vars + 1]
+        if (length(status$selected_vars) > 1)
+            names(status$selected_vars) <- var_nms[status$selected_vars + 1]
     } else {
         ## fixed variable order
         check_order(order, var_nms)
@@ -414,9 +415,11 @@ xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
         psobs$indirect[i, i, ] <- hbicop(u_e, 1, pc_fit)
     }
 
-    vine <- vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d))
-    cll <- sum(log(dbicop(u_e, pc_fit)), na.rm = TRUE)
-
-    list(vine = vine, psobs = psobs, cll = cll, edf = edf)
+    list(
+        vine = vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d)),
+        psobs = psobs,
+        cll = logLik(pc_fit),
+        edf = edf
+    )
 }
 

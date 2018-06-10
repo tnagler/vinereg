@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: c(
         person("Thomas", "Nagler",, "mail@tnagler.com", role = c("aut", "cre")),
         person("Dani", "Kraus",,, role = c("ctb"))
