@@ -127,7 +127,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
                 break
             current_fit <- new_fits[[status$best_ind]]
         }
-        if (length(status$selected_vars) > 1)
+        if (length(status$selected_vars) > 0)
             names(status$selected_vars) <- var_nms[status$selected_vars + 1]
     } else {
         ## fixed variable order
