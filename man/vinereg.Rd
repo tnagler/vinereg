@@ -24,7 +24,7 @@ of variable names (after calling \code{cctools::cont_conv()} on the
 \code{model.frame()}); selected automatically if \code{order = NA} (default).}
 
 \item{par_1d}{list of options passed to \code{\link[kde1d:kde1d]{kde1d::kde1d()}}, must be one value
-for each margin, e.g. \code{list(xmin = c(0, 0, -Inf))} if the response and
+for each margin, e.g. \code{list(xmin = c(0, 0, NaN))} if the response and
 first covariate have non-negative support.}
 
 \item{cores}{integer; the number of cores to use for computations.}

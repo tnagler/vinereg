@@ -17,7 +17,7 @@
 #'   of variable names (after calling `cctools::cont_conv()` on the
 #'   `model.frame()`); selected automatically if `order = NA` (default).
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
-#'   for each margin, e.g. `list(xmin = c(0, 0, -Inf))` if the response and
+#'   for each margin, e.g. `list(xmin = c(0, 0, NaN))` if the response and
 #'   first covariate have non-negative support.
 #' @param cores integer; the number of cores to use for computations.
 #' @param uscale logical indicating whether the data are already on copula scale
