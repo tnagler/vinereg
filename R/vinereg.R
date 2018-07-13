@@ -229,7 +229,8 @@ fit_margins <- function(x, par_1d, cores, uscale) {
                 xmin = par_1d$xmin[k],
                 xmax = par_1d$xmax[k],
                 bw   = par_1d$bw[k],
-                mult = par_1d$mult[k]
+                mult = par_1d$mult[k],
+                deg  = par_1d$deg[k]
             )
             arg_lst[sapply(arg_lst, is.null)] <- NULL
             m <- do.call(kde1d, arg_lst)
@@ -273,13 +274,20 @@ process_par_1d <- function(pars, d) {
     }
     if (length(pars$bw) != d && !is.null(pars$bw))
         stop("'bw' must be a vector with one value for each variable")
-    if (is.null(pars$mult)) {
+
+    if (is.null(pars$mult))
         pars$mult <- 1
-    }
     if (length(pars$mult) == 1)
         pars$mult <- rep(pars$mult, d)
     if (length(pars$mult) != d)
-        stop("mult.1d has to be of length 1 or the number of variables")
+        stop("mult has to be of length 1 or the number of variables")
+
+    if (is.null(pars$deg))
+        pars$deg <- 2
+    if (length(pars$deg) == 1)
+        pars$deg <- rep(pars$deg, d)
+    if (length(pars$deg) != d)
+        stop("deg has to be of length 1 or the number of variables")
 
     pars
 }
