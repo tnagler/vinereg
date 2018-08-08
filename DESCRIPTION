@@ -16,7 +16,7 @@ License: GPL-3
 LazyData: TRUE
 Imports: 
     cctools, 
-    rvinecopulib (>= 0.2.8), 
+    rvinecopulib (>= 0.3.0), 
     future,
     furrr, 
     kde1d (>= 0.2.0),
