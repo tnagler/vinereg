@@ -38,7 +38,6 @@
 #' @export
 #'
 #' @importFrom kde1d pkde1d qkde1d
-#' @importFrom rvinecopulib rvinecop
 #' @importFrom stats predict
 predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     if (missing(newdata))
@@ -139,11 +138,12 @@ with_levels <- function(q, lvls) {
     q
 }
 
+#' @importFrom rvinecopulib inverse_rosenblatt
 qdvine <- function(u, alpha, vine) {
-    d <- ncol(vine$matrix)
+    d <- dim(vine)[1]
     if (ncol(u) != d - 1)
         stop("Dimensions of u and vine are not compatible")
-    vine$matrix <- gen_dvine_mat(d)
+    vine$structure <- as_rvine_structure(gen_dvine_mat(d))
 
     ## obtain diagonal entries in V matrix
     n <- nrow(u)
@@ -166,6 +166,6 @@ qdvine <- function(u, alpha, vine) {
     # return as list (will be processed further)
     lapply(alpha,
            function(a)
-               matrix(rvinecop(n, vine, U = cbind(a, tmp)), ncol = d)[, 1])
+               matrix(inverse_rosenblatt(cbind(a, tmp), vine), ncol = d)[, 1])
 }
 
