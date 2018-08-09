@@ -8,8 +8,8 @@
 <title>Example usage of the vinereg package • vinereg</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Example usage of the vinereg package">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Example usage of the vinereg package">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -29,7 +29,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.4.0</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.5.0</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@ abalone_f &lt;-<span class="st"> </span>abalone <span class="op">%&gt;%</span>
     <span class="dt">selcrit =</span> <span class="st">"aic"</span>
 ))</code></pre></div>
 <pre><code>## D-vine regression model: whole | length, height, diameter 
-## nobs = 1306, edf = 20.73, cll = 1092.07, caic = -2142.69, cbic = -2035.41</code></pre>
+## nobs = 1306, edf = 20.73, cll = 1092.08, caic = -2142.69, cbic = -2035.41</code></pre>
 <p>The result has a field <code>order</code> that shows the selected covariates and their ranking order in the D-vine.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit_vine_par<span class="op">$</span>order</code></pre></div>
 <pre><code>## [1] "length"   "height"   "diameter"</code></pre>
@@ -138,7 +138,7 @@ abalone_f &lt;-<span class="st"> </span>abalone <span class="op">%&gt;%</span>
 ## 1    1    1        1, 2              gumbel      180         5.1  1 0.80
 ## 2    1    2        2, 4              gumbel      180         2.3  1 0.57
 ## 3    1    3        4, 3              gumbel      180         2.4  1 0.58
-## 4    2    1        1, 4            2      t        0 0.45, 15.34  2 0.30
+## 4    2    1        1, 4            2      t        0 0.45, 15.23  2 0.30
 ## 5    2    2        2, 3            4      t        0  0.91, 4.59  2 0.74
 ## 6    3    1        1, 3         4, 2      t        0  0.32, 8.26  2 0.20</code></pre>
 <p>We can also plot the contours of the fitted pair-copulas.</p>
@@ -157,12 +157,12 @@ alpha_vec &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="f
 <span class="co"># predict(fit_vine_par, newdata = abalone.f, alpha = alpha_vec)</span>
 <span class="kw">head</span>(pred_vine_par)</code></pre></div>
 <pre><code>##         0.1       0.5       0.9
-## 1 0.6566404 0.7600777 0.8732930
-## 2 0.6826232 0.7860793 0.9030473
-## 3 0.6619665 0.7761776 0.8924301
-## 4 0.7623574 0.8732517 0.9930074
-## 5 0.5812488 0.6890085 0.8231926
-## 6 0.6600225 0.7663916 0.8852769</code></pre>
+## 1 0.6566616 0.7600738 0.8732819
+## 2 0.6826392 0.7860813 0.9030168
+## 3 0.6619671 0.7761635 0.8924578
+## 4 0.7623786 0.8732481 0.9929738
+## 5 0.5812824 0.6890220 0.8231798
+## 6 0.6600508 0.7663987 0.8852566</code></pre>
 <p>To examine the effect of the individual variables, we will plot the predicted quantiles against each of the variables. To visualize the relationship more clearly, we add a smoothed line for each quantile level. This gives an estimate of the expected effect of a variable (taking expectation with respect to all other variables).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_effects.html">plot_effects</a></span>(fit_vine_par)</code></pre></div>
 <pre><code>## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</code></pre>
@@ -209,8 +209,8 @@ plot_marginal_effects &lt;-<span class="st"> </span><span class="cf">function</s
     <span class="dt">family_set =</span> <span class="st">"nonpar"</span>,
     <span class="dt">selcrit =</span> <span class="st">"aic"</span>
 ))</code></pre></div>
-<pre><code>## D-vine regression model: whole | diameter, length 
-## nobs = 1306, edf = 153.82, cll = 1112.1, caic = -1916.56, cbic = -1120.61</code></pre>
+<pre><code>## D-vine regression model: whole | length, height 
+## nobs = 1306, edf = 144.38, cll = 1136.86, caic = -1984.97, cbic = -1237.86</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">contour</span>(fit_vine_np<span class="op">$</span>vine)</code></pre></div>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-13-1.png" width="441.6"></p>
 <p>Now only the length and height variables are selected as predictors. Let’s have a look at the marginal effects.</p>
@@ -232,7 +232,7 @@ plot_marginal_effects &lt;-<span class="st"> </span><span class="cf">function</s
     <span class="dt">selcrit =</span> <span class="st">"aic"</span>
 ))</code></pre></div>
 <pre><code>## D-vine regression model: rings | shell, shucked 
-## nobs = 1306, edf = 106.88, cll = -2789.9, caic = 5793.57, cbic = 6346.63</code></pre>
+## nobs = 1306, edf = 114.32, cll = -2774.44, caic = 5777.53, cbic = 6369.12</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_effects.html">plot_effects</a></span>(fit_disc)</code></pre></div>
 <pre><code>## `geom_smooth()` using method = 'loess' and formula 'y ~ x'</code></pre>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-15-1.png" width="451.2"></p>
