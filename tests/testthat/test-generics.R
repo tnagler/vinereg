@@ -1,5 +1,9 @@
 context("generics")
 
+dat <- data.frame(y = runif(20), x = replicate(2, runif(20)))
+fit <- vinereg(y ~ ., dat, order = paste0("x.", 1:2))
+fit_uscale <- vinereg(y ~ ., dat, uscale = TRUE, order = paste0("x.", 1:2))
+
 test_that("print() works", {
     expect_output(test <- print(fit))
     expect_equal(test, fit)
@@ -13,8 +17,8 @@ test_that("summary() works", {
     smr_vars <- c("var", "edf", "cll", "caic", "cbic", "p_value")
     expect_equal(colnames(smr), smr_vars)
     expect_equal(colnames(smr_uscale), smr_vars)
-    expect_equal(nrow(smr), 4)
-    expect_equal(nrow(smr_uscale),  4)
+    expect_equal(nrow(smr), 3)
+    expect_equal(nrow(smr_uscale),  3)
     expect_equal(unname(unlist(smr_uscale[1, -1])), c(rep(0, 4), NA))
 })
 

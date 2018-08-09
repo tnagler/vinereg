@@ -162,6 +162,7 @@ qdvine <- function(u, alpha, vine) {
     } else {
         tmp <- V[d, 2, ]
     }
+    tmp <- pmin(pmax(tmp, 1e-10), 1 - 1e-10)
 
     # return as list (will be processed further)
     lapply(alpha,

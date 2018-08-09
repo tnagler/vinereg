@@ -1,10 +1,11 @@
 context("predict.vinereg()")
 
 # simulate data
-set.seed(1)
+set.seed(3)
 x <- matrix(rnorm(60), 20, 3)
 y <- x %*% c(1, -1, 2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
+fit <- vinereg(y ~ ., family = "gauss", dat)
 
 test_that("catches missing variables", {
     fit <- vinereg(y ~ ., dat[1:3])
@@ -37,7 +38,7 @@ test_that("works with continuous response", {
     x <- matrix(rnorm(300), 100, 3)
     y <- x %*% c(1, -1, 2)
     dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
-    fit <- vinereg(y ~ ., dat, family_set = "gaussian", selcrit = "loglik")
+    fit <- vinereg(y ~ ., dat, selcrit = "loglik")
     expect_equal(
         unname(coef(lm(dat$y ~ fitted(fit)[[1]]))),
         c(0, 1),
