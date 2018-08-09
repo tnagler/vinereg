@@ -5,7 +5,8 @@
 \alias{fitted.vinereg}
 \title{Predict conditional mean and quantiles from a D-vine regression model}
 \usage{
-\method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE, ...)
+\method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE,
+  ...)
 
 \method{fitted}{vinereg}(object, alpha = 0.5, ...)
 }
