@@ -111,7 +111,6 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
         alpha <- "mean"
     }
 
-
     preds <- as.data.frame(preds)
     names(preds) <- alpha
     preds
