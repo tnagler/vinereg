@@ -153,12 +153,15 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 
 #' @noRd
 #' @importFrom stats pchisq
+#' @importFrom rvinecopulib as_rvine_structure
 finalize_vinereg_object <- function(formula, model_frame, margins, vine,
                                     status, var_nms) {
     ## adjust model matrix and names
     reorder <- status$selected_vars
     reorder[order(reorder)] <- seq_along(status$selected_vars)
-    vine$matrix <- gen_dvine_mat(elements = c(1, reorder + 1))
+    vine$structure <- as_rvine_structure(
+        gen_dvine_mat(elements = c(1, reorder + 1))
+    )
     vine$names <- c(var_nms[1], names(reorder)[reorder])
 
     ## compute fit statistics
@@ -298,7 +301,7 @@ process_par_1d <- function(pars, d) {
 initialize_fit <- function(u) {
     list(
         # 1-dimensional (= empty) vine
-        vine = list(pair_copulas = list(list()), matrix = as.matrix(1)),
+        vine = list(pair_copulas = list(list()), structure = as.matrix(1)),
         # array for storing pseudo-observations
         psobs = list(
             direct = array(u[, 1], dim = c(1, 1, nrow(u))),
@@ -366,7 +369,7 @@ calculate_crits <- function(clls, edf, n, selcrit) {
 #' @importFrom stats cor
 #' @importFrom rvinecopulib bicop_dist
 xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
-    d <- ncol(old_fit$vine$matrix) + 1
+    d <- dim(old_fit$psobs$direct)[1] + 1
     n <- length(new_var)
 
     psobs <- list(

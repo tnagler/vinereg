@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.4.1
+Version: 0.5.0
 Authors@R: c(
         person("Thomas", "Nagler",, "mail@tnagler.com", role = c("aut", "cre")),
         person("Dani", "Kraus",,, role = c("ctb"))
@@ -16,11 +16,11 @@ License: GPL-3
 LazyData: TRUE
 Imports: 
     cctools, 
-    rvinecopulib (>= 0.2.8), 
+    rvinecopulib (>= 0.3.0), 
     future,
     furrr, 
     kde1d (>= 0.2.0),
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
 Suggests: 

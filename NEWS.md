@@ -1,3 +1,18 @@
+# vinereg 0.5.0
+
+DEPENDS
+
+* require rvinecopulib (>= 0.3.0) due to breaking changes in this package.
+
+BUG FIXES
+
+* prevent nan errors in loglik calculation.
+
+* allow for empty and bivariate models.
+
+* properly pass degree parameter for margin al estimation.
+  
+  
 # vinereg 0.4.0
 
 BUG FIXES
