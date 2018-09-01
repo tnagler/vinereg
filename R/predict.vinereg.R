@@ -60,6 +60,10 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
         stop("'newdata' is missing variables ",
              paste(missing_vars, collapse = ", "))
 
+    # order columns as in original data and check if types are matching
+    newdata <- newdata[, colnames(object$model_frame)[-1], drop = FALSE]
+    check_types(newdata[1, ], object$model_frame[1, -1, drop = FALSE])
+
     # predict the mean if alpha contains NA
     if (any(is.na(alpha))) {
         alpha <- alpha[!is.na(alpha)]
@@ -114,6 +118,22 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     preds <- as.data.frame(preds)
     names(preds) <- alpha
     preds
+}
+
+check_types <- function(actual, expected) {
+    same_type <- sapply(
+        seq_along(actual),
+        function(i) all(class(actual[[i]]) == class(expected[[i]]))
+    )
+    if (any(!same_type)) {
+        errors <- data.frame(
+            expected = sapply(actual[!same_type], function(x) class(x)[1]),
+            actual = sapply(expected[!same_type], function(x) class(x)[1])
+        )
+        errors <- paste(capture.output(print(errors)), collapse = "\n")
+        stop("some columns have incorrect type:\n", errors, call. = FALSE)
+    }
+
 }
 
 #' @rdname predict.vinereg

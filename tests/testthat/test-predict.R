@@ -12,6 +12,13 @@ test_that("catches missing variables", {
     expect_error(predict(fit, dat[2]))
 })
 
+test_that("catches incorrect type", {
+    fit <- vinereg(y ~ ., dat[1:2])
+    dat[2] <- ordered(1:20)
+    expect_error(predict(fit, dat[2]))
+})
+
+
 test_that("handles alpha correctly", {
     fit <- vinereg(y ~ ., dat[1:3])
     expect_equal(colnames(predict(fit, alpha = c(NA, 0.5))), c("mean", "0.5"))
