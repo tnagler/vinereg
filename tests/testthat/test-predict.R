@@ -18,6 +18,12 @@ test_that("catches incorrect type", {
     expect_error(predict(fit, dat[2]))
 })
 
+test_that("catches incorrect levels", {
+    fit <- vinereg(y ~ ., dat)
+    levels(dat[[5]]) <- 1:50
+    expect_error(predict(fit, dat))
+})
+
 
 test_that("handles alpha correctly", {
     fit <- vinereg(y ~ ., dat[1:3])

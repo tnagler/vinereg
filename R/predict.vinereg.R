@@ -121,17 +121,32 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 }
 
 check_types <- function(actual, expected) {
-    same_type <- sapply(
+    different_type <- sapply(
         seq_along(actual),
-        function(i) all(class(actual[[i]]) == class(expected[[i]]))
+        function(i) !identical(class(actual[[i]])[1], class(expected[[i]])[1])
     )
-    if (any(!same_type)) {
+    if (any(different_type)) {
         errors <- data.frame(
-            expected = sapply(actual[!same_type], function(x) class(x)[1]),
-            actual = sapply(expected[!same_type], function(x) class(x)[1])
+            expected = sapply(actual[different_type], function(x) class(x)[1]),
+            actual = sapply(expected[different_type], function(x) class(x)[1])
         )
         errors <- paste(capture.output(print(errors)), collapse = "\n")
         stop("some columns have incorrect type:\n", errors, call. = FALSE)
+    }
+
+    different_levels <- sapply(
+        seq_along(actual),
+        function(i) !identical(levels(actual[[i]]), levels(expected[[i]]))
+    )
+    if (any(different_levels)) {
+        errors <- data.frame(
+            expected = sapply(actual[different_levels],
+                              function(x) paste(levels(x), collapse = ",")),
+            actual = sapply(expected[different_levels],
+                            function(x) paste(levels(x), collapse = ","))
+        )
+        errors <- paste(capture.output(print(errors)), collapse = "\n")
+        stop("some factors have incorrect levels\n", errors, call. = FALSE)
     }
 
 }
