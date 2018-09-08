@@ -162,7 +162,8 @@ finalize_vinereg_object <- function(formula, model_frame, margins, vine,
     vine$structure <- as_rvine_structure(
         gen_dvine_mat(elements = c(1, reorder + 1))
     )
-    vine$names <- c(var_nms[1], names(reorder)[reorder])
+    covariate_names <- intersect(names(model_frame), names(status$selected_vars))
+    vine$names <- c(var_nms[1], covariate_names)
 
     ## compute fit statistics
     nobs <- nrow(model_frame)
