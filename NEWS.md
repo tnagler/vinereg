@@ -2,6 +2,9 @@
 
 NEW FEATURES
 
+* new function `cpit()` to compute the conditional cdf.
+
+
 # vinereg 0.5.0
 
 DEPENDS
