@@ -1,3 +1,5 @@
+# vinereg 0.6.0
+
 # vinereg 0.5.0
 
 DEPENDS
