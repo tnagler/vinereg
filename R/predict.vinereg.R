@@ -155,6 +155,7 @@ to_yscale <- function(u, object) {
 }
 
 #' checks if variable types are equal in original data and new data.
+#' @importFrom utils capture.output
 #' @noRd
 check_types <- function(actual, expected) {
     different_type <- sapply(
