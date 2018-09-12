@@ -32,5 +32,5 @@ cpit <- function(object, newdata, uscale = FALSE) {
     newdata <- check_and_sort_newdata(newdata, object)
     x <- cctools::expand_as_numeric(newdata)
 
-    rosenblatt(to_uscale(x, object), object$vine)[, 1]
+    unname(rosenblatt(to_uscale(x, object), object$vine)[, 1])
 }
