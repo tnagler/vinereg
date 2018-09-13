@@ -63,21 +63,14 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
         ## preprocessing
         uscale <- adjust_uscale(object, uscale)
-        object$model_frame <- object$model_frame[-1]  # remove response (unused)
-        newdata <- check_and_sort_newdata(newdata, object)
+        newdata <- prepare_newdata(newdata, object)
 
-        # factors must be expanded to dummy numeric variables
-        x <- cctools::expand_as_numeric(newdata)
-
-        # x must be sorted in the order of the data used for fitting
-        x <- x[, names(sort(object$selected_vars)), drop = FALSE]
-
-        # quantile prediction on u-scale
+        ## quantile prediction on u-scale
         if (!uscale)
-            x <- to_uscale(x, object)
-        preds <- qdvine(x, alpha, vine = object$vine)
+            newdata <- to_uscale(newdata, object)
+        preds <- qdvine(newdata, alpha, vine = object$vine)
 
-        # actual predictions on original scale
+        ## actual predictions on original scale
         if (!uscale)
             preds <- to_yscale(preds, object)
 
@@ -88,114 +81,6 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
     }
 
     preds
-}
-
-#' checks if newdata has appropriate columns and sorts according to the order
-#' used for fitting.
-#' @noRd
-check_and_sort_newdata <- function(newdata, object) {
-    newdata <- as.data.frame(newdata)
-    check_var_availability(newdata, names(object$model_frame))
-
-    # the check_x functions expect variables in newdata and model_frame in
-    # the same order
-    newdata <- newdata[names(object$model_frame)]
-    check_types(newdata, object$model_frame)
-    check_levels(newdata, object$model_frame)
-
-    newdata
-}
-
-#' checks if all *selected* covariates are in newdata.
-#' @noRd
-check_var_availability <- function(newdata, vars) {
-    vars_avail <- match(vars, colnames(newdata))
-    if (any(is.na(vars_avail))) {
-        vars_missing <- paste(vars[is.na(vars_avail)], collapse = ", ")
-        stop("'newdata' is missing variables ", vars_missing)
-    }
-}
-
-#' checks if margins were estimated.
-#' @noRd
-adjust_uscale <- function(object, uscale) {
-    if (!is.null(object$margins[[1]]$u) & (!uscale)) {
-        warning("no margins have been estimated, setting uscale = TRUE")
-        uscale <- TRUE
-    }
-    uscale
-}
-
-#' transforms data to uniform scale with probability integral transform.
-#' @noRd
-to_uscale <- function(x, object) {
-    for (var in colnames(x))
-        x[, var] <- truncate_u(pkde1d(x[, var], object$margins[[var]]))
-    x
-}
-
-truncate_u <- function(u) {
-    pmin(pmax(u, 1e-10), 1 - 1e-10)
-}
-
-#' transforms predicted response back to orginal variable scale.
-#' @noRd
-to_yscale <- function(u, object) {
-    nms <- colnames(u)
-    u <- lapply(u, qkde1d, obj = object$margins[[1]])
-    if (inherits(object$model_frame[[1]], "ordered")) {
-        # when response is discrete, we need to adjust the quantiles
-        lvls <- levels(object$model_frame[[1]])
-        u <- lapply(u, with_levels, lvls = lvls)
-    }
-
-    u <- as.data.frame(u)
-    names(u) <- nms
-    u
-}
-
-#' checks if variable types are equal in original data and new data.
-#' @importFrom utils capture.output
-#' @noRd
-check_types <- function(actual, expected) {
-    different_type <- sapply(
-        seq_along(actual),
-        function(i) !identical(class(actual[[i]])[1], class(expected[[i]])[1])
-    )
-    if (any(different_type)) {
-        errors <- data.frame(
-            expected = sapply(actual[different_type], function(x) class(x)[1]),
-            actual = sapply(expected[different_type], function(x) class(x)[1])
-        )
-        errors <- paste(capture.output(print(errors)), collapse = "\n")
-        stop("some columns have incorrect type:\n", errors, call. = FALSE)
-    }
-}
-
-#' checks if factor levels are equal in original data and new data.
-#' @noRd
-check_levels <- function(actual, expected) {
-    # only check factors
-    actual   <- actual[sapply(actual, is.factor)]
-    expected <- expected[sapply(expected, is.factor)]
-    if (length(expected) == 0)
-        return(TRUE)
-
-    different_levels <- sapply(
-        seq_along(actual),
-        function(i) !identical(levels(actual[[i]]), levels(expected[[i]]))
-    )
-    if (any(different_levels)) {
-        errors <- data.frame(
-            expected = sapply(actual[different_levels],
-                              function(x) paste(levels(x), collapse = ",")),
-            actual = sapply(expected[different_levels],
-                            function(x) paste(levels(x), collapse = ","))
-        )
-        errors <- paste(capture.output(print(errors)), collapse = "\n")
-        stop("some factors have incorrect levels\n", errors, call. = FALSE)
-    }
-
 }
 
 #' @rdname predict.vinereg
@@ -211,15 +96,6 @@ fitted.vinereg <- function(object, alpha = 0.5, ...) {
 predict_mean <- function(object, newdata) {
     preds <- predict.vinereg(object, newdata, alpha = 1:10 / 11)
     data.frame(mean = rowMeans(preds))
-}
-
-#' returns the quantile predictions as order variable with appropriate levels.
-#' @noRd
-with_levels <- function(q, lvls) {
-    q <- ceiling(q)
-    q <- pmax(q, 1)
-    q <- pmin(q, length(lvls))
-    ordered(lvls[q], levels = lvls)
 }
 
 #' @importFrom rvinecopulib rosenblatt inverse_rosenblatt
