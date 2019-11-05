@@ -20,7 +20,7 @@ Imports:
     future,
     furrr, 
     kde1d (>= 0.2.0),
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
 Suggests: 
@@ -39,3 +39,4 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://tnagler.github.io/vinereg
 BugReports: https://github.com/tnagler/vinereg/issues
+Encoding: UTF-8
