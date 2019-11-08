@@ -39,7 +39,8 @@
 #'
 #' @importFrom kde1d pkde1d qkde1d
 #' @importFrom stats predict
-predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
+predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE,
+                            cores = 1, ...) {
     if (missing(newdata))
         return(fitted.vinereg(object, alpha = alpha, uscale = uscale))
 
@@ -67,8 +68,8 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE, ...) {
 
         ## quantile prediction on u-scale
         if (!uscale)
-            newdata <- to_uscale(newdata, object)
-        preds <- qdvine(newdata, alpha, vine = object$vine)
+            newdata <- to_uscale(newdata, object$margins[-1], add_response = TRUE)
+        preds <- qdvine(newdata, alpha, vine = object$vine, cores)
 
         ## actual predictions on original scale
         if (!uscale)
@@ -99,18 +100,9 @@ predict_mean <- function(object, newdata) {
 }
 
 #' @importFrom rvinecopulib rosenblatt inverse_rosenblatt
-qdvine <- function(u, alpha, vine) {
+qdvine <- function(u, alpha, vine, cores) {
     d <- dim(vine)[1]
-    if (ncol(u) != d - 1)
-        stop("Dimensions of u and vine are not compatible")
-
-    cpits <- rosenblatt(cbind(0.5, u), vine)[, -1, drop = FALSE]
-    q_hat <- lapply(
-        alpha,
-        function(a) inverse_rosenblatt(cbind(a, cpits), vine)[, 1]
-    )
-
-    q_hat <- as.data.frame(q_hat)
+    q_hat <- as.data.frame(cond_quantile_cpp(alpha, as.matrix(u), vine, cores))
     names(q_hat) <- alpha
     q_hat
 }

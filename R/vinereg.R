@@ -79,7 +79,8 @@
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop dbicop hbicop vinecop_dist
-#'
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
                     order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...) {
     ## pre-processing --------
@@ -93,8 +94,10 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         stop("response must be numeric or ordered")
 
     # expand factors and add noise to discrete variable
-    x <- cctools::cont_conv(mf)
-    d <- ncol(x)
+    mfx <- expand_factors(mf)
+    d <- ncol(mfx)
+    var_types <- rep("c", d)
+    var_types[sapply(mfx, is.ordered)] <- "d"
 
     ## register parallel backend
     cores <- min(cores, future::availableCores())
@@ -106,72 +109,41 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     }
 
     ## estimation of the marginals and transformation to copula data
-    margin_models <- fit_margins(x, par_1d, cores, uscale)
-    u <- get_pits(margin_models, cores)
-    var_nms <- colnames(u)
-
-    ## initialization
-    current_fit <- initialize_fit(u)
-    status <- initialize_status(margin_models, selcrit)
-
-    ## estimation --------
-    if (any(is.na(order))) {
-        ## automatic variable selection
-        for (i in seq_len(d - 1)) {
-            new_fits <- furrr::future_map(
-                status$remaining_vars + 1,
-                ~ xtnd_vine(u[, .], current_fit, family_set, selcrit, ...)
-            )
-            status <- update_status(status, new_fits)
-            if (status$optimum_found)
-                break
-            current_fit <- new_fits[[status$best_ind]]
-        }
-        if (length(status$selected_vars) > 0)
-            names(status$selected_vars) <- var_nms[status$selected_vars + 1]
-    } else {
-        ## fixed variable order
-        check_order(order, var_nms)
-        status$selcrit <- "keep_all"
-        for (var in order) {
-            current_fit <- xtnd_vine(u[, var], current_fit, family_set, selcrit, ...)
-            status <- update_status(status, list(current_fit))
-        }
-        status$selected_vars <- sapply(order, function(nm) which(var_nms == nm) - 1)
-        status$remaining_vars <- numeric(0)
-    }
-
+    margins <- fit_margins(mfx, par_1d, cores, uscale)
+    fit <- select_dvine_cpp(to_uscale(mfx, margins), var_types)
+browser()
     finalize_vinereg_object(
         formula = formula,
         model_frame = mf,
-        margins = margin_models,
-        vine = current_fit$vine,
-        status = status,
-        var_nms = var_nms
+        margins = margins,
+        fit = fit,
+        var_nms = colnames(mfx)
     )
 }
 
 #' @noRd
 #' @importFrom stats pchisq
 #' @importFrom rvinecopulib as_rvine_structure
-finalize_vinereg_object <- function(formula, model_frame, margins, vine,
-                                    status, var_nms) {
+finalize_vinereg_object <- function(formula, model_frame, margins, fit, var_nms) {
     ## adjust model matrix and names
-    reorder <- status$selected_vars
-    reorder[order(reorder)] <- seq_along(status$selected_vars)
-    vine$structure <- as_rvine_structure(
-        gen_dvine_mat(elements = c(1, reorder + 1))
-    )
-    covariate_names <- names(sort(status$selected_vars))
-    vine$names <- c(var_nms[1], covariate_names)
+    fit$vine$names <- c(var_nms[1], var_nms[sort(fit$selected_vars + 1)])
 
     ## compute fit statistics
     nobs <- nrow(model_frame)
-    var_edf <- status$edf
-    var_cll <- status$cll
+    fit$vine$nobs <- nobs
+    var_edf <- c(
+        margins[[1]]$edf,
+        sapply(fit$vine$pair_copulas, function(pcs) pcs[[1]]$npars)
+    )
+    var_cll <- c(
+        margins[[1]]$loglik,
+        sapply(fit$vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
+    )
     var_caic <- -2 * var_cll + 2 * var_edf
     var_cbic <- -2 * var_cll + log(nobs) * var_edf
-    var_p_value <- pchisq(2 * var_cll, var_edf, lower.tail = FALSE)
+    var_p_value <- suppressWarnings(
+        pchisq(2 * var_cll, var_edf, lower.tail = FALSE)
+    )
     var_p_value[1] <- NA
     cll <- sum(var_cll)
     edf <- sum(var_edf)
@@ -194,18 +166,17 @@ finalize_vinereg_object <- function(formula, model_frame, margins, vine,
     ## return results as S3 object
     out <- list(
         formula = formula,
-        selcrit = status$selcrit,
+        selcrit = fit$selcrit,
         model_frame = model_frame,
-        margins = margins,
-        vine = vine,
+        margins = margins[1 + c(0, sort(fit$selected_vars))],
+        vine = fit$vine,
         stats = stats,
-        order = var_nms[status$selected_vars + 1],
-        selected_vars = status$selected_vars
+        order = var_nms[fit$selected_vars + 1],
+        selected_vars = fit$selected_vars + 1
     )
     class(out) <- "vinereg"
     out
 }
-
 
 check_order <- function(order, var_nms) {
     if (!all(order %in% var_nms))
@@ -215,7 +186,6 @@ check_order <- function(order, var_nms) {
         stop("response variable '", var_nms[1],
              "' must not appear in 'order'.")
 }
-
 
 fit_margins <- function(x, par_1d, cores, uscale) {
     d <- ncol(x)
@@ -246,20 +216,6 @@ fit_margins <- function(x, par_1d, cores, uscale) {
 
     names(margs) <- colnames(x)
     margs
-}
-
-get_pits <- function(margin_models, cores) {
-    if (!is.null(margin_models[[1]]$u)) {
-        # data are uniform, no need for PIT
-        u <- sapply(margin_models, function(m) m$u)
-    } else {
-        get_pit <- function(m) pkde1d(m$x_cc, m)
-        u <- furrr::future_map(margin_models, ~ pkde1d(.$x_cc, .))
-        u <- do.call(cbind, u)
-    }
-
-    colnames(u) <- names(margin_models)
-    u
 }
 
 
@@ -295,143 +251,3 @@ process_par_1d <- function(pars, d) {
 
     pars
 }
-
-# u_k <- pkde1d(x[, k], fit)
-# list(fit = fit, u = pkde1d(x[, k], fit))
-#
-initialize_fit <- function(u) {
-    list(
-        # 1-dimensional (= empty) vine
-        vine = list(pair_copulas = list(list()), structure = as.matrix(1)),
-        # array for storing pseudo-observations
-        psobs = list(
-            direct = array(u[, 1], dim = c(1, 1, nrow(u))),
-            indirect = array(NA, dim = c(1, 1, nrow(u)))
-        ),
-        # conditional log-likelihood of the model
-        cll = 0
-    )
-}
-
-initialize_status <- function(margin_fits, selcrit) {
-    list(
-        # remaining variable indices to select from
-        remaining_vars = seq_len(length(margin_fits) - 1),
-        # variables indices included in the model
-        selected_vars = NULL,
-        # selection criterion
-        selcrit = selcrit,
-        # conditional logliklihood (only unconditional margin so for)
-        clls = margin_fits[[1]]$loglik,
-        # number of parameters in current model
-        edf = margin_fits[[1]]$edf,
-        # TRUE when no improvement is possible
-        optimum_found = FALSE
-    )
-}
-
-update_status <- function(status, new_vines) {
-    clls <- sapply(new_vines, function(vine) vine$cll)
-    edf <- sapply(new_vines, function(vine) vine$edf)
-    n <- nrow(new_vines[[1]]$psobs[[1]])
-    crits <- calculate_crits(clls, edf, n, status$selcrit)
-
-    if (max(crits) < 0) {
-        # optimum found, keep old fit
-        status$optimum_found <- TRUE
-    } else {
-        status$best_ind <- which.max(crits)
-        status$selected_vars <- c(
-            status$selected_vars,
-            status$remaining_vars[status$best_ind]
-        )
-        status$remaining_vars <- setdiff(
-            status$remaining_vars,
-            status$selected_vars
-        )
-        status$clls = c(status$clls, clls[status$best_ind])
-        status$edf = c(status$edf, edf[status$best_ind])
-    }
-
-    status
-}
-
-calculate_crits <- function(clls, edf, n, selcrit) {
-    clls - switch(
-        selcrit,
-        "loglik" = 0,
-        "aic" = edf,
-        "bic" = edf * log(n) / 2,
-        "keep_all" = -Inf
-    )
-}
-
-#' @importFrom utils modifyList
-#' @importFrom stats cor
-#' @importFrom rvinecopulib bicop_dist
-xtnd_vine <- function(new_var, old_fit, family_set, selcrit, ...) {
-    d <- dim(old_fit$psobs$direct)[1] + 1
-    n <- length(new_var)
-
-    psobs <- list(
-        direct = array(NA, dim = c(d, d, n)),
-        indirect = array(NA, dim = c(d, d, n))
-    )
-    psobs$direct[-1, -d, ] <- old_fit$psobs$direct
-    psobs$indirect[-1, -d, ] <- old_fit$psobs$indirect
-    psobs$direct[d, d, ] <- new_var
-
-    old_fit$vine$pair_copulas[[d - 1]] <- list()
-    edf <- 0
-    for (i in rev(seq_len(d - 1))) {
-        # get data for current edge
-        u_e <- matrix(NA, n, 2)
-        u_e[, 1] <- psobs$direct[i + 1, i, ]
-        u_e[, 2] <- if (i == d - 1) {
-            psobs$direct[i + 1, i + 1, ]
-        } else {
-            psobs$indirect[i + 1, i + 1, ]
-        }
-
-        # correct bandwidth for regression context
-        # (optimal rate is n^(-1/5) instead of n^(-1/6))
-        mult <- ifelse(is.null(list(...)$mult), 1, list(...)$mult)
-        dots <- modifyList(list(mult = n^(1/6 - 1/5) * mult), list(...))
-        args <- modifyList(
-            list(
-                data = u_e,
-                family_set = family_set,
-                selcrit = selcrit
-            ),
-            dots
-        )
-        args$threshold <- NULL
-
-        # fit
-        if (!is.null(dots$threshold)) {
-            if (abs(cor(args$data, method = "kendall")[1, 2]) < dots$threshold) {
-                pc_fit <- bicop_dist()
-                class(pc_fit) <- c("bicop", "bicop_dist")
-                pc_fit$data <- args$data
-            } else {
-                pc_fit <- do.call(bicop, args)
-            }
-        } else {
-            pc_fit <- do.call(bicop, args)
-        }
-        old_fit$vine$pair_copulas[[d - i]][[i]] <- pc_fit
-        edf <- edf + pc_fit$npars
-
-        # pseudo observations for next tree
-        psobs$direct[i, i, ] <- hbicop(u_e, 2, pc_fit)
-        psobs$indirect[i, i, ] <- hbicop(u_e, 1, pc_fit)
-    }
-
-    list(
-        vine = vinecop_dist(old_fit$vine$pair_copulas, gen_dvine_mat(d)),
-        psobs = psobs,
-        cll = logLik(pc_fit),
-        edf = edf
-    )
-}
-

@@ -24,7 +24,6 @@ test_that("catches incorrect levels", {
     expect_error(predict(fit, dat))
 })
 
-
 test_that("handles alpha correctly", {
     fit <- vinereg(y ~ ., dat[1:3])
     expect_equal(colnames(predict(fit, alpha = c(NA, 0.5))), c("mean", "0.5"))
@@ -67,7 +66,7 @@ test_that("works with discrete response", {
 })
 
 fit <- vinereg(y ~ ., dat[-5])
-u <- vinereg:::get_pits(fit$margins, 1)
+u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
 fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
 
 test_that("works on uscale", {

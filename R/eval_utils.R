@@ -2,13 +2,12 @@
 #' @noRd
 prepare_newdata <- function(newdata, object, use_response = FALSE) {
     newdata <- as.data.frame(newdata)
-
     if (!use_response)
         object$model_frame <- object$model_frame[-1]
     check_newdata(newdata, object)
 
     # factors must be expanded to dummy numeric variables
-    newdata <- cctools::expand_as_numeric(newdata)
+    newdata <- expand_factors(newdata)
     newdata <- remove_unused(newdata, object, use_response)
 }
 
@@ -83,7 +82,7 @@ check_levels <- function(actual, expected) {
 #' @noRd
 remove_unused <- function(newdata, object, use_response = FALSE) {
     # x must be sorted in the order of the data used for fitting
-    fit_order <- names(sort(object$selected_vars))
+    fit_order <- object$order[order(object$selected_vars)]
     if (use_response)
         fit_order <- c(names(object$model_frame)[1], fit_order)
     newdata[, fit_order, drop = FALSE]
@@ -101,11 +100,38 @@ adjust_uscale <- function(object, uscale) {
 }
 
 #' transforms data to uniform scale with probability integral transform.
+#' For discrete variables, the output has dimension 2*d
 #' @noRd
-to_uscale <- function(x, object) {
-    for (var in colnames(x))
-        x[, var] <- truncate_u(pkde1d(x[, var], object$margins[[var]]))
-    x
+to_uscale <- function(data, margins, add_response = FALSE) {
+    compute_u <- function(k) {
+        pkde1d(data[[k]], margins[[k]])
+    }
+    compute_u_sub <- function(k) {
+        if (is.factor(data[, k])) {
+            lv <- as.numeric(data[[k]]) - 1
+            lv[lv == 0] <- NA
+            us <- pkde1d(levels(data[[k]])[lv], margins[[k]])
+            us[is.na(us) & !is.na(data[[k]])] <- 0
+            return(us)
+        } else {
+            return(u[[k]])
+        }
+    }
+    u_sub <- list()
+    if (!is.null(margins[[1]]$u)) {
+        # data are uniform, no need for PIT
+        u <- lapply(margins, function(m) m$u)
+    } else {
+        u <- furrr::future_map(seq_along(margins), compute_u)
+        if (any(sapply(margins, function(x) length(x$jitter_info$i_disc))))
+            u_sub <- furrr::future_map(seq_along(margins), compute_u_sub)
+    }
+    if (add_response) {
+        u <- c(list(0.5), u)
+        if (length(u_sub) > 0)
+            u_sub <- c(list(0.5), u_sub)
+    }
+    truncate_u(cbind(do.call(cbind, u), do.call(cbind, u_sub)))
 }
 
 #' ensures that u-scale data does not contain zeros or ones.
@@ -119,22 +145,24 @@ truncate_u <- function(u) {
 to_yscale <- function(u, object) {
     nms <- colnames(u)
     u <- lapply(u, qkde1d, obj = object$margins[[1]])
-    if (inherits(object$model_frame[[1]], "ordered")) {
-        # when response is discrete, we need to adjust the quantiles
-        lvls <- levels(object$model_frame[[1]])
-        u <- lapply(u, with_levels, lvls = lvls)
-    }
-
     u <- as.data.frame(u)
     names(u) <- nms
     u
 }
 
-#' returns the quantile predictions as order variable with appropriate levels.
+#' @importFrom stats model.matrix
 #' @noRd
-with_levels <- function(q, lvls) {
-    q <- ceiling(q)
-    q <- pmax(q, 1)
-    q <- pmin(q, length(lvls))
-    ordered(lvls[q], levels = lvls)
+expand_factors <- function(data) {
+    if (is.data.frame(data)) {
+        data <- lapply(data, function(x) {
+            if (is.numeric(x) | is.ordered(x))
+                return(x)
+            x <- model.matrix(~ x)[, -1, drop = FALSE]
+            x <- as.data.frame(x)
+            x <- lapply(x, function(y) ordered(y, levels = 0:1))
+            names(x) <- seq_along(x)
+            x
+        })
+    }
+    as.data.frame(data)
 }

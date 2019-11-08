@@ -34,7 +34,7 @@ test_that("works with continuous response", {
     x <- matrix(rnorm(600), 200, 3)
     y <- x %*% c(1, -1, 2)
     dat <- data.frame(y = y, x = x, z = as.factor(rbinom(200, 3, 0.5)))
-    fit <- vinereg(y ~ ., dat, selcrit = "loglik")
+    fit <- vinereg(y ~ ., dat, selcrit = "bic")
     expect_gt(ks.test(cpit(fit, dat), "punif")$p, 0.01)
 })
 
@@ -45,8 +45,8 @@ test_that("works with discrete response", {
 })
 
 fit <- vinereg(y ~ ., dat[-5])
-u <- vinereg:::get_pits(fit$margins, 1)
-fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
+u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
+fit_uscale <- vinereg(y ~ ., u, uscale = TRUE)
 
 test_that("works on uscale", {
     expect_silent(cpit(fit, u, uscale = TRUE))

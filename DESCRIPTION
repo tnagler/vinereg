@@ -20,6 +20,8 @@ Imports:
     future,
     furrr, 
     kde1d (>= 0.2.0),
+    Rcpp
+LinkingTo: rvinecopulib, RcppEigen, Rcpp, RcppThread
 RoxygenNote: 6.1.1
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)

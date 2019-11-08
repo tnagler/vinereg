@@ -50,8 +50,8 @@ test_that("works with fixed order", {
 
 test_that("works on uscale", {
     fit <- vinereg(y ~ ., dat[-5])
-    u <- vinereg:::get_pits(fit$margins, 1)
-    fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
+    u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
+    fit_uscale <- vinereg(y ~ ., u, uscale = TRUE)
 
     expect_equal(fit$vine, fit_uscale$vine)
 })

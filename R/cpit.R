@@ -20,12 +20,12 @@
 #' fit <- vinereg(y ~ ., dat)
 #'
 #' hist(cpit(fit, dat))  # should be approximately uniform
-cpit <- function(object, newdata, uscale = FALSE) {
+cpit <- function(object, newdata, uscale = FALSE, cores = 1) {
     uscale <- adjust_uscale(object, uscale)
     newdata <- prepare_newdata(newdata, object, use_response = TRUE)
 
     if (!uscale)
-        newdata <- to_uscale(newdata, object)
+        newdata <- to_uscale(newdata, object$margins)
 
-    unname(rosenblatt(newdata, object$vine)[, 1])
+    cond_dist_cpp(newdata, object$vine, cores)
 }
