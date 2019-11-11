@@ -69,8 +69,6 @@
 #'
 #' @export
 #'
-#' @importFrom future plan multiprocess availableCores
-#' @importFrom furrr future_map
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
 #' @importFrom rvinecopulib bicop vinecop dvine_structure
@@ -93,15 +91,6 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     d <- ncol(mfx)
     var_types <- rep("c", d)
     var_types[sapply(mfx, is.ordered)] <- "d"
-
-    ## register parallel backend
-    cores <- min(cores, future::availableCores())
-    if (cores > 1) {
-        suppressWarnings(future::plan(future::multiprocess, workers = cores))
-        on.exit(future::plan(), add = TRUE)
-    } else {
-        future::plan(future::sequential)
-    }
 
     ## prepare fit controls (little hack calling bicop() for all checks)
     arg <- list(
@@ -249,7 +238,7 @@ fit_margins <- function(x, par_1d, cores) {
         m$x_cc <- x[, k]
         m
     }
-    margs <- furrr::future_map(seq_len(d), fit_margin)
+    margs <- lapply(seq_len(d), fit_margin)
 
     names(margs) <- colnames(x)
     margs

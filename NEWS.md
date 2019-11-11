@@ -1,9 +1,12 @@
 # vinereg 0.7.0
 
-BREAKING CHANGE
+REMOVED FEATURES
 
 * removed support for `uscale` argument.
 
+* removed support for fitting margins in parallel (a better way to do this will
+  be added shortly).
+ 
 
 # vinereg 0.6.0
 
