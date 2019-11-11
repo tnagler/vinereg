@@ -5,6 +5,7 @@
 #' @param object an object of class \code{vinereg}.
 #' @param newdata matrix of response and covariate values for which to compute
 #'   the conditional distribution.
+#' @param cores integer; the number of cores to use for computations.
 #'
 #' @export
 #'

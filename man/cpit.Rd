@@ -11,6 +11,8 @@ cpit(object, newdata, cores = 1)
 
 \item{newdata}{matrix of response and covariate values for which to compute
 the conditional distribution.}
+
+\item{cores}{integer; the number of cores to use for computations.}
 }
 \description{
 Calculates the conditional distribution of the response given the covariates.

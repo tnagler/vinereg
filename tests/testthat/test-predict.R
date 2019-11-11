@@ -60,3 +60,4 @@ test_that("works with discrete response", {
     expect_equal(fitted(fit), predict(fit, dat))
     expect_error(fitted(fit, alpha = NA))
 })
+

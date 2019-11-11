@@ -111,9 +111,9 @@ to_uscale <- function(data, margins, add_response = FALSE) {
         # data are uniform, no need for PIT
         u <- lapply(margins, function(m) m$u)
     } else {
-        u <- furrr::future_map(seq_along(margins), compute_u)
+        u <- lapply(seq_along(margins), compute_u)
         if (any(sapply(margins, function(x) length(x$jitter_info$i_disc))))
-            u_sub <- furrr::future_map(seq_along(margins), compute_u_sub)
+            u_sub <- lapply(seq_along(margins), compute_u_sub)
     }
     if (add_response) {
         u <- c(list(0.5), u)

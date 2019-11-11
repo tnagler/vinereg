@@ -4,6 +4,7 @@
 #' @param newdata matrix of covariate values for which to predict the quantile.
 #' @param alpha vector of quantile levels; `NA` predicts the mean based on an
 #'   average of the `1:10 / 11`-quantiles.
+#' @param cores integer; the number of cores to use for computations.
 #' @param ... unused.
 #'
 #' @return A data.frame of quantiles where each column corresponds to one

@@ -17,6 +17,8 @@
 \item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
 average of the \code{1:10 / 11}-quantiles.}
 
+\item{cores}{integer; the number of cores to use for computations.}
+
 \item{...}{unused.}
 }
 \value{

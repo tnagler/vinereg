@@ -76,6 +76,7 @@
 #'
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
+#' @importFrom utils modifyList
 #' @importFrom rvinecopulib bicop vinecop dvine_structure
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib vinereg, .registration = TRUE
@@ -122,12 +123,20 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         selected_vars <- which(names(mfx) %in% order)
         margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
         u <- to_uscale(mfx[, c(1, selected_vars)], margins)
+        var_types <- var_types[c(1, selected_vars)]
+        if (any(var_types == "d")) {
+            u_sub <- u[, length(var_types) + seq_along(var_types)]
+        } else {
+            u_sub <- NULL
+        }
+        u <- u[, seq_along(var_types)]
 
         # now we need the correct ordering in selected_vars
         selected_vars <- sapply(order, function(x) which(x == names(mfx)))
         args <- append(
             ctrl,
             list(data = u,
+                 data_sub = u_sub,
                  var_types = var_types,
                  cores = cores,
                  structure = dvine_structure(rank(c(1, selected_vars))))

@@ -45,7 +45,7 @@ BUG FIXES
 
 DEPENDS
 
-* Use `furrr` and `fututre` packages instead of `parallel`, `doParallel`, and 
+* Use `furrr` and `future` packages instead of `parallel`, `doParallel`, and 
   `foreach` for parallelization.
 
 NEW FEATURES
