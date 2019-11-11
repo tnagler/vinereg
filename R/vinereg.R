@@ -61,15 +61,14 @@
 #' plot_effects(fit)
 #'
 #' # model predictions
-#' mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
-#' med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+#' mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean
+#' med_hat <- predict(fit, newdata = dat, alpha = 0.5) # median
 #'
 #' # observed vs predicted
 #' plot(cbind(y, mu_hat))
 #'
 #' ## fixed variable order (no selection)
 #' (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
-#'
 #' @seealso \code{\link{predict.vinereg}}
 #'
 #' @export
@@ -82,89 +81,92 @@
 #' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
                     order = NA, par_1d = list(), cores = 1, ...) {
-    # remove unused variables
-    if (!missing(data)) {
-        mf <- model.frame(formula, data)
+  # remove unused variables
+  if (!missing(data)) {
+    mf <- model.frame(formula, data)
+  } else {
+    mf <- model.frame(formula, parent.frame())
+  }
+  if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]]))) {
+    stop("response must be numeric or ordered")
+  }
+
+  # expand factors and deduce variable types
+  mfx <- expand_factors(mf)
+  d <- ncol(mfx)
+  var_types <- rep("c", d)
+  var_types[sapply(mfx, is.ordered)] <- "d"
+
+  ## prepare fit controls (little hack calling bicop() for all checks)
+  arg <- list(
+    data = t(c(0.5, 0.5)),
+    family_set = family_set,
+    selcrit = selcrit,
+    cores = cores,
+    par_method = "mle",
+    nonpar_method = "quadratic",
+    mult = 1,
+    weights = numeric(),
+    psi0 = 0.9,
+    presel = TRUE,
+    keep_data = FALSE
+  )
+  ctrl <- do.call(
+    bicop,
+    modifyList(arg, list(...))
+  )$controls
+
+  if (!all(is.na(order))) {
+    stopifnot(length(order) > 0)
+    stopifnot(all(order %in% names(mfx)))
+    # estimation of the marginals and transformation to copula data
+    selected_vars <- which(names(mfx) %in% order)
+    margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
+    u <- to_uscale(mfx[, c(1, selected_vars)], margins)
+    var_types <- var_types[c(1, selected_vars)]
+    if (any(var_types == "d")) {
+      u_sub <- u[, length(var_types) + seq_along(var_types)]
     } else {
-        mf <- model.frame(formula, parent.frame())
+      u_sub <- NULL
     }
-    if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
-        stop("response must be numeric or ordered")
+    u <- u[, seq_along(var_types)]
 
-    # expand factors and deduce variable types
-    mfx <- expand_factors(mf)
-    d <- ncol(mfx)
-    var_types <- rep("c", d)
-    var_types[sapply(mfx, is.ordered)] <- "d"
-
-    ## prepare fit controls (little hack calling bicop() for all checks)
-    arg <- list(
-        data = t(c(0.5, 0.5)),
-        family_set = family_set,
-        selcrit = selcrit,
+    # now we need the correct ordering in selected_vars
+    selected_vars <- sapply(order, function(x) which(x == names(mfx)))
+    args <- append(
+      ctrl,
+      list(
+        data = u,
+        data_sub = u_sub,
+        var_types = var_types,
         cores = cores,
-        par_method = "mle",
-        nonpar_method = "quadratic",
-        mult = 1,
-        weights = numeric(),
-        psi0 = 0.9,
-        presel = TRUE,
-        keep_data = FALSE
+        structure = dvine_structure(rank(c(1, selected_vars)))
+      )
     )
-    ctrl <- do.call(
-        bicop,
-        modifyList(arg, list(...))
-    )$controls
-
-    if (!all(is.na(order))) {
-        stopifnot(length(order) > 0)
-        stopifnot(all(order %in% names(mfx)))
-        # estimation of the marginals and transformation to copula data
-        selected_vars <- which(names(mfx) %in% order)
-        margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
-        u <- to_uscale(mfx[, c(1, selected_vars)], margins)
-        var_types <- var_types[c(1, selected_vars)]
-        if (any(var_types == "d")) {
-            u_sub <- u[, length(var_types) + seq_along(var_types)]
-        } else {
-            u_sub <- NULL
-        }
-        u <- u[, seq_along(var_types)]
-
-        # now we need the correct ordering in selected_vars
-        selected_vars <- sapply(order, function(x) which(x == names(mfx)))
-        args <- append(
-            ctrl,
-            list(data = u,
-                 data_sub = u_sub,
-                 var_types = var_types,
-                 cores = cores,
-                 structure = dvine_structure(rank(c(1, selected_vars))))
-        )
-        fit <- list(
-            vine = do.call(vinecop, args),
-            selected_vars = selected_vars
-        )
-    } else {
-        margins <- fit_margins(mfx, par_1d, cores)
-        u <- to_uscale(mfx, margins)
-        args <- append(
-            ctrl,
-            list(data = u, var_types = var_types, cores = cores)
-        )
-        fit <- do.call(select_dvine_cpp, args)
-        margins <- margins[c(1, sort(fit$selected_vars))]
-    }
-
-    finalize_vinereg_object(
-        formula = formula,
-        selcrit = selcrit,
-        model_frame = mf,
-        margins = margins,
-        vine = fit$vine,
-        selected_vars = fit$selected_vars,
-        var_nms = colnames(mfx)
+    fit <- list(
+      vine = do.call(vinecop, args),
+      selected_vars = selected_vars
     )
+  } else {
+    margins <- fit_margins(mfx, par_1d, cores)
+    u <- to_uscale(mfx, margins)
+    args <- append(
+      ctrl,
+      list(data = u, var_types = var_types, cores = cores)
+    )
+    fit <- do.call(select_dvine_cpp, args)
+    margins <- margins[c(1, sort(fit$selected_vars))]
+  }
+
+  finalize_vinereg_object(
+    formula = formula,
+    selcrit = selcrit,
+    model_frame = mf,
+    margins = margins,
+    vine = fit$vine,
+    selected_vars = fit$selected_vars,
+    var_nms = colnames(mfx)
+  )
 }
 
 #' @noRd
@@ -172,117 +174,133 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 #' @importFrom rvinecopulib as_rvine_structure
 finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine,
                                     selected_vars, var_nms) {
-    vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
-    nobs <- nrow(model_frame)
-    vine$nobs <- nobs
-    var_edf <- c(
-        margins[[1]]$edf,
-        sapply(vine$pair_copulas, function(pcs) pcs[[1]]$npars)
-    )
-    var_cll <- c(
-        margins[[1]]$loglik,
-        sapply(vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
-    )
-    var_caic <- -2 * var_cll + 2 * var_edf
-    var_cbic <- -2 * var_cll + log(nobs) * var_edf
-    var_p_value <- suppressWarnings(
-        pchisq(2 * var_cll, var_edf, lower.tail = FALSE)
-    )
-    var_p_value[1] <- NA
-    cll <- sum(var_cll)
-    edf <- sum(var_edf)
-    caic <- sum(var_caic)
-    cbic <- sum(var_cbic)
+  vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
+  nobs <- nrow(model_frame)
+  vine$nobs <- nobs
+  var_edf <- c(
+    margins[[1]]$edf,
+    sapply(vine$pair_copulas, function(pcs) pcs[[1]]$npars)
+  )
+  var_cll <- c(
+    margins[[1]]$loglik,
+    sapply(vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
+  )
+  var_caic <- -2 * var_cll + 2 * var_edf
+  var_cbic <- -2 * var_cll + log(nobs) * var_edf
+  var_p_value <- suppressWarnings(
+    pchisq(2 * var_cll, var_edf, lower.tail = FALSE)
+  )
+  var_p_value[1] <- NA
+  cll <- sum(var_cll)
+  edf <- sum(var_edf)
+  caic <- sum(var_caic)
+  cbic <- sum(var_cbic)
 
-    stats <- list(
-        nobs = nobs,
-        edf = edf,
-        cll = cll,
-        caic = caic,
-        cbic = cbic,
-        var_edf = var_edf,
-        var_cll = var_cll,
-        var_caic = var_caic,
-        var_cbic = var_cbic,
-        var_p_value = var_p_value
-    )
+  stats <- list(
+    nobs = nobs,
+    edf = edf,
+    cll = cll,
+    caic = caic,
+    cbic = cbic,
+    var_edf = var_edf,
+    var_cll = var_cll,
+    var_caic = var_caic,
+    var_cbic = var_cbic,
+    var_p_value = var_p_value
+  )
 
-    out <- list(
-        formula = formula,
-        selcrit = selcrit,
-        model_frame = model_frame,
-        margins = margins,
-        vine = vine,
-        stats = stats,
-        order = var_nms[selected_vars],
-        selected_vars = selected_vars
-    )
-    class(out) <- "vinereg"
-    out
+  out <- list(
+    formula = formula,
+    selcrit = selcrit,
+    model_frame = model_frame,
+    margins = margins,
+    vine = vine,
+    stats = stats,
+    order = var_nms[selected_vars],
+    selected_vars = selected_vars
+  )
+  class(out) <- "vinereg"
+  out
 }
 
 check_order <- function(order, var_nms) {
-    if (!all(order %in% var_nms))
-        stop("unknown variable name in 'order'; ",
-             "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'.")
-    if (any(order == var_nms[1]))
-        stop("response variable '", var_nms[1],
-             "' must not appear in 'order'.")
+  if (!all(order %in% var_nms)) {
+    stop(
+      "unknown variable name in 'order'; ",
+      "allowed values: '", paste(var_nms[-1], collapse = "', '"), "'."
+    )
+  }
+  if (any(order == var_nms[1])) {
+    stop(
+      "response variable '", var_nms[1],
+      "' must not appear in 'order'."
+    )
+  }
 }
 
 fit_margins <- function(x, par_1d, cores) {
-    d <- ncol(x)
-    par_1d <- process_par_1d(par_1d, d)
-    fit_margin <- function(k) {
-        arg_lst <- list(
-            x = x[, k],
-            xmin = par_1d$xmin[k],
-            xmax = par_1d$xmax[k],
-            bw   = par_1d$bw[k],
-            mult = par_1d$mult[k],
-            deg  = par_1d$deg[k]
-        )
-        arg_lst[sapply(arg_lst, is.null)] <- NULL
-        m <- do.call(kde1d, arg_lst)
-        m$x_cc <- x[, k]
-        m
-    }
-    margs <- lapply(seq_len(d), fit_margin)
+  d <- ncol(x)
+  par_1d <- process_par_1d(par_1d, d)
+  fit_margin <- function(k) {
+    arg_lst <- list(
+      x = x[, k],
+      xmin = par_1d$xmin[k],
+      xmax = par_1d$xmax[k],
+      bw = par_1d$bw[k],
+      mult = par_1d$mult[k],
+      deg = par_1d$deg[k]
+    )
+    arg_lst[sapply(arg_lst, is.null)] <- NULL
+    m <- do.call(kde1d, arg_lst)
+    m$x_cc <- x[, k]
+    m
+  }
+  margs <- lapply(seq_len(d), fit_margin)
 
-    names(margs) <- colnames(x)
-    margs
+  names(margs) <- colnames(x)
+  margs
 }
 
 
 process_par_1d <- function(pars, d) {
-    if (!is.null(pars$xmin)) {
-        if (length(pars$xmin) != d)
-            stop("'xmin'  must be a vector with one value for each variable")
+  if (!is.null(pars$xmin)) {
+    if (length(pars$xmin) != d) {
+      stop("'xmin'  must be a vector with one value for each variable")
     }
-    if (!is.null(pars$xmax)) {
-        if (length(pars$xmax) != d)
-            stop("'xmin'  must be a vector with one value for each variable")
+  }
+  if (!is.null(pars$xmax)) {
+    if (length(pars$xmax) != d) {
+      stop("'xmin'  must be a vector with one value for each variable")
     }
-    if (!is.null(pars$xmax)) {
-        if (length(pars$xmax) != d)
-            stop("'xmin' must be a vector with one value for each variable")
+  }
+  if (!is.null(pars$xmax)) {
+    if (length(pars$xmax) != d) {
+      stop("'xmin' must be a vector with one value for each variable")
     }
-    if (length(pars$bw) != d && !is.null(pars$bw))
-        stop("'bw' must be a vector with one value for each variable")
+  }
+  if (length(pars$bw) != d && !is.null(pars$bw)) {
+    stop("'bw' must be a vector with one value for each variable")
+  }
 
-    if (is.null(pars$mult))
-        pars$mult <- 1
-    if (length(pars$mult) == 1)
-        pars$mult <- rep(pars$mult, d)
-    if (length(pars$mult) != d)
-        stop("mult has to be of length 1 or the number of variables")
+  if (is.null(pars$mult)) {
+    pars$mult <- 1
+  }
+  if (length(pars$mult) == 1) {
+    pars$mult <- rep(pars$mult, d)
+  }
+  if (length(pars$mult) != d) {
+    stop("mult has to be of length 1 or the number of variables")
+  }
 
-    if (is.null(pars$deg))
-        pars$deg <- 2
-    if (length(pars$deg) == 1)
-        pars$deg <- rep(pars$deg, d)
-    if (length(pars$deg) != d)
-        stop("deg has to be of length 1 or the number of variables")
+  if (is.null(pars$deg)) {
+    pars$deg <- 2
+  }
+  if (length(pars$deg) == 1) {
+    pars$deg <- rep(pars$deg, d)
+  }
+  if (length(pars$deg) != d) {
+    stop("deg has to be of length 1 or the number of variables")
+  }
 
-    pars
+  pars
 }

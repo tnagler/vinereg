@@ -10,7 +10,9 @@
 #' @export
 #'
 #' @examples
-#' \dontshow{set.seed(1)}
+#' \dontshow{
+#' set.seed(1)
+#' }
 #' # simulate data
 #' x <- matrix(rnorm(500), 250, 2)
 #' y <- x %*% c(1, -2)
@@ -19,9 +21,9 @@
 #' # fit vine regression model
 #' fit <- vinereg(y ~ ., dat)
 #'
-#' hist(cpit(fit, dat))  # should be approximately uniform
+#' hist(cpit(fit, dat)) # should be approximately uniform
 cpit <- function(object, newdata, cores = 1) {
-    newdata <- prepare_newdata(newdata, object, use_response = TRUE)
-    newdata <- to_uscale(newdata, object$margins)
-    cond_dist_cpp(newdata, object$vine, cores)
+  newdata <- prepare_newdata(newdata, object, use_response = TRUE)
+  newdata <- to_uscale(newdata, object$margins)
+  cond_dist_cpp(newdata, object$vine, cores)
 }
