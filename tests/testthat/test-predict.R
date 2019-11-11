@@ -48,14 +48,10 @@ test_that("works with continuous response", {
 
     # simulate data
     x <- matrix(rnorm(300), 100, 3)
-    y <- x %*% c(1, -1, 2)
+    y <- x %*% c(1, -1, 2) + rnorm(100)
     dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
-    fit <- vinereg(y ~ ., dat, selcrit = "loglik")
-    expect_equal(
-        unname(coef(lm(dat$y ~ fitted(fit)[[1]]))),
-        c(0, 1),
-        tol = 1e-1
-    )
+    fit <- vinereg(y ~ ., dat, selcrit = "aic")
+    expect_equal(cor(dat$y, fitted(fit)[[1]]), 1, tol = 1e-1)
 })
 
 test_that("works with discrete response", {
@@ -63,14 +59,4 @@ test_that("works with discrete response", {
     fit <- vinereg(y ~ ., dat, fam = "tll")
     expect_equal(fitted(fit), predict(fit, dat))
     expect_error(fitted(fit, alpha = NA))
-})
-
-fit <- vinereg(y ~ ., dat[-5])
-u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
-fit_uscale <- vinereg(y ~ ., as.data.frame(u), uscale = TRUE)
-
-test_that("works on uscale", {
-    expect_warning(
-        expect_equal(predict(fit, u, uscale = TRUE), fitted(fit_uscale))
-    )
 })

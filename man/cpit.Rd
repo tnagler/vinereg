@@ -4,7 +4,7 @@
 \alias{cpit}
 \title{Conditional probability integral transform}
 \usage{
-cpit(object, newdata, uscale = FALSE)
+cpit(object, newdata, uscale = FALSE, cores = 1)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}

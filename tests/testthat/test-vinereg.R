@@ -45,21 +45,8 @@ test_that("works with fixed order", {
 
     fit_auto <- vinereg(y ~ ., dat[-5], selcrit = "bic")
     fit_ord <- vinereg(y ~ ., dat[-5], selcrit = "bic", order = fit_auto$order)
-    expect_equal(fit_auto$vine, fit_ord$vine)
+    expect_equal(summary(fit_auto$vine), summary(fit_ord$vine))
 })
-
-test_that("works on uscale", {
-    fit <- vinereg(y ~ ., dat[-5])
-    u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
-    fit_uscale <- vinereg(y ~ ., u, uscale = TRUE)
-
-    expect_equal(fit$vine, fit_uscale$vine)
-})
-
-test_that("works with threshold", {
-    expect_silent(vinereg(y ~ ., dat[-5], threshold = 0.3))
-})
-
 
 test_that("works in parallel", {
     fit <- vinereg(y ~ ., dat[-5])

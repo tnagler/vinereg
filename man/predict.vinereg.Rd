@@ -5,8 +5,7 @@
 \alias{fitted.vinereg}
 \title{Predict conditional mean and quantiles from a D-vine regression model}
 \usage{
-\method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE,
-  ...)
+\method{predict}{vinereg}(object, newdata, alpha = 0.5, cores = 1, ...)
 
 \method{fitted}{vinereg}(object, alpha = 0.5, ...)
 }
@@ -17,8 +16,6 @@
 
 \item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
 average of the \code{1:10 / 11}-quantiles.}
-
-\item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
 
 \item{...}{unused.}
 }

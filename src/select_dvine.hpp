@@ -12,7 +12,7 @@ class DVineSelectStatus
 public:
     DVineSelectStatus(const Eigen::MatrixXd& data,
                       const std::vector<std::string>& var_types,
-                      const FitControlsVinecop& controls)
+                      const FitControlsBicop& controls)
         : p_(var_types.size() - 1)
         , data_(data)
         , var_types_(var_types)
@@ -118,7 +118,7 @@ private:
     std::vector<size_t> selected_vars_;
     Eigen::MatrixXd data_;
     std::vector<std::string> var_types_;
-    FitControlsVinecop controls_;
+    FitControlsBicop controls_;
     double crit_{ 0.0 };
 };
 

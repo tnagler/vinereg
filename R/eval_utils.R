@@ -88,17 +88,6 @@ remove_unused <- function(newdata, object, use_response = FALSE) {
     newdata[, fit_order, drop = FALSE]
 }
 
-
-#' checks if margins were estimated.
-#' @noRd
-adjust_uscale <- function(object, uscale) {
-    if (!is.null(object$margins[[1]]$u) & (!uscale)) {
-        warning("no margins have been estimated, setting uscale = TRUE")
-        uscale <- TRUE
-    }
-    uscale
-}
-
 #' transforms data to uniform scale with probability integral transform.
 #' For discrete variables, the output has dimension 2*d
 #' @noRd

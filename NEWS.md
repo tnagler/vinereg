@@ -1,3 +1,10 @@
+# vinereg 0.7.0
+
+BREAKING CHANGE
+
+* removed support for `uscale` argument.
+
+
 # vinereg 0.6.0
 
 NEW FEATURES

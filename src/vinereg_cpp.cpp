@@ -1,16 +1,40 @@
 #include "select_dvine.hpp"
 #include <wrappers.hpp>
 #include <RcppThread.h>
+#include <vinecopulib/bicop/fit_controls.hpp>
 
 using namespace vinereg;
 
 // [[Rcpp::export]]
 Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
+                            std::vector<std::string> family_set,
+                            std::string par_method,
+                            std::string nonpar_method,
+                            double mult,
+                            std::string selcrit,
+                            const Eigen::VectorXd& weights,
+                            double psi0,
+                            bool preselect_families,
+                            size_t cores,
                             const std::vector<std::string>& var_types)
 {
-    auto fc = FitControlsVinecop({BicopFamily::gaussian});
-    fc.set_selection_criterion("aic");
-    DVineSelectStatus current_fit(data, var_types, fc);
+    std::vector<BicopFamily> fam_set(family_set.size());
+    for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
+        fam_set[fam] = to_cpp_family(family_set[fam]);
+    }
+
+    FitControlsBicop controls(
+        fam_set,
+        par_method,
+        nonpar_method,
+        mult,
+        selcrit,
+        weights,
+        psi0,
+        preselect_families,
+        cores
+    );
+    DVineSelectStatus current_fit(data, var_types, controls);
     std::vector<std::vector<Bicop>> pcs;
 
     std::mutex m;
@@ -26,8 +50,7 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
             }
         };
 
-        auto rv = old_fit.get_remaining_vars();
-        pool.map(fit_replace_if_better, rv);
+            pool.map(fit_replace_if_better, old_fit.get_remaining_vars());
         pool.wait();
 
         if (current_fit.get_selected_vars() == old_fit.get_selected_vars()) {
@@ -45,9 +68,10 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
     Rcpp::List vinecop_r;
     if (current_fit.get_selected_vars().size() > 0) {
         auto new_order = tools_stl::cat({ 0 }, current_fit.get_selected_vars());
-        new_order = tools_stl::get_order(new_order);
-        for (auto& o : new_order)
-            o += 1;
+        // compute ranks to ensure that vars are 1, ..., p_sel
+        auto tmp = tools_stl::get_order(new_order);
+        for (auto i : tmp)
+            new_order[tmp[i]] = static_cast<double>(i + 1);
         auto new_struct = DVineStructure(new_order);
 
         auto vine_structure = rvine_structure_wrap(new_struct);
@@ -72,9 +96,12 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
         );
         vinecop_r.attr("class") = Rcpp::CharacterVector{"vinecop", "vinecop_dist"};
     }
+    auto selected_vars = current_fit.get_selected_vars();
+    for (auto& v : selected_vars)
+        v++;
     return Rcpp::List::create(
         Rcpp::Named("vine") = vinecop_r,
-        Rcpp::Named("selected_vars") = current_fit.get_selected_vars()
+        Rcpp::Named("selected_vars") = selected_vars
     );
 }
 

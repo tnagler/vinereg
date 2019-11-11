@@ -1,46 +1,41 @@
 #' D-vine regression models
 #'
 #' Sequential estimation of a regression D-vine for the purpose of quantile
-#' prediction as described in Kraus and Czado (2017). If discrete variables
-#' are declared as `ordered()` or `factor()`, jittering is used
-#' to make them continuous (see `cctools::cont_conv()`). Although this may
-#' make the model estimate inconsistent, predictions are usually still reasonable.
+#' prediction as described in Kraus and Czado (2017). If discrete variables are
+#' declared as `ordered()` or `factor()`, jittering is used to make them
+#' continuous (see `cctools::cont_conv()`). Although this may make the model
+#' estimate inconsistent, predictions are usually still reasonable.
 #'
 #' @param formula an object of class "formula"; same as [lm()].
-#' @param data data frame (or object coercible by
-#'   [as.data.frame()]) containing the variables in the model.
+#' @param data data frame (or object coercible by [as.data.frame()]) containing
+#'   the variables in the model.
 #' @param family_set see `family_set` argument of [rvinecopulib::bicop()].
 #' @param selcrit selection criterion based on conditional log-likelihood.
 #'   \code{"loglik"} (default) imposes no correction; other choices are
 #'   \code{"aic"} and \code{"bic"}.
-#' @param order the order of covariates in the D-vine, provided as vector
-#'   of variable names (after calling `cctools::cont_conv()` on the
-#'   `model.frame()`); selected automatically if `order = NA` (default).
+#' @param order the order of covariates in the D-vine, provided as vector of
+#'   variable names (after calling
+#'   `vinereg:::expand_factors(model.frame(formula, data))`); selected
+#'   automatically if `order = NA` (default).
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
-#'   for each margin, e.g. `list(xmin = c(0, 0, NaN))` if the response and
-#'   first covariate have non-negative support.
+#'   for each margin, e.g. `list(xmin = c(0, 0, NaN))` if the response and first
+#'   covariate have non-negative support.
 #' @param cores integer; the number of cores to use for computations.
-#' @param uscale logical indicating whether the data are already on copula scale
-#'   (no margins have to be fitted).
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
 #'
-#' @return
-#' An object of class vinereg. It is a list containing the elements
-#' \describe{
-#' \item{formula}{the formula used for the fit.}
-#' \item{selcrit}{criterion used for variable selection.}
-#' \item{model_frame}{the data used to fit the regression model.}
-#' \item{margins}{list of marginal models fitted by [kde1d::kde1d()].}
-#' \item{vine}{an [rvinecopulib::vinecop_dist()] object containing the fitted
-#'   D-vine.}
+#' @return An object of class vinereg. It is a list containing the elements
+#' \describe{ \item{formula}{the formula used for the fit.}
+#' \item{selcrit}{criterion used for variable selection.} \item{model_frame}{the
+#' data used to fit the regression model.} \item{margins}{list of marginal
+#' models fitted by [kde1d::kde1d()].} \item{vine}{an
+#' [rvinecopulib::vinecop_dist()] object containing the fitted D-vine.}
 #' \item{stats}{fit statistics such as conditional log-likelihood/AIC/BIC and
-#' p-values for each variable's contribution.}
-#' \item{order}{order of the covariates chosen by the variable selection algorithm.}
-#' \item{selected_vars}{indices of selected variables.}
-#' }
-#' Use [predict.vinereg()] to predict conditional
-#' quantiles. `summary.vinereg()` shows the contribution of each selected
-#' variable with the associated p-value derived from a likelihood ratio test.
+#' p-values for each variable's contribution.} \item{order}{order of the
+#' covariates chosen by the variable selection algorithm.}
+#' \item{selected_vars}{indices of selected variables.} } Use
+#' [predict.vinereg()] to predict conditional quantiles. `summary.vinereg()`
+#' shows the contribution of each selected variable with the associated p-value
+#' derived from a likelihood ratio test.
 #'
 #' @references
 #'
@@ -78,11 +73,11 @@
 #' @importFrom furrr future_map
 #' @importFrom kde1d kde1d pkde1d
 #' @importFrom stats model.frame logLik
-#' @importFrom rvinecopulib bicop dbicop hbicop vinecop_dist
+#' @importFrom rvinecopulib bicop vinecop dvine_structure
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
-                    order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...) {
+                    order = NA, par_1d = list(), cores = 1, ...) {
     ## pre-processing --------
     # remove unused variables
     if (!missing(data)) {
@@ -108,15 +103,64 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         future::plan(future::sequential)
     }
 
+    ## prepare fit controls (little hack calling bicop() for all checks)
+    arg <- list(
+        data = t(c(0.5, 0.5)),
+        family_set = family_set,
+        selcrit = selcrit,
+        cores = cores,
+        par_method = "mle",
+        nonpar_method = "quadratic",
+        mult = 1,
+        weights = numeric(),
+        psi0 = 0.9,
+        presel = TRUE,
+        keep_data = FALSE
+    )
+    ctrl <- do.call(
+        bicop,
+        modifyList(arg, list(...))
+    )$controls
+
     ## estimation of the marginals and transformation to copula data
-    margins <- fit_margins(mfx, par_1d, cores, uscale)
-    fit <- select_dvine_cpp(to_uscale(mfx, margins), var_types)
-browser()
+    if (!all(is.na(order))) {
+        stopifnot(length(order) > 0)
+        stopifnot(all(order %in% names(mfx)))
+        selected_vars <- which(names(mfx) %in% order)
+        margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
+        u <- to_uscale(mfx[, c(1, selected_vars)], margins)
+
+        # now we need the correct ordering in selected_vars
+        selected_vars <- sapply(order, function(x) which(x == names(mfx)))
+        args <- append(
+            ctrl,
+            list(data = u,
+                 var_types = var_types,
+                 cores = cores,
+                 structure = dvine_structure(rank(c(1, selected_vars))))
+        )
+        fit <- list(
+            vine = do.call(vinecop, args),
+            selected_vars = selected_vars
+        )
+    } else {
+        margins <- fit_margins(mfx, par_1d, cores)
+        u <- to_uscale(mfx, margins)
+        args <- append(
+            ctrl,
+            list(data = u, var_types = var_types, cores = cores)
+        )
+        fit <- do.call(select_dvine_cpp, args)
+        margins <- margins[c(1, sort(fit$selected_vars))]
+    }
+
     finalize_vinereg_object(
         formula = formula,
+        selcrit = selcrit,
         model_frame = mf,
         margins = margins,
-        fit = fit,
+        vine = fit$vine,
+        selected_vars = fit$selected_vars,
         var_nms = colnames(mfx)
     )
 }
@@ -124,20 +168,21 @@ browser()
 #' @noRd
 #' @importFrom stats pchisq
 #' @importFrom rvinecopulib as_rvine_structure
-finalize_vinereg_object <- function(formula, model_frame, margins, fit, var_nms) {
+finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine,
+                                    selected_vars, var_nms) {
     ## adjust model matrix and names
-    fit$vine$names <- c(var_nms[1], var_nms[sort(fit$selected_vars + 1)])
+    vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
 
     ## compute fit statistics
     nobs <- nrow(model_frame)
-    fit$vine$nobs <- nobs
+    vine$nobs <- nobs
     var_edf <- c(
         margins[[1]]$edf,
-        sapply(fit$vine$pair_copulas, function(pcs) pcs[[1]]$npars)
+        sapply(vine$pair_copulas, function(pcs) pcs[[1]]$npars)
     )
     var_cll <- c(
         margins[[1]]$loglik,
-        sapply(fit$vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
+        sapply(vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
     )
     var_caic <- -2 * var_cll + 2 * var_edf
     var_cbic <- -2 * var_cll + log(nobs) * var_edf
@@ -166,13 +211,13 @@ finalize_vinereg_object <- function(formula, model_frame, margins, fit, var_nms)
     ## return results as S3 object
     out <- list(
         formula = formula,
-        selcrit = fit$selcrit,
+        selcrit = selcrit,
         model_frame = model_frame,
-        margins = margins[1 + c(0, sort(fit$selected_vars))],
-        vine = fit$vine,
+        margins = margins,
+        vine = vine,
         stats = stats,
-        order = var_nms[fit$selected_vars + 1],
-        selected_vars = fit$selected_vars + 1
+        order = var_nms[selected_vars],
+        selected_vars = selected_vars
     )
     class(out) <- "vinereg"
     out
@@ -187,32 +232,24 @@ check_order <- function(order, var_nms) {
              "' must not appear in 'order'.")
 }
 
-fit_margins <- function(x, par_1d, cores, uscale) {
+fit_margins <- function(x, par_1d, cores) {
     d <- ncol(x)
     par_1d <- process_par_1d(par_1d, d)
-    if (uscale) {
-        # data are uniform, no need to estimate margins
-        margs <- lapply(
-            seq_len(d),
-            function(i) list(u = x[, i], loglik = 0, edf = 0)
+    fit_margin <- function(k) {
+        arg_lst <- list(
+            x = x[, k],
+            xmin = par_1d$xmin[k],
+            xmax = par_1d$xmax[k],
+            bw   = par_1d$bw[k],
+            mult = par_1d$mult[k],
+            deg  = par_1d$deg[k]
         )
-    } else {
-        fit_margin <- function(k) {
-            arg_lst <- list(
-                x = x[, k],
-                xmin = par_1d$xmin[k],
-                xmax = par_1d$xmax[k],
-                bw   = par_1d$bw[k],
-                mult = par_1d$mult[k],
-                deg  = par_1d$deg[k]
-            )
-            arg_lst[sapply(arg_lst, is.null)] <- NULL
-            m <- do.call(kde1d, arg_lst)
-            m$x_cc <- x[, k]
-            m
-        }
-        margs <- furrr::future_map(seq_len(d), fit_margin)
+        arg_lst[sapply(arg_lst, is.null)] <- NULL
+        m <- do.call(kde1d, arg_lst)
+        m$x_cc <- x[, k]
+        m
     }
+    margs <- furrr::future_map(seq_len(d), fit_margin)
 
     names(margs) <- colnames(x)
     margs

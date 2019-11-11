@@ -43,11 +43,3 @@ test_that("works with discrete response", {
     fit <- vinereg(y ~ ., dat, fam = "tll")
     expect_silent(cpit(fit, dat))
 })
-
-fit <- vinereg(y ~ ., dat[-5])
-u <- as.data.frame(sapply(fit$margins, function(m) pkde1d(m$x_cc, m)))
-fit_uscale <- vinereg(y ~ ., u, uscale = TRUE)
-
-test_that("works on uscale", {
-    expect_silent(cpit(fit, u, uscale = TRUE))
-})

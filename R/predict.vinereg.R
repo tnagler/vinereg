@@ -4,7 +4,6 @@
 #' @param newdata matrix of covariate values for which to predict the quantile.
 #' @param alpha vector of quantile levels; `NA` predicts the mean based on an
 #'   average of the `1:10 / 11`-quantiles.
-#' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
 #' @param ... unused.
 #'
 #' @return A data.frame of quantiles where each column corresponds to one
@@ -39,10 +38,9 @@
 #'
 #' @importFrom kde1d pkde1d qkde1d
 #' @importFrom stats predict
-predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE,
-                            cores = 1, ...) {
+predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
     if (missing(newdata))
-        return(fitted.vinereg(object, alpha = alpha, uscale = uscale))
+        return(fitted.vinereg(object, alpha = alpha))
 
     stopifnot(length(alpha) > 0)
     if (any(is.na(alpha)) & inherits(object$model_frame[[1]], "ordered"))
@@ -51,8 +49,6 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE,
     # predict the conditional mean if alpha contains NA
     if (any(is.na(alpha))) {
         alpha <- alpha[!is.na(alpha)]  # remove NA for quantile estimation
-        if (uscale)
-            stop("predicting the mean is not meaningful with `uscale = TRUE.")
         preds_mean <- predict_mean(object, newdata)
     } else {
         preds_mean <- NULL
@@ -63,17 +59,13 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, uscale = FALSE,
         stopifnot(is.numeric(alpha), all(alpha > 0), all(alpha < 1))
 
         ## preprocessing
-        uscale <- adjust_uscale(object, uscale)
         newdata <- prepare_newdata(newdata, object)
 
-        ## quantile prediction on u-scale
-        if (!uscale)
-            newdata <- to_uscale(newdata, object$margins[-1], add_response = TRUE)
+        newdata <- to_uscale(newdata, object$margins[-1], add_response = TRUE)
         preds <- qdvine(newdata, alpha, vine = object$vine, cores)
 
         ## actual predictions on original scale
-        if (!uscale)
-            preds <- to_yscale(preds, object)
+        preds <- to_yscale(preds, object)
 
         if (!is.null(preds_mean))
             preds <- cbind(preds_mean, preds)
@@ -101,7 +93,6 @@ predict_mean <- function(object, newdata) {
 
 #' @importFrom rvinecopulib rosenblatt inverse_rosenblatt
 qdvine <- function(u, alpha, vine, cores) {
-    d <- dim(vine)[1]
     q_hat <- as.data.frame(cond_quantile_cpp(alpha, as.matrix(u), vine, cores))
     names(q_hat) <- alpha
     q_hat

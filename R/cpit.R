@@ -5,7 +5,6 @@
 #' @param object an object of class \code{vinereg}.
 #' @param newdata matrix of response and covariate values for which to compute
 #'   the conditional distribution.
-#' @param uscale if \code{TRUE} input (newdata) and output is on copula scale.
 #'
 #' @export
 #'
@@ -20,12 +19,8 @@
 #' fit <- vinereg(y ~ ., dat)
 #'
 #' hist(cpit(fit, dat))  # should be approximately uniform
-cpit <- function(object, newdata, uscale = FALSE, cores = 1) {
-    uscale <- adjust_uscale(object, uscale)
+cpit <- function(object, newdata, cores = 1) {
     newdata <- prepare_newdata(newdata, object, use_response = TRUE)
-
-    if (!uscale)
-        newdata <- to_uscale(newdata, object$margins)
-
+    newdata <- to_uscale(newdata, object$margins)
     cond_dist_cpp(newdata, object$vine, cores)
 }

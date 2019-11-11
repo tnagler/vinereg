@@ -7,14 +7,23 @@
 using namespace Rcpp;
 
 // select_dvine_cpp
-Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data, const std::vector<std::string>& var_types);
-RcppExport SEXP _vinereg_select_dvine_cpp(SEXP dataSEXP, SEXP var_typesSEXP) {
+Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data, std::vector<std::string> family_set, std::string par_method, std::string nonpar_method, double mult, std::string selcrit, const Eigen::VectorXd& weights, double psi0, bool preselect_families, size_t cores, const std::vector<std::string>& var_types);
+RcppExport SEXP _vinereg_select_dvine_cpp(SEXP dataSEXP, SEXP family_setSEXP, SEXP par_methodSEXP, SEXP nonpar_methodSEXP, SEXP multSEXP, SEXP selcritSEXP, SEXP weightsSEXP, SEXP psi0SEXP, SEXP preselect_familiesSEXP, SEXP coresSEXP, SEXP var_typesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type family_set(family_setSEXP);
+    Rcpp::traits::input_parameter< std::string >::type par_method(par_methodSEXP);
+    Rcpp::traits::input_parameter< std::string >::type nonpar_method(nonpar_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type mult(multSEXP);
+    Rcpp::traits::input_parameter< std::string >::type selcrit(selcritSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< double >::type psi0(psi0SEXP);
+    Rcpp::traits::input_parameter< bool >::type preselect_families(preselect_familiesSEXP);
+    Rcpp::traits::input_parameter< size_t >::type cores(coresSEXP);
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type var_types(var_typesSEXP);
-    rcpp_result_gen = Rcpp::wrap(select_dvine_cpp(data, var_types));
+    rcpp_result_gen = Rcpp::wrap(select_dvine_cpp(data, family_set, par_method, nonpar_method, mult, selcrit, weights, psi0, preselect_families, cores, var_types));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -47,7 +56,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_vinereg_select_dvine_cpp", (DL_FUNC) &_vinereg_select_dvine_cpp, 2},
+    {"_vinereg_select_dvine_cpp", (DL_FUNC) &_vinereg_select_dvine_cpp, 11},
     {"_vinereg_cond_quantile_cpp", (DL_FUNC) &_vinereg_cond_quantile_cpp, 4},
     {"_vinereg_cond_dist_cpp", (DL_FUNC) &_vinereg_cond_dist_cpp, 3},
     {NULL, NULL, 0}
