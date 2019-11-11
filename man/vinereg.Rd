@@ -35,24 +35,26 @@ covariate have non-negative support.}
 \value{
 An object of class vinereg. It is a list containing the elements
 \describe{ \item{formula}{the formula used for the fit.}
-\item{selcrit}{criterion used for variable selection.} \item{model_frame}{the
-data used to fit the regression model.} \item{margins}{list of marginal
-models fitted by \code{\link[kde1d:kde1d]{kde1d::kde1d()}}.} \item{vine}{an
-\code{\link[rvinecopulib:vinecop_dist]{rvinecopulib::vinecop_dist()}} object containing the fitted D-vine.}
-\item{stats}{fit statistics such as conditional log-likelihood/AIC/BIC and
-p-values for each variable's contribution.} \item{order}{order of the
-covariates chosen by the variable selection algorithm.}
-\item{selected_vars}{indices of selected variables.} } Use
+\item{selcrit}{criterion used for variable selection.}
+\item{model_frame}{the data used to fit the regression model.}
+\item{margins}{list of marginal models fitted by \code{\link[kde1d:kde1d]{kde1d::kde1d()}}.}
+\item{vine}{an \code{\link[rvinecopulib:vinecop_dist]{rvinecopulib::vinecop_dist()}} object containing the fitted
+D-vine.} \item{stats}{fit statistics such as conditional
+log-likelihood/AIC/BIC and p-values for each variable's contribution.}
+\item{order}{order of the covariates chosen by the variable selection
+algorithm.} \item{selected_vars}{indices of selected variables.} } Use
 \code{\link[=predict.vinereg]{predict.vinereg()}} to predict conditional quantiles. \code{summary.vinereg()}
-shows the contribution of each selected variable with the associated p-value
-derived from a likelihood ratio test.
+shows the contribution of each selected variable with the associated
+p-value derived from a likelihood ratio test.
 }
 \description{
 Sequential estimation of a regression D-vine for the purpose of quantile
-prediction as described in Kraus and Czado (2017). If discrete variables are
-declared as \code{ordered()} or \code{factor()}, jittering is used to make them
-continuous (see \code{cctools::cont_conv()}). Although this may make the model
-estimate inconsistent, predictions are usually still reasonable.
+prediction as described in Kraus and Czado (2017).
+}
+\details{
+If discrete variables are declared as \code{ordered()} or \code{factor()}, they are
+handled as discribed in Panagiotelis et al. (2012). This is different from
+previous version where the data was jittered before fitting.
 }
 \examples{
 # simulate data
@@ -81,6 +83,10 @@ plot(cbind(y, mu_hat))
 \references{
 Kraus and Czado (2017), D-vine copula based quantile regression,
 Computational Statistics and Data Analysis, 110, 1-18
+
+Panagiotelis, A., Czado, C., & Joe, H. (2012). Pair copula constructions for
+multivariate discrete data. Journal of the American Statistical Association,
+107(499), 1063-1072.
 }
 \seealso{
 \code{\link{predict.vinereg}}

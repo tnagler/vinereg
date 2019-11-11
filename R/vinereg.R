@@ -1,10 +1,11 @@
 #' D-vine regression models
 #'
 #' Sequential estimation of a regression D-vine for the purpose of quantile
-#' prediction as described in Kraus and Czado (2017). If discrete variables are
-#' declared as `ordered()` or `factor()`, jittering is used to make them
-#' continuous (see `cctools::cont_conv()`). Although this may make the model
-#' estimate inconsistent, predictions are usually still reasonable.
+#' prediction as described in Kraus and Czado (2017).
+#'
+#' If discrete variables are declared as `ordered()` or `factor()`, they are
+#' handled as discribed in Panagiotelis et al. (2012). This is different from
+#' previous version where the data was jittered before fitting.
 #'
 #' @param formula an object of class "formula"; same as [lm()].
 #' @param data data frame (or object coercible by [as.data.frame()]) containing
@@ -24,23 +25,27 @@
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
 #'
 #' @return An object of class vinereg. It is a list containing the elements
-#' \describe{ \item{formula}{the formula used for the fit.}
-#' \item{selcrit}{criterion used for variable selection.} \item{model_frame}{the
-#' data used to fit the regression model.} \item{margins}{list of marginal
-#' models fitted by [kde1d::kde1d()].} \item{vine}{an
-#' [rvinecopulib::vinecop_dist()] object containing the fitted D-vine.}
-#' \item{stats}{fit statistics such as conditional log-likelihood/AIC/BIC and
-#' p-values for each variable's contribution.} \item{order}{order of the
-#' covariates chosen by the variable selection algorithm.}
-#' \item{selected_vars}{indices of selected variables.} } Use
-#' [predict.vinereg()] to predict conditional quantiles. `summary.vinereg()`
-#' shows the contribution of each selected variable with the associated p-value
-#' derived from a likelihood ratio test.
+#'   \describe{ \item{formula}{the formula used for the fit.}
+#'   \item{selcrit}{criterion used for variable selection.}
+#'   \item{model_frame}{the data used to fit the regression model.}
+#'   \item{margins}{list of marginal models fitted by [kde1d::kde1d()].}
+#'   \item{vine}{an [rvinecopulib::vinecop_dist()] object containing the fitted
+#'   D-vine.} \item{stats}{fit statistics such as conditional
+#'   log-likelihood/AIC/BIC and p-values for each variable's contribution.}
+#'   \item{order}{order of the covariates chosen by the variable selection
+#'   algorithm.} \item{selected_vars}{indices of selected variables.} } Use
+#'   [predict.vinereg()] to predict conditional quantiles. `summary.vinereg()`
+#'   shows the contribution of each selected variable with the associated
+#'   p-value derived from a likelihood ratio test.
 #'
 #' @references
 #'
 #' Kraus and Czado (2017), D-vine copula based quantile regression,
 #' Computational Statistics and Data Analysis, 110, 1-18
+#'
+#' Panagiotelis, A., Czado, C., & Joe, H. (2012). Pair copula constructions for
+#' multivariate discrete data. Journal of the American Statistical Association,
+#' 107(499), 1063-1072.
 #'
 #' @examples
 #' # simulate data
@@ -76,7 +81,6 @@
 #' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
                     order = NA, par_1d = list(), cores = 1, ...) {
-    ## pre-processing --------
     # remove unused variables
     if (!missing(data)) {
         mf <- model.frame(formula, data)
@@ -86,7 +90,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
         stop("response must be numeric or ordered")
 
-    # expand factors and add noise to discrete variable
+    # expand factors and deduce variable types
     mfx <- expand_factors(mf)
     d <- ncol(mfx)
     var_types <- rep("c", d)
@@ -111,10 +115,10 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
         modifyList(arg, list(...))
     )$controls
 
-    ## estimation of the marginals and transformation to copula data
     if (!all(is.na(order))) {
         stopifnot(length(order) > 0)
         stopifnot(all(order %in% names(mfx)))
+        # estimation of the marginals and transformation to copula data
         selected_vars <- which(names(mfx) %in% order)
         margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
         u <- to_uscale(mfx[, c(1, selected_vars)], margins)
@@ -159,10 +163,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 #' @importFrom rvinecopulib as_rvine_structure
 finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine,
                                     selected_vars, var_nms) {
-    ## adjust model matrix and names
     vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
-
-    ## compute fit statistics
     nobs <- nrow(model_frame)
     vine$nobs <- nobs
     var_edf <- c(
@@ -197,7 +198,6 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
         var_p_value = var_p_value
     )
 
-    ## return results as S3 object
     out <- list(
         formula = formula,
         selcrit = selcrit,

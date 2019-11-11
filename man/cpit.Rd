@@ -4,15 +4,13 @@
 \alias{cpit}
 \title{Conditional probability integral transform}
 \usage{
-cpit(object, newdata, uscale = FALSE, cores = 1)
+cpit(object, newdata, cores = 1)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
 
 \item{newdata}{matrix of response and covariate values for which to compute
 the conditional distribution.}
-
-\item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
 }
 \description{
 Calculates the conditional distribution of the response given the covariates.
