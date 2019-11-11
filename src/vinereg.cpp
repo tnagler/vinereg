@@ -1,9 +1,9 @@
-#include "select_dvine.hpp"
-#include <wrappers.hpp>
+#include "dvine_reg_selector.hpp"
 #include <RcppThread.h>
 #include <vinecopulib/bicop/fit_controls.hpp>
+#include <wrappers.hpp>
 
-using namespace vinereg;
+using namespace vinecopulib;
 
 // [[Rcpp::export]]
 Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
@@ -18,11 +18,11 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
                             size_t cores,
                             const std::vector<std::string>& var_types)
 {
+  // set up the cpp fit controls from all the arguments
   std::vector<BicopFamily> fam_set(family_set.size());
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-
   FitControlsBicop controls(
       fam_set,
       par_method,
@@ -34,23 +34,29 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
       preselect_families,
       cores
   );
-  DVineSelectStatus current_fit(data, var_types, controls);
+
+  // initialize the selector and storage for pair copuals,
+  // will be update in parallel
+  vinereg::DVineRegSelector current_fit(data, var_types, controls);
   std::vector<std::vector<Bicop>> pcs;
 
-  std::mutex m;
-  RcppThread::ThreadPool pool;
+  std::mutex m; // required to synchronize write/reads to the selector
+  RcppThread::ThreadPool pool(cores > 1 ? cores : 0);
+
   while (current_fit.get_selected_vars().size() < var_types.size() - 1) {
     auto old_fit = current_fit;
     auto fit_replace_if_better = [&](size_t var) {
       auto new_fit = old_fit;
       new_fit.extend_fit(var);
-      std::lock_guard<std::mutex> lk(m);
+
+      std::lock_guard<std::mutex> lk(m); // read/write needs to be synchronized
       if (new_fit.get_crit() > current_fit.get_crit()) {
         current_fit = std::move(new_fit);
       }
     };
 
-    pool.map(fit_replace_if_better, old_fit.get_remaining_vars());
+    auto remaining_vars = old_fit.get_remaining_vars();
+    pool.map(fit_replace_if_better, remaining_vars);
     pool.wait();
 
     if (current_fit.get_selected_vars() == old_fit.get_selected_vars()) {
@@ -195,11 +201,9 @@ std::vector<Eigen::VectorXd> cond_quantile_cpp(const Eigen::VectorXd& alpha,
     }
   };
 
-  if (trunc_lvl > 0) {
-    RcppThread::ThreadPool pool((num_threads == 1) ? 0 : num_threads);
-    pool.map(do_batch, tools_batch::create_batches(u.rows(), num_threads));
-    pool.join();
-  }
+  RcppThread::ThreadPool pool((num_threads == 1) ? 0 : num_threads);
+  pool.map(do_batch, tools_batch::create_batches(u.rows(), num_threads));
+  pool.join();
 
   return q;
 }
@@ -287,11 +291,9 @@ Eigen::VectorXd cond_dist_cpp(const Eigen::MatrixXd& u,
     p.segment(b.begin, b.size) = hfunc2.col(0);
   };
 
-  if (trunc_lvl > 0) {
-    RcppThread::ThreadPool pool((num_threads == 1) ? 0 : num_threads);
-    pool.map(do_batch, tools_batch::create_batches(u.rows(), num_threads));
-    pool.join();
-  }
+  RcppThread::ThreadPool pool((num_threads == 1) ? 0 : num_threads);
+  pool.map(do_batch, tools_batch::create_batches(u.rows(), num_threads));
+  pool.join();
 
   return p;
 }

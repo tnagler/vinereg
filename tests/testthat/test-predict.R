@@ -3,7 +3,7 @@ context("predict.vinereg()")
 # simulate data
 set.seed(3)
 x <- matrix(rnorm(60), 20, 3)
-y <- x %*% c(1, -1, 2)
+y <- x %*% c(1, -1, 2) + rnorm(20)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
 fit <- vinereg(y ~ ., family = "gauss", dat)
 

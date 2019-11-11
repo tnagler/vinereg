@@ -154,6 +154,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
       ctrl,
       list(data = u, var_types = var_types, cores = cores)
     )
+
     fit <- do.call(select_dvine_cpp, args)
     margins <- margins[c(1, sort(fit$selected_vars))]
   }
