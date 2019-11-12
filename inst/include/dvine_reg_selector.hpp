@@ -149,9 +149,8 @@ inline void DVineRegSelector::initialize_var(DVineFitTemporaries& fit,
                                              size_t var) const
 {
   fit.hfunc1[0] = data_.col(var);
-  if (var_types_[var] == "d") {
-    fit.hfunc1_sub[0] = data_.col(p_ + 1 + var);
-  }
+  fit.hfunc1_sub[0] =
+    (var_types_[var] == "d") ? data_.col(p_ + 1 + var) : Eigen::VectorXd();
 }
 
 // obtain variable types for the new edge in tree t
@@ -159,12 +158,9 @@ inline std::vector<std::string> DVineRegSelector::get_edge_types(
     const DVineFitTemporaries& fit, size_t t) const
 {
   // the variable type can be inferred from the existence of _sub data
-  std::vector<std::string> var_types{ "c", "c" };
-  if (fit.hfunc2_sub[t].size())
-    var_types[0] = "d";
-  if (fit.hfunc1_sub[t].size())
-    var_types[1] = "d";
-
+  std::vector<std::string> var_types(2);
+  var_types[0] = fit.hfunc2_sub[t].size() ? "d" : "c";
+  var_types[1] = fit.hfunc1_sub[t].size() ? "d" : "c";
   return var_types;
 }
 
@@ -233,12 +229,17 @@ inline void DVineRegSelector::update_hfunc2(DVineFitTemporaries& fit,
 
   if (t == fit.selected_vars.size()) { // all trees have been fit
     // shift hfunc2 entries into correct tree level
-    std::rotate(fit.hfunc2.begin(), fit.hfunc2.end() - 1, fit.hfunc2.end());
+    std::rotate(
+      fit.hfunc2.begin(), fit.hfunc2.end() - 1, fit.hfunc2.end());
+    std::rotate(
+      fit.hfunc2_sub.begin(), fit.hfunc2_sub.end() - 1, fit.hfunc2_sub.end());
 
     // fill first tree with actual observations
     fit.hfunc2[0] = fit.hfunc1[0];
     if (fit.hfunc1_sub[0].size()) {
       fit.hfunc2_sub[0] = fit.hfunc1_sub[0];
+    } else {
+      fit.hfunc2_sub[0] = Eigen::VectorXd();
     }
   }
 }
