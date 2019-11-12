@@ -111,7 +111,7 @@ inline void DVineRegSelector::select_model()
   while (fit_.selected_vars.size() < p_) {
     auto old_fit = fit_;  // fix current model (fit_ will be modified below)
     auto fit_replace_if_better = [&](size_t var) {
-      auto new_fit = old_fit;
+      DVineFitTemporaries new_fit = old_fit;
       this->extend_fit(new_fit, var);
       std::lock_guard<std::mutex> lk(m);  // synchronize
       if (new_fit.crit > fit_.crit)
@@ -137,7 +137,7 @@ inline void DVineRegSelector::extend_fit(DVineFitTemporaries& fit,
 {
   this->initialize_var(fit, var);
 
-  for (size_t t = 0; t < fit_.selected_vars.size() + 1; t++) {
+  for (size_t t = 0; t < fit.selected_vars.size() + 1; t++) {
     auto u_e = this->get_edge_data(fit, t);
     this->fit_pair_copula(fit, t, u_e);
     this->update_hfuncs(fit, t, u_e);
