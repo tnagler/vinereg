@@ -42,13 +42,7 @@ test_that("works with continuous response", {
     cbind(fitted(fit, alpha = 0.2), fitted(fit, alpha = 0.8)),
     fitted(fit, alpha = c(0.2, 0.8))
   )
-
-  # simulate data
-  x <- matrix(rnorm(150), 50, 3)
-  y <- x %*% c(1, -1, 2)
-  dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 3, 0.5)))
-  fit <- vinereg(y ~ ., dat, selcrit = "aic")
-  expect_equal(cor(dat$y, fitted(fit)[[1]]), 1, tol = 2e-1)
+  expect_equal(cor(dat$y, fitted(fit)[[1]]), 1, tol = 1e-1)
 })
 
 test_that("works with discrete response", {

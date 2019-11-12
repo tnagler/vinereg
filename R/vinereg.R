@@ -119,11 +119,12 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
   if (!all(is.na(order))) {
     stopifnot(length(order) > 0)
     stopifnot(all(order %in% names(mfx)))
-    # estimation of the marginals and transformation to copula data
+
     selected_vars <- which(names(mfx) %in% order)
+    var_types <- var_types[c(1, selected_vars)]
+
     margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
     u <- to_uscale(mfx[, c(1, selected_vars)], margins)
-    var_types <- var_types[c(1, selected_vars)]
     if (any(var_types == "d")) {
       u_sub <- u[, length(var_types) + seq_along(var_types)]
     } else {
@@ -154,9 +155,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
       ctrl,
       list(data = u, var_types = var_types, cores = cores)
     )
-
     fit <- do.call(select_dvine_cpp, args)
-    margins <- margins[c(1, sort(fit$selected_vars))]
+    margins <- margins[c(1, sort(fit$selected_vars))] # other margins useless
   }
 
   finalize_vinereg_object(

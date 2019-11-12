@@ -2,9 +2,9 @@ context("vinereg()")
 
 # simulate data
 set.seed(1)
-x <- matrix(rnorm(150), 50, 3)
+x <- matrix(rnorm(60), 20, 3)
 y <- x %*% c(1, -1, 2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 3, 0.5)))
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
 
 
 test_that("catches wrong arguments", {

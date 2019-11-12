@@ -27,11 +27,6 @@ test_that("works in bivariate case", {
 })
 
 test_that("works with continuous response", {
-  # simulate more data for test to work appropriately
-  x <- matrix(rnorm(60), 20, 3)
-  y <- x %*% c(1, -1, 2)
-  dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
-  fit <- vinereg(y ~ ., dat, selcrit = "bic")
   expect_gt(ks.test(cpit(fit, dat), "punif")$p, 0.01)
 })
 
