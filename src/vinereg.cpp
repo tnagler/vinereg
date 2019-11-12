@@ -18,7 +18,7 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
                             size_t cores,
                             const std::vector<std::string>& var_types)
 {
-  // set up the cpp fit controls from all the arguments
+  // set up the cpp fit controls from all the arguments ------
   std::vector<BicopFamily> fam_set(family_set.size());
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
@@ -35,75 +35,36 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
       cores
   );
 
-  // initialize the selector and storage for pair copuals,
-  // will be update in parallel
-  vinereg::DVineRegSelector current_fit(data, var_types, controls);
-  std::vector<std::vector<Bicop>> pcs;
+  // select the model -----------------------------------------
+  vinereg::DVineRegSelector selector(data, var_types, controls);
+  selector.select_model();
+  auto selected_vars = selector.get_selected_vars();
+  auto pcs = selector.get_pcs();
 
-  std::mutex m; // required to synchronize write/reads to the selector
-  RcppThread::ThreadPool pool(cores > 1 ? cores : 0);
-
-  while (current_fit.get_selected_vars().size() < var_types.size() - 1) {
-    auto old_fit = current_fit;
-    auto fit_replace_if_better = [&](size_t var) {
-      auto new_fit = old_fit;
-      new_fit.extend_fit(var);
-
-      std::lock_guard<std::mutex> lk(m); // read/write needs to be synchronized
-      if (new_fit.get_crit() > current_fit.get_crit()) {
-        current_fit = std::move(new_fit);
-      }
-    };
-
-    auto remaining_vars = old_fit.get_remaining_vars();
-    pool.map(fit_replace_if_better, remaining_vars);
-    pool.wait();
-
-    if (current_fit.get_selected_vars() == old_fit.get_selected_vars()) {
-      break;
-    }
-
-    auto p_sel = current_fit.get_selected_vars().size();
-    pcs.push_back(std::vector<Bicop>{ current_fit.get_pc(p_sel - 1) });
-    for (size_t t = 0; t < p_sel - 1; t++) {
-      pcs[t].push_back(current_fit.get_pc(t));
-    }
-  }
-  pool.join();
-
+  // make results R-compatible -------------------------------
   Rcpp::List vinecop_r;
-  if (current_fit.get_selected_vars().size() > 0) {
-    auto new_order = tools_stl::cat({ 0 }, current_fit.get_selected_vars());
-    // compute ranks to ensure that vars are 1, ..., p_sel
-    auto tmp = tools_stl::get_order(new_order);
-    for (auto i : tmp)
-      new_order[tmp[i]] = static_cast<double>(i + 1);
-    auto new_struct = DVineStructure(new_order);
+  if (selected_vars.size() > 0) {
+    // rank ensures that vars are 1, ..., p_sel
+    auto order = tools_stl::cat({ 0 }, selected_vars);
+    auto new_struct = DVineStructure(tools_stl::rank(order));
 
-    auto vine_structure = rvine_structure_wrap(new_struct);
-    auto pair_copulas = pair_copulas_wrap(pcs, new_order.size(), true);
-    double npars = Vinecop(pcs, new_struct).get_npars();
-    double threshold = 0;
-    double loglik = NAN;
-
-    auto sel_vt = std::vector<std::string>();
-    sel_vt.push_back(var_types[0]);
-    for (auto v : current_fit.get_selected_vars())
-      sel_vt.push_back(var_types[v]);
+    auto vt = std::vector<std::string>();
+    vt.push_back(var_types[0]);
+    for (auto v : selected_vars)
+      vt.push_back(var_types[v]);
 
     vinecop_r = Rcpp::List::create(
-      Rcpp::Named("pair_copulas") = pair_copulas,
-      Rcpp::Named("structure")    = vine_structure,
-      Rcpp::Named("var_types")    = sel_vt,
-      Rcpp::Named("npars")        = npars,
+      Rcpp::Named("pair_copulas") = pair_copulas_wrap(pcs, order.size(), true),
+      Rcpp::Named("structure")    = rvine_structure_wrap(new_struct),
+      Rcpp::Named("var_types")    = vt,
+      Rcpp::Named("npars")        = Vinecop(pcs, new_struct).get_npars(),
       Rcpp::Named("nobs")         = data.rows(),
-      Rcpp::Named("loglik")       = loglik,
-      Rcpp::Named("threshold")    = threshold
+      Rcpp::Named("loglik")       = NAN,
+      Rcpp::Named("threshold")    = 0
     );
     vinecop_r.attr("class") = Rcpp::CharacterVector{"vinecop", "vinecop_dist"};
   }
-  auto selected_vars = current_fit.get_selected_vars();
-  for (auto& v : selected_vars)
+  for (auto& v : selected_vars) // R indexing starts at 1
     v++;
   return Rcpp::List::create(
     Rcpp::Named("vine") = vinecop_r,
@@ -233,8 +194,7 @@ Eigen::VectorXd cond_dist_cpp(const Eigen::MatrixXd& u,
     hfunc1_sub = hfunc1;
     hfunc2_sub = hfunc2;
 
-    // fill first row of hfunc2 matrix with evaluation points;
-    // points have to be reordered to correspond to natural order
+    // data have to be reordered to correspond to natural order
     for (size_t j = 0; j < d; ++j) {
       hfunc2.col(j) = u.block(b.begin, order[j] - 1, b.size, 1);
       if (var_types_[order[j] - 1] == "d") {
@@ -246,8 +206,6 @@ Eigen::VectorXd cond_dist_cpp(const Eigen::MatrixXd& u,
       tools_interface::check_user_interrupt(u.rows() * d > 1e5);
       for (size_t edge = 0; edge < d - tree - 1; ++edge) {
         tools_interface::check_user_interrupt(edge % 100 == 0);
-        // extract evaluation point from hfunction matrices (have been
-        // computed in previous tree level)
         Bicop edge_copula = vinecop_cpp.get_pair_copula(tree, edge);
         auto var_types = edge_copula.get_var_types();
         size_t m = vine_struct_.min_array(tree, edge);

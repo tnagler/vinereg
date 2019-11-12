@@ -3,7 +3,7 @@ context("predict.vinereg()")
 # simulate data
 set.seed(3)
 x <- matrix(rnorm(60), 20, 3)
-y <- x %*% c(1, -1, 2) + rnorm(20)
+y <- x %*% c(1, -1, 2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
 fit <- vinereg(y ~ ., family = "gauss", dat)
 
@@ -48,10 +48,10 @@ test_that("works with continuous response", {
 
   # simulate data
   x <- matrix(rnorm(300), 100, 3)
-  y <- x %*% c(1, -1, 2) + rnorm(100)
+  y <- x %*% c(1, -1, 2)
   dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 3, 0.5)))
   fit <- vinereg(y ~ ., dat, selcrit = "aic")
-  expect_equal(cor(dat$y, fitted(fit)[[1]]), 1, tol = 1e-1)
+  expect_equal(cor(dat$y, fitted(fit)[[1]]), 1, tol = 2e-1)
 })
 
 test_that("works with discrete response", {
