@@ -54,7 +54,7 @@ plot_effects <- function(object,
     stop("The 'ggplot2' package must be installed to plot.")
   }
 
-  mf <- cctools::expand_as_numeric(object$model_frame)
+  mf <- expand_factors(object$model_frame)
   if (!all(vars %in% colnames(mf)[-1])) {
     stop(
       "unknown variable in 'vars'; allowed values: ",

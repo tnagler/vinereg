@@ -80,7 +80,7 @@
 #' @importFrom rvinecopulib bicop vinecop dvine_structure
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib vinereg, .registration = TRUE
-vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
+vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
                     order = NA, par_1d = list(), weights = numeric(),
                     cores = 1, ...) {
   # remove unused variables
