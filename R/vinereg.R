@@ -21,6 +21,7 @@
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, NaN))` if the response and first
 #'   covariate have non-negative support.
+#' @param weights optional vector of weights for each observation.
 #' @param cores integer; the number of cores to use for computations.
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
 #'
@@ -80,7 +81,8 @@
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik",
-                    order = NA, par_1d = list(), cores = 1, ...) {
+                    order = NA, par_1d = list(), weights = numeric(),
+                    cores = 1, ...) {
   # remove unused variables
   if (!missing(data)) {
     mf <- model.frame(formula, data)
@@ -106,7 +108,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
     par_method = "mle",
     nonpar_method = "quadratic",
     mult = 1,
-    weights = numeric(),
+    weights = weights,
     psi0 = 0.9,
     presel = TRUE,
     keep_data = FALSE
@@ -122,15 +124,20 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
 
     selected_vars <- which(names(mfx) %in% order)
     var_types <- var_types[c(1, selected_vars)]
+    mfx <- mfx[, c(1, selected_vars)]
 
-    margins <- fit_margins(mfx[, c(1, selected_vars)], par_1d, cores)
-    u <- to_uscale(mfx[, c(1, selected_vars)], margins)
-    if (any(var_types == "d")) {
-      u_sub <- u[, length(var_types) + seq_along(var_types)]
-    } else {
-      u_sub <- NULL
-    }
-    u <- u[, seq_along(var_types)]
+    par_1d <- process_par_1d(mfx, par_1d)
+    margins <- fit_margins_cpp(prep_for_margins(mfx),
+                               sapply(mfx, nlevels),
+                               mult = par_1d$mult,
+                               xmin = par_1d$xmin,
+                               xmax = par_1d$xmax,
+                               bw = par_1d$bw,
+                               deg = par_1d$deg,
+                               weights = weights,
+                               cores)
+    margins <- finalize_margins(margins, mfx)
+    u <- to_uscale(mfx, margins)
 
     # now we need the correct ordering in selected_vars
     selected_vars <- sapply(order, function(x) which(x == names(mfx)))
@@ -138,7 +145,6 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
       ctrl,
       list(
         data = u,
-        data_sub = u_sub,
         var_types = var_types,
         cores = cores,
         structure = dvine_structure(rank(c(1, selected_vars)))
@@ -149,7 +155,17 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "loglik"
       selected_vars = selected_vars
     )
   } else {
-    margins <- fit_margins(mfx, par_1d, cores)
+    par_1d <- process_par_1d(mfx, par_1d)
+    margins <- fit_margins_cpp(prep_for_margins(mfx),
+                               sapply(mfx, nlevels),
+                               mult = par_1d$mult,
+                               xmin = par_1d$xmin,
+                               xmax = par_1d$xmax,
+                               bw = par_1d$bw,
+                               deg = par_1d$deg,
+                               weights = weights,
+                               cores)
+    margins <- finalize_margins(margins, mfx)
     u <- to_uscale(mfx, margins)
     args <- append(
       ctrl,
@@ -262,46 +278,3 @@ fit_margins <- function(x, par_1d, cores) {
   margs
 }
 
-
-process_par_1d <- function(pars, d) {
-  if (!is.null(pars$xmin)) {
-    if (length(pars$xmin) != d) {
-      stop("'xmin'  must be a vector with one value for each variable")
-    }
-  }
-  if (!is.null(pars$xmax)) {
-    if (length(pars$xmax) != d) {
-      stop("'xmin'  must be a vector with one value for each variable")
-    }
-  }
-  if (!is.null(pars$xmax)) {
-    if (length(pars$xmax) != d) {
-      stop("'xmin' must be a vector with one value for each variable")
-    }
-  }
-  if (length(pars$bw) != d && !is.null(pars$bw)) {
-    stop("'bw' must be a vector with one value for each variable")
-  }
-
-  if (is.null(pars$mult)) {
-    pars$mult <- 1
-  }
-  if (length(pars$mult) == 1) {
-    pars$mult <- rep(pars$mult, d)
-  }
-  if (length(pars$mult) != d) {
-    stop("mult has to be of length 1 or the number of variables")
-  }
-
-  if (is.null(pars$deg)) {
-    pars$deg <- 2
-  }
-  if (length(pars$deg) == 1) {
-    pars$deg <- rep(pars$deg, d)
-  }
-  if (length(pars$deg) != d) {
-    stop("deg has to be of length 1 or the number of variables")
-  }
-
-  pars
-}

@@ -1,9 +1,42 @@
 #include "dvine_reg_selector.hpp"
 #include <RcppThread.h>
 #include <vinecopulib/bicop/fit_controls.hpp>
-#include <wrappers.hpp>
+#include <vinecopulib-wrappers.hpp>
+#include <kde1d-wrappers.hpp>
 
 using namespace vinecopulib;
+
+// [[Rcpp::export]]
+std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data,
+                                        const Eigen::VectorXi& nlevels,
+                                        const Eigen::VectorXd& mult,
+                                        const Eigen::VectorXd& xmin,
+                                        const Eigen::VectorXd& xmax,
+                                        const Eigen::VectorXd& bw,
+                                        const Eigen::VectorXi& deg,
+                                        const Eigen::VectorXd& weights,
+                                        size_t num_threads)
+{
+  size_t d = data.cols();
+  std::vector<kde1d::Kde1d> fits_cpp(d);
+  num_threads = (num_threads > 1) ? num_threads : 0;
+  RcppThread::parallelFor(0, d, [&] (const size_t& k) {
+    fits_cpp[k] = std::move(
+      kde1d::Kde1d(
+        data.col(k), nlevels(k),
+        bw(k), mult(k), xmin(k), xmax(k), deg(k),
+        weights
+      )
+    );
+  }, num_threads);
+
+  // we can't do the following in parallel because it calls R API
+  std::vector<Rcpp::List> fits_r(d);
+  for (size_t k = 0; k < d; ++k) {
+    fits_r[k] = kde1d::kde1d_wrap(fits_cpp[k]);
+  }
+  return fits_r;
+}
 
 // [[Rcpp::export]]
 Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
@@ -57,7 +90,7 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
       Rcpp::Named("pair_copulas") = pair_copulas_wrap(pcs, order.size(), true),
       Rcpp::Named("structure")    = rvine_structure_wrap(new_struct),
       Rcpp::Named("var_types")    = vt,
-      Rcpp::Named("npars")        = Vinecop(pcs, new_struct).get_npars(),
+      Rcpp::Named("npars")        = Vinecop(new_struct, pcs).get_npars(),
       Rcpp::Named("nobs")         = data.rows(),
       Rcpp::Named("loglik")       = NAN,
       Rcpp::Named("threshold")    = 0

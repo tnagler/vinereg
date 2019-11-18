@@ -15,27 +15,32 @@ Description:
 License: GPL-3
 LazyData: TRUE
 Imports: 
-    cctools, 
-    rvinecopulib (>= 0.3.0), 
-    kde1d (>= 0.4.0),
-    Rcpp
-LinkingTo: rvinecopulib, RcppEigen, Rcpp, RcppThread
-RoxygenNote: 6.1.1
+  rvinecopulib (>= 0.5.0), 
+  kde1d (>= 1.0.2),
+  Rcpp,
+  assertthat
+LinkingTo: 
+  rvinecopulib, 
+  RcppEigen, 
+  Rcpp, 
+  RcppThread, 
+  kde1d
+RoxygenNote: 7.0.0
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
 Suggests: 
-    knitr,
-    rmarkdown,
-    ggplot2,
-    PivotalR,
-    quantreg,
-    tidyr,
-    dplyr,
-    purrr,
-    scales,
-    mgcv,
-    testthat,
-    covr
+  knitr,
+  rmarkdown,
+  ggplot2,
+  PivotalR,
+  quantreg,
+  tidyr,
+  dplyr,
+  purrr,
+  scales,
+  mgcv,
+  testthat,
+  covr
 VignetteBuilder: knitr
 URL: https://tnagler.github.io/vinereg
 BugReports: https://github.com/tnagler/vinereg/issues

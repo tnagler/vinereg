@@ -18,7 +18,9 @@ the conditional distribution.}
 Calculates the conditional distribution of the response given the covariates.
 }
 \examples{
-\dontshow{set.seed(1)}
+\dontshow{
+set.seed(1)
+}
 # simulate data
 x <- matrix(rnorm(500), 250, 2)
 y <- x \%*\% c(1, -2)
@@ -27,5 +29,5 @@ dat <- data.frame(y = y, x = x, z = as.factor(rbinom(250, 2, 0.5)))
 # fit vine regression model
 fit <- vinereg(y ~ ., dat)
 
-hist(cpit(fit, dat))  # should be approximately uniform
+hist(cpit(fit, dat)) # should be approximately uniform
 }

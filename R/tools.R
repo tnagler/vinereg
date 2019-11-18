@@ -98,27 +98,28 @@ remove_unused <- function(newdata, object, use_response = FALSE) {
 #' For discrete variables, the output has dimension 2*d
 #' @noRd
 to_uscale <- function(data, margins, add_response = FALSE) {
-  compute_u <- function(k) {
-    pkde1d(data[[k]], margins[[k]])
-  }
-  compute_u_sub <- function(k) {
-    if (is.factor(data[, k])) {
-      lv <- as.numeric(data[[k]]) - 1
-      lv[lv == 0] <- NA
-      us <- pkde1d(levels(data[[k]])[lv], margins[[k]])
-      us[is.na(us) & !is.na(data[[k]])] <- 0
-      return(us)
-    } else {
-      return(u[[k]])
-    }
-  }
   u_sub <- list()
   if (!is.null(margins[[1]]$u)) {
     # data are uniform, no need for PIT
     u <- lapply(margins, function(m) m$u)
   } else {
-    u <- lapply(seq_along(margins), compute_u)
-    if (any(sapply(margins, function(x) length(x$jitter_info$i_disc)))) {
+    u <- lapply(seq_along(margins), function(k) pkde1d(data[[k]], margins[[k]]))
+    if (any(sapply(margins, function(m) nlevels(m$x) > 0))) {
+      compute_u_sub <- function(k) {
+        if (nlevels(margins[[k]]$x) > 0) {
+          data[, k] <- ordered(data[, k], levels = levels(margins[[k]]$x))
+          lv <- as.numeric(data[, k]) - 1
+          lv0 <- which(lv == 0)
+          lv[lv0] <- 1
+          xlv <- ordered(levels(margins[[k]]$x)[lv],
+                         levels = levels(margins[[k]]$x))
+          u_sub <- pkde1d(xlv, margins[[k]])
+          u_sub[lv0] <- 0
+          return(u_sub)
+        } else {
+          return(u[[k]])
+        }
+      }
       u_sub <- lapply(seq_along(margins), compute_u_sub)
     }
   }
@@ -164,3 +165,96 @@ expand_factors <- function(data) {
   }
   as.data.frame(data)
 }
+
+
+process_par_1d <- function(data, pars) {
+  d <- ncol(data)
+  if (!is.null(pars$xmin)) {
+    if (length(pars$xmin) != d)
+      stop("'xmin'  must be a vector with one value for each variable")
+  } else {
+    pars$xmin = rep(NaN, d)
+  }
+  if (!is.null(pars$xmax)) {
+    if (length(pars$xmax) != d)
+      stop("'xmin'  must be a vector with one value for each variable")
+  } else {
+    pars$xmax = rep(NaN, d)
+  }
+
+
+  if (is.null(pars$bw))
+    pars$bw <- NA
+  if (length(pars$bw) == 1)
+    pars$bw <- rep(pars$bw, d)
+  if (is.null(pars$mult))
+    pars$mult <- 1
+  if (length(pars$mult) == 1)
+    pars$mult <- rep(pars$mult, d)
+
+  if (is.null(pars$deg))
+    pars$deg <- 2
+  if (length(pars$deg) == 1)
+    pars$deg <- rep(pars$deg, d)
+
+  check_par_1d(data, pars)
+  pars
+}
+
+
+#' @importFrom assertthat assert_that
+check_par_1d <- function(data, ctrl) {
+  nms <- colnames(data)
+  if (is.null(nms)) {
+    nms <- as.character(seq_len(ncol(data)))
+  }
+  lapply(seq_len(NCOL(data)), function(k) {
+    msg_var <- paste0("Problem with par_1d for variable ", nms[k], ": ")
+    tryCatch(
+      assert_that(
+        is.numeric(ctrl$mult[k]), ctrl$mult[k] > 0,
+        is.numeric(ctrl$xmin[k]), is.numeric(ctrl$xmax[k]),
+        is.na(ctrl$bw[k]) | (is.numeric(ctrl$bw[k]) & (ctrl$bw[k] > 0)),
+        is.numeric(ctrl$deg[k])
+      ),
+      error = function(e) stop(msg_var, e$message)
+    )
+
+    if (is.ordered(data[, k]) & (!is.nan(ctrl$xmin[k]) | !is.nan(ctrl$xmax[k]))) {
+      stop(msg_var, "xmin and xmax are not meaningful for x of type ordered.")
+    }
+
+    if (!is.nan(ctrl$xmax[k]) & !is.nan(ctrl$xmin[k])) {
+      if (ctrl$xmin[k] > ctrl$xmax[k]) {
+        stop(msg_var, "xmin is larger than xmax.")
+      }
+    }
+    if (!is.nan(ctrl$xmin[k])) {
+      if (any(data[, k] < ctrl$xmin[k])) {
+        stop(msg_var, "not all data are larger than xmin.")
+      }
+    }
+    if (!is.nan(ctrl$xmax[k])) {
+      if (any(data[, k] > ctrl$xmax[k])) {
+        stop(msg_var, "not all data are samller than xmax.")
+      }
+    }
+    if (!(ctrl$deg[k] %in% 0:2)) {
+      stop(msg_var, "deg must be either 0, 1, or 2.")
+    }
+  })
+}
+
+prep_for_margins <- function(data) {
+  data <- lapply(data, function(x) if (is.ordered(x)) as.numeric(x) - 1 else x)
+  do.call(cbind, data)
+}
+
+finalize_margins <- function(margins, data) {
+  for (k in seq_along(margins)) {
+    margins[[k]]$x <- data[[k]]
+    margins[[k]]$nobs <- nrow(data)
+  }
+  margins
+}
+

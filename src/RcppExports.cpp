@@ -6,6 +6,25 @@
 
 using namespace Rcpp;
 
+// fit_margins_cpp
+std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data, const Eigen::VectorXi& nlevels, const Eigen::VectorXd& mult, const Eigen::VectorXd& xmin, const Eigen::VectorXd& xmax, const Eigen::VectorXd& bw, const Eigen::VectorXi& deg, const Eigen::VectorXd& weights, size_t num_threads);
+RcppExport SEXP _vinereg_fit_margins_cpp(SEXP dataSEXP, SEXP nlevelsSEXP, SEXP multSEXP, SEXP xminSEXP, SEXP xmaxSEXP, SEXP bwSEXP, SEXP degSEXP, SEXP weightsSEXP, SEXP num_threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXi& >::type nlevels(nlevelsSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type mult(multSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type xmin(xminSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type xmax(xmaxSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type bw(bwSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXi& >::type deg(degSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type num_threads(num_threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_margins_cpp(data, nlevels, mult, xmin, xmax, bw, deg, weights, num_threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // select_dvine_cpp
 Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data, std::vector<std::string> family_set, std::string par_method, std::string nonpar_method, double mult, std::string selcrit, const Eigen::VectorXd& weights, double psi0, bool preselect_families, size_t cores, const std::vector<std::string>& var_types);
 RcppExport SEXP _vinereg_select_dvine_cpp(SEXP dataSEXP, SEXP family_setSEXP, SEXP par_methodSEXP, SEXP nonpar_methodSEXP, SEXP multSEXP, SEXP selcritSEXP, SEXP weightsSEXP, SEXP psi0SEXP, SEXP preselect_familiesSEXP, SEXP coresSEXP, SEXP var_typesSEXP) {
@@ -56,6 +75,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_vinereg_fit_margins_cpp", (DL_FUNC) &_vinereg_fit_margins_cpp, 9},
     {"_vinereg_select_dvine_cpp", (DL_FUNC) &_vinereg_select_dvine_cpp, 11},
     {"_vinereg_cond_quantile_cpp", (DL_FUNC) &_vinereg_cond_quantile_cpp, 4},
     {"_vinereg_cond_dist_cpp", (DL_FUNC) &_vinereg_cond_dist_cpp, 3},

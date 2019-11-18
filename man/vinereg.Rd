@@ -4,8 +4,17 @@
 \alias{vinereg}
 \title{D-vine regression models}
 \usage{
-vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
-  order = NA, par_1d = list(), cores = 1, ...)
+vinereg(
+  formula,
+  data,
+  family_set = "parametric",
+  selcrit = "loglik",
+  order = NA,
+  par_1d = list(),
+  weights = numeric(),
+  cores = 1,
+  ...
+)
 }
 \arguments{
 \item{formula}{an object of class "formula"; same as \code{\link[=lm]{lm()}}.}
@@ -27,6 +36,8 @@ automatically if \code{order = NA} (default).}
 \item{par_1d}{list of options passed to \code{\link[kde1d:kde1d]{kde1d::kde1d()}}, must be one value
 for each margin, e.g. \code{list(xmin = c(0, 0, NaN))} if the response and first
 covariate have non-negative support.}
+
+\item{weights}{optional vector of weights for each observation.}
 
 \item{cores}{integer; the number of cores to use for computations.}
 
@@ -70,15 +81,14 @@ summary(fit)
 plot_effects(fit)
 
 # model predictions
-mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
-med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean
+med_hat <- predict(fit, newdata = dat, alpha = 0.5) # median
 
 # observed vs predicted
 plot(cbind(y, mu_hat))
 
 ## fixed variable order (no selection)
 (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
-
 }
 \references{
 Kraus and Czado (2017), D-vine copula based quantile regression,
