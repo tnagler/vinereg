@@ -245,7 +245,7 @@ check_par_1d <- function(data, ctrl) {
   })
 }
 
-prep_for_margins <- function(data) {
+prep_for_kde1d <- function(data) {
   data <- lapply(data, function(x) if (is.ordered(x)) as.numeric(x) - 1 else x)
   do.call(cbind, data)
 }
@@ -254,6 +254,7 @@ finalize_margins <- function(margins, data) {
   for (k in seq_along(margins)) {
     margins[[k]]$x <- data[[k]]
     margins[[k]]$nobs <- nrow(data)
+    margins[[k]]$var_name <- names(margins)[k] <- colnames(data)[k]
   }
   margins
 }

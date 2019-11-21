@@ -127,7 +127,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     mfx <- mfx[, c(1, selected_vars)]
 
     par_1d <- process_par_1d(mfx, par_1d)
-    margins <- fit_margins_cpp(prep_for_margins(mfx),
+    margins <- fit_margins_cpp(prep_for_kde1d(mfx),
                                sapply(mfx, nlevels),
                                mult = par_1d$mult,
                                xmin = par_1d$xmin,
@@ -156,7 +156,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     )
   } else {
     par_1d <- process_par_1d(mfx, par_1d)
-    margins <- fit_margins_cpp(prep_for_margins(mfx),
+    margins <- fit_margins_cpp(prep_for_kde1d(mfx),
                                sapply(mfx, nlevels),
                                mult = par_1d$mult,
                                xmin = par_1d$xmin,
