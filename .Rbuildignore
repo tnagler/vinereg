@@ -13,3 +13,4 @@ LICENSE
 ^README\.Rmd$
 ^_pkgdown\.yml$
 ^docs$
+^\.github/workflows/R-CMD-check\.yaml$
