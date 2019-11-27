@@ -4,8 +4,8 @@ context("predict.vinereg()")
 set.seed(3)
 x <- matrix(rnorm(30), 10, 3)
 y <- x %*% c(1, -1, 2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(10, 3, 0.5)))
-fit <- vinereg(y ~ ., family = "gauss", dat)
+dat <- data.frame(y = y, x = x, z = factor(rbinom(20, 3, 0.5), 0:3))
+fit <- vinereg(y ~ ., dat, family = "gauss", selcrit = "loglik")
 
 test_that("catches missing variables", {
   fit <- vinereg(y ~ ., dat[1:3])

@@ -99,35 +99,31 @@ remove_unused <- function(newdata, object, use_response = FALSE) {
 #' @noRd
 to_uscale <- function(data, margins, add_response = FALSE) {
   u_sub <- list()
-  if (!is.null(margins[[1]]$u)) {
-    # data are uniform, no need for PIT
-    u <- lapply(margins, function(m) m$u)
-  } else {
-    u <- lapply(seq_along(margins), function(k) pkde1d(data[[k]], margins[[k]]))
-    if (any(sapply(margins, function(m) nlevels(m$x) > 0))) {
-      compute_u_sub <- function(k) {
-        if (nlevels(margins[[k]]$x) > 0) {
-          data[, k] <- ordered(data[, k], levels = levels(margins[[k]]$x))
-          lv <- as.numeric(data[, k]) - 1
-          lv0 <- which(lv == 0)
-          lv[lv0] <- 1
-          xlv <- ordered(levels(margins[[k]]$x)[lv],
-                         levels = levels(margins[[k]]$x))
-          u_sub <- pkde1d(xlv, margins[[k]])
-          u_sub[lv0] <- 0
-          return(u_sub)
-        } else {
-          return(u[[k]])
-        }
+  u <- lapply(seq_along(margins), function(k) pkde1d(data[[k]], margins[[k]]))
+
+  if (any(sapply(margins, function(m) nlevels(m$x) > 0))) {
+    compute_u_sub <- function(k) {
+      if (nlevels(margins[[k]]$x) > 0) {
+        data[, k] <- ordered(data[, k], levels = levels(margins[[k]]$x))
+        lv <- as.numeric(data[, k]) - 1
+        lv0 <- which(lv == 0)
+        lv[lv0] <- 1
+        xlv <- ordered(levels(margins[[k]]$x)[lv],
+                       levels = levels(margins[[k]]$x))
+        u_sub <- pkde1d(xlv, margins[[k]])
+        u_sub[lv0] <- 0
+        return(u_sub)
+      } else {
+        return(u[[k]])
       }
-      u_sub <- lapply(seq_along(margins), compute_u_sub)
     }
+    u_sub <- lapply(seq_along(margins), compute_u_sub)
   }
+
   if (add_response) {
     u <- c(list(0.5), u)
-    if (length(u_sub) > 0) {
+    if (length(u_sub) > 0)
       u_sub <- c(list(0.5), u_sub)
-    }
   }
   truncate_u(cbind(do.call(cbind, u), do.call(cbind, u_sub)))
 }
@@ -177,7 +173,7 @@ process_par_1d <- function(data, pars) {
   }
   if (!is.null(pars$xmax)) {
     if (length(pars$xmax) != d)
-      stop("'xmin'  must be a vector with one value for each variable")
+      stop("'xmax'  must be a vector with one value for each variable")
   } else {
     pars$xmax = rep(NaN, d)
   }

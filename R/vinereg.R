@@ -119,8 +119,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
   )$controls
 
   if (!all(is.na(order))) {
-    stopifnot(length(order) > 0)
-    stopifnot(all(order %in% names(mfx)))
+    check_order(order, names(mfx))
 
     selected_vars <- which(names(mfx) %in% order)
     var_types <- var_types[c(1, selected_vars)]
@@ -241,6 +240,7 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
 }
 
 check_order <- function(order, var_nms) {
+  stopifnot(length(order) > 0)
   if (!all(order %in% var_nms)) {
     stop(
       "unknown variable name in 'order'; ",
@@ -254,27 +254,3 @@ check_order <- function(order, var_nms) {
     )
   }
 }
-
-fit_margins <- function(x, par_1d, cores) {
-  d <- ncol(x)
-  par_1d <- process_par_1d(par_1d, d)
-  fit_margin <- function(k) {
-    arg_lst <- list(
-      x = x[, k],
-      xmin = par_1d$xmin[k],
-      xmax = par_1d$xmax[k],
-      bw = par_1d$bw[k],
-      mult = par_1d$mult[k],
-      deg = par_1d$deg[k]
-    )
-    arg_lst[sapply(arg_lst, is.null)] <- NULL
-    m <- do.call(kde1d, arg_lst)
-    m$x_cc <- x[, k]
-    m
-  }
-  margs <- lapply(seq_len(d), fit_margin)
-
-  names(margs) <- colnames(x)
-  margs
-}
-
