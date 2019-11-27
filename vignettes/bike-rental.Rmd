@@ -133,14 +133,15 @@ bikedata <- bikedata %>%
 
 #### Fit model
 ```{r}
-npdvqr_fit <- vinereg(count ~ ., data = bikedata, family_set = "nonpar", selcrit = "aic")
-colnames(bikedata)[npdvqr_fit$selected_vars]
+fit <- vinereg(count ~ ., data = bikedata, family_set = "nonpar", selcrit = "aic")
+fit
+summary(fit)
 ```
 
 #### In-sample predictions
 ```{r}
 alpha_vec <- c(0.1, 0.5, 0.9)
-npdvqr_pred <- fitted(npdvqr_fit, alpha_vec)
+pred <- fitted(fit, alpha_vec)
 ```
 
 ### Marginal effects

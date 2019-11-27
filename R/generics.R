@@ -68,7 +68,7 @@ plot_effects <- function(object,
   preds <- do.call(rbind, preds)
 
   df <- lapply(vars, function(var)
-    cbind(data.frame(var = var, value = unname(mf[, var])), preds))
+    cbind(data.frame(var = var, value = as.numeric(unname(mf[, var])), preds)))
   df <- do.call(rbind, df)
   df$value <- as.numeric(df$value)
   df$alpha <- as.factor(df$alpha)
