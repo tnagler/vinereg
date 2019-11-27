@@ -8,7 +8,7 @@ vinereg(
   formula,
   data,
   family_set = "parametric",
-  selcrit = "loglik",
+  selcrit = "aic",
   order = NA,
   par_1d = list(),
   weights = numeric(),

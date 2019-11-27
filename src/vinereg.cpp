@@ -76,10 +76,11 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
     auto order = tools_stl::cat({ 0 }, selected_vars);
     auto new_struct = DVineStructure(tools_stl::rank(order));
 
-    std::sort(selected_vars.begin(), selected_vars.end());
+    auto sv = selected_vars;
+    std::sort(sv.begin(), sv.end());
     auto vt = std::vector<std::string>();
     vt.push_back(var_types[0]);
-    for (auto v : selected_vars)
+    for (auto v : sv)
       vt.push_back(var_types[v]);
 
     vinecop_r = Rcpp::List::create(
