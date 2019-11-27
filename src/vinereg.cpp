@@ -21,13 +21,8 @@ std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data,
   std::vector<kde1d::Kde1d> fits_cpp(d);
   num_threads = (num_threads > 1) ? num_threads : 0;
   RcppThread::parallelFor(0, d, [&] (const size_t& k) {
-    fits_cpp[k] = std::move(
-      kde1d::Kde1d(
-        data.col(k), nlevels(k),
-        bw(k), mult(k), xmin(k), xmax(k), deg(k),
-        weights
-      )
-    );
+    fits_cpp[k] = kde1d::Kde1d(
+      data.col(k), nlevels(k), bw(k), mult(k), xmin(k), xmax(k), deg(k), weights);
   }, num_threads);
 
   // we can't do the following in parallel because it calls R API
