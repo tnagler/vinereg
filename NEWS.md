@@ -1,12 +1,21 @@
 # vinereg 0.7.0
 
+DEPDENDENCIES
+
+* removed dependence on future and furrr packages.
+
+NEW FEATURES
+
+* faster runtimes, especially for parallelized code.
+
+* handle discrete variables properly with both parametric and  nonparametric 
+  pair-copulas.
+
 REMOVED FEATURES
 
 * removed support for `uscale` argument.
 
-* removed support for fitting margins in parallel (a better way to do this will
-  be added shortly).
- 
+
 
 # vinereg 0.6.0
 
