@@ -24,6 +24,7 @@ LinkingTo:
   RcppEigen, 
   Rcpp, 
   BH,
+  wdm,
   RcppThread, 
   kde1d
 RoxygenNote: 7.0.0
