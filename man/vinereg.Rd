@@ -4,14 +4,23 @@
 \alias{vinereg}
 \title{D-vine regression models}
 \usage{
-vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
-  order = NA, par_1d = list(), cores = 1, uscale = FALSE, ...)
+vinereg(
+  formula,
+  data,
+  family_set = "parametric",
+  selcrit = "aic",
+  order = NA,
+  par_1d = list(),
+  weights = numeric(),
+  cores = 1,
+  ...
+)
 }
 \arguments{
 \item{formula}{an object of class "formula"; same as \code{\link[=lm]{lm()}}.}
 
-\item{data}{data frame (or object coercible by
-\code{\link[=as.data.frame]{as.data.frame()}}) containing the variables in the model.}
+\item{data}{data frame (or object coercible by \code{\link[=as.data.frame]{as.data.frame()}}) containing
+the variables in the model.}
 
 \item{family_set}{see \code{family_set} argument of \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
 
@@ -19,45 +28,44 @@ vinereg(formula, data, family_set = "parametric", selcrit = "loglik",
 \code{"loglik"} (default) imposes no correction; other choices are
 \code{"aic"} and \code{"bic"}.}
 
-\item{order}{the order of covariates in the D-vine, provided as vector
-of variable names (after calling \code{cctools::cont_conv()} on the
-\code{model.frame()}); selected automatically if \code{order = NA} (default).}
+\item{order}{the order of covariates in the D-vine, provided as vector of
+variable names (after calling
+\code{vinereg:::expand_factors(model.frame(formula, data))}); selected
+automatically if \code{order = NA} (default).}
 
 \item{par_1d}{list of options passed to \code{\link[kde1d:kde1d]{kde1d::kde1d()}}, must be one value
-for each margin, e.g. \code{list(xmin = c(0, 0, NaN))} if the response and
-first covariate have non-negative support.}
+for each margin, e.g. \code{list(xmin = c(0, 0, NaN))} if the response and first
+covariate have non-negative support.}
+
+\item{weights}{optional vector of weights for each observation.}
 
 \item{cores}{integer; the number of cores to use for computations.}
-
-\item{uscale}{logical indicating whether the data are already on copula scale
-(no margins have to be fitted).}
 
 \item{...}{further arguments passed to \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
 }
 \value{
 An object of class vinereg. It is a list containing the elements
-\describe{
-\item{formula}{the formula used for the fit.}
+\describe{ \item{formula}{the formula used for the fit.}
 \item{selcrit}{criterion used for variable selection.}
 \item{model_frame}{the data used to fit the regression model.}
 \item{margins}{list of marginal models fitted by \code{\link[kde1d:kde1d]{kde1d::kde1d()}}.}
 \item{vine}{an \code{\link[rvinecopulib:vinecop_dist]{rvinecopulib::vinecop_dist()}} object containing the fitted
-D-vine.}
-\item{stats}{fit statistics such as conditional log-likelihood/AIC/BIC and
-p-values for each variable's contribution.}
-\item{order}{order of the covariates chosen by the variable selection algorithm.}
-\item{selected_vars}{indices of selected variables.}
-}
-Use \code{\link[=predict.vinereg]{predict.vinereg()}} to predict conditional
-quantiles. \code{summary.vinereg()} shows the contribution of each selected
-variable with the associated p-value derived from a likelihood ratio test.
+D-vine.} \item{stats}{fit statistics such as conditional
+log-likelihood/AIC/BIC and p-values for each variable's contribution.}
+\item{order}{order of the covariates chosen by the variable selection
+algorithm.} \item{selected_vars}{indices of selected variables.} } Use
+\code{\link[=predict.vinereg]{predict.vinereg()}} to predict conditional quantiles. \code{summary.vinereg()}
+shows the contribution of each selected variable with the associated
+p-value derived from a likelihood ratio test.
 }
 \description{
 Sequential estimation of a regression D-vine for the purpose of quantile
-prediction as described in Kraus and Czado (2017). If discrete variables
-are declared as \code{ordered()} or \code{factor()}, jittering is used
-to make them continuous (see \code{cctools::cont_conv()}). Although this may
-make the model estimate inconsistent, predictions are usually still reasonable.
+prediction as described in Kraus and Czado (2017).
+}
+\details{
+If discrete variables are declared as \code{ordered()} or \code{factor()}, they are
+handled as discribed in Panagiotelis et al. (2012). This is different from
+previous version where the data was jittered before fitting.
 }
 \examples{
 # simulate data
@@ -73,19 +81,22 @@ summary(fit)
 plot_effects(fit)
 
 # model predictions
-mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
-med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean
+med_hat <- predict(fit, newdata = dat, alpha = 0.5) # median
 
 # observed vs predicted
 plot(cbind(y, mu_hat))
 
 ## fixed variable order (no selection)
 (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
-
 }
 \references{
 Kraus and Czado (2017), D-vine copula based quantile regression,
 Computational Statistics and Data Analysis, 110, 1-18
+
+Panagiotelis, A., Czado, C., & Joe, H. (2012). Pair copula constructions for
+multivariate discrete data. Journal of the American Statistical Association,
+107(499), 1063-1072.
 }
 \seealso{
 \code{\link{predict.vinereg}}

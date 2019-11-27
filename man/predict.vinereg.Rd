@@ -5,8 +5,7 @@
 \alias{fitted.vinereg}
 \title{Predict conditional mean and quantiles from a D-vine regression model}
 \usage{
-\method{predict}{vinereg}(object, newdata, alpha = 0.5, uscale = FALSE,
-  ...)
+\method{predict}{vinereg}(object, newdata, alpha = 0.5, cores = 1, ...)
 
 \method{fitted}{vinereg}(object, alpha = 0.5, ...)
 }
@@ -18,7 +17,7 @@
 \item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
 average of the \code{1:10 / 11}-quantiles.}
 
-\item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
+\item{cores}{integer; the number of cores to use for computations.}
 
 \item{...}{unused.}
 }
@@ -43,15 +42,14 @@ summary(fit)
 plot_effects(fit)
 
 # model predictions
-mu_hat  <- predict(fit, newdata = dat, alpha = NA)          # mean
-med_hat <- predict(fit, newdata = dat, alpha = 0.5)         # median
+mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean
+med_hat <- predict(fit, newdata = dat, alpha = 0.5) # median
 
 # observed vs predicted
 plot(cbind(y, mu_hat))
 
 ## fixed variable order (no selection)
 (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
-
 }
 \seealso{
 \code{\link{vinereg}}

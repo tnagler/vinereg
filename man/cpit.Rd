@@ -4,7 +4,7 @@
 \alias{cpit}
 \title{Conditional probability integral transform}
 \usage{
-cpit(object, newdata, uscale = FALSE)
+cpit(object, newdata, cores = 1)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
@@ -12,13 +12,15 @@ cpit(object, newdata, uscale = FALSE)
 \item{newdata}{matrix of response and covariate values for which to compute
 the conditional distribution.}
 
-\item{uscale}{if \code{TRUE} input (newdata) and output is on copula scale.}
+\item{cores}{integer; the number of cores to use for computations.}
 }
 \description{
 Calculates the conditional distribution of the response given the covariates.
 }
 \examples{
-\dontshow{set.seed(1)}
+\dontshow{
+set.seed(1)
+}
 # simulate data
 x <- matrix(rnorm(500), 250, 2)
 y <- x \%*\% c(1, -2)
@@ -27,5 +29,5 @@ dat <- data.frame(y = y, x = x, z = as.factor(rbinom(250, 2, 0.5)))
 # fit vine regression model
 fit <- vinereg(y ~ ., dat)
 
-hist(cpit(fit, dat))  # should be approximately uniform
+hist(cpit(fit, dat)) # should be approximately uniform
 }
