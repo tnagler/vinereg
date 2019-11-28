@@ -1,35 +1,37 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-vinereg
-=======
 
-[![Travis-CI Build Status](https://travis-ci.org/tnagler/vinereg.svg?branch=master)](https://travis-ci.org/tnagler/vinereg) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/tnagler/vinereg?branch=master&svg=true)](https://ci.appveyor.com/project/tnagler/vinereg) [![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg)](https://codecov.io/github/tnagler/vinereg?branch=master) [![CRAN status](https://www.r-pkg.org/badges/version/vinereg)](https://cran.r-project.org/package=vinereg)
+# vinereg
+
+[![R build
+status](https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/vinereg)
+[![Coverage
+status](https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg)](https://codecov.io/github/tnagler/vinereg?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/vinereg)](https://cran.r-project.org/package=vinereg)
 
 An R package for D-vine copula based mean and quantile regression.
 
-How to install
---------------
+## How to install
 
--   the stable release from CRAN:
-
+  - the stable release from CRAN:
+    
     ``` r
     install.packages("vinereg")
     ```
 
--   the latest development version:
-
+  - the latest development version:
+    
     ``` r
     # install.packages("devtools")
     devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
     ```
 
-Functionality
--------------
+## Functionality
 
 See the [package website](https://tnagler.github.io/vinereg).
 
-Example
--------
+## Example
 
 ``` r
 set.seed(5)
@@ -43,22 +45,19 @@ mtcars[["am"]] <- as.factor(mtcars[["am"]])
 
 # fit model
 (fit <- vinereg(mpg ~ ., data = mtcars))
-#> D-vine regression model: mpg | disp, hp, gear, carb, cyl, am.1, wt, vs, qsec, drat 
-#> nobs = 32, edf = 95, cll = -56.09, caic = 302.19, cbic = 441.43
+#> D-vine regression model: mpg | disp, wt, hp, gear, cyl, vs, qsec 
+#> nobs = 32, edf = 9, cll = -58.41, caic = 134.82, cbic = 148.01
 
 summary(fit)
-#>     var     edf          cll       caic       cbic      p_value
-#> 1   mpg 3.2e-11 -98.59271949 197.185439 197.185439           NA
-#> 2  disp 2.0e+00  29.53428159 -55.068563 -52.137091 1.490817e-13
-#> 3    hp 3.0e+00   2.33231128   1.335377   5.732585 1.980680e-01
-#> 4  gear 5.0e+00   2.16379041   5.672419  13.001099 5.032784e-01
-#> 5  carb 7.0e+00   2.25663902   9.486722  19.746873 7.191178e-01
-#> 6   cyl 9.0e+00   1.57187334  14.856253  28.047876 9.583219e-01
-#> 7  am.1 1.0e+01   1.75059329  16.498813  31.156172 9.670581e-01
-#> 8    wt 1.3e+01   1.62623809  22.747524  41.802091 9.968597e-01
-#> 9    vs 1.3e+01   0.52958111  24.940838  43.995405 9.999946e-01
-#> 10 qsec 1.6e+01   0.70430954  30.591381  54.043155 9.999992e-01
-#> 11 drat 1.7e+01   0.02886845  33.942263  58.859773 1.000000e+00
+#>    var edf         cll        caic        cbic      p_value
+#> 1  mpg   0 -100.189867 200.3797334 200.3797334           NA
+#> 2 disp   1   27.086917 -52.1738350 -50.7080991 1.835143e-13
+#> 3   wt   1    2.676766  -3.3535326  -1.8877967 2.068033e-02
+#> 4   hp   1    3.983133  -5.9662654  -4.5005295 4.765716e-03
+#> 5 gear   1    1.392314  -0.7846281   0.6811078 9.517278e-02
+#> 6  cyl   2    3.116818  -2.2336361   0.6978357 4.429790e-02
+#> 7   vs   2    2.458009  -0.9160183   2.0154535 8.560521e-02
+#> 8 qsec   1    1.065405  -0.1308095   1.3349264 1.443645e-01
 
 # show marginal effects for all selected variables
 plot_effects(fit)
@@ -72,14 +71,13 @@ plot_effects(fit)
 # predict mean and median
 head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
 #>       mean      0.5
-#> 1 19.34836 19.36129
-#> 2 19.17641 19.19810
-#> 3 25.28064 25.13942
-#> 4 19.70841 19.67779
+#> 1 15.76021 15.76021
+#> 2 15.33784 15.33784
+#> 3 21.06066 21.06066
+#> 4 14.64041 14.64041
 ```
 
-Vignettes
----------
+## Vignettes
 
 For more examples, have a look at the vignettes with
 
@@ -90,6 +88,11 @@ vignette("bike-rental", package = "vinereg")
 
 ### References
 
-Kraus and Czado (2017). D-vine copula based quantile regression. *Computational Statistics & Data Analysis*, 110, 1-18. [link](https://www.sciencedirect.com/science/article/pii/S0167947316303073), [preprint](https://arxiv.org/abs/1510.04161)
+Kraus and Czado (2017). D-vine copula based quantile regression.
+*Computational Statistics & Data Analysis*, 110, 1-18.
+[link](https://www.sciencedirect.com/science/article/pii/S0167947316303073),
+[preprint](https://arxiv.org/abs/1510.04161)
 
-Schallhorn, N., Kraus, D., Nagler, T., Czado, C. (2017). D-vine quantile regression with discrete variables. Working paper, [preprint](https://arxiv.org/abs/1705.08310).
+Schallhorn, N., Kraus, D., Nagler, T., Czado, C. (2017). D-vine quantile
+regression with discrete variables. Working paper,
+[preprint](https://arxiv.org/abs/1705.08310).
