@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Changelog • vinereg</title>
+<title>Conditional probability integral transform — cpit • vinereg</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,9 @@
 
 
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="Conditional probability integral transform — cpit" />
+<meta property="og:description" content="Calculates the conditional distribution of the response given the covariates." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -54,7 +56,7 @@
   </head>
 
   <body>
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -116,102 +118,58 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Changelog <small></small></h1>
-      
+    <h1>Conditional probability integral transform</h1>
+    
+    <div class="hidden name"><code>cpit.Rd</code></div>
     </div>
 
-    <div id="vinereg-0-7-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-7-0" class="anchor"></a>vinereg 0.7.0<small> Unreleased </small>
-</h1>
-<p>DEPDENDENCIES</p>
-<ul>
-<li>removed dependence on future and furrr packages.</li>
-</ul>
-<p>NEW FEATURES</p>
-<ul>
-<li><p>faster runtimes, especially for parallelized code.</p></li>
-<li><p>handle discrete variables properly with both parametric and nonparametric pair-copulas.</p></li>
-</ul>
-<p>REMOVED FEATURES</p>
-<ul>
-<li>removed support for <code>uscale</code> argument.</li>
-</ul>
-</div>
-    <div id="vinereg-0-6-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-6-0" class="anchor"></a>vinereg 0.6.0<small> Unreleased </small>
-</h1>
-<p>NEW FEATURES</p>
-<ul>
-<li>new function <code><a href="../reference/cpit.html">cpit()</a></code> to compute the conditional cdf.</li>
-</ul>
-</div>
-    <div id="vinereg-0-5-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-5-0" class="anchor"></a>vinereg 0.5.0<small> 2018-08-09 </small>
-</h1>
-<p>DEPENDS</p>
-<ul>
-<li>require rvinecopulib (&gt;= 0.3.0) due to breaking changes in this package.</li>
-</ul>
-<p>BUG FIXES</p>
-<ul>
-<li><p>prevent nan errors in loglik calculation.</p></li>
-<li><p>allow for empty and bivariate models.</p></li>
-<li><p>properly pass degree parameter for margin al estimation.</p></li>
-</ul>
-</div>
-    <div id="vinereg-0-4-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-4-0" class="anchor"></a>vinereg 0.4.0<small> Unreleased </small>
-</h1>
-<p>BUG FIXES</p>
-<ul>
-<li><p>Fix handling of <code>uscale</code> in <code><a href="../reference/predict.vinereg.html">fitted.vinereg()</a></code>.</p></li>
-<li><p>Fix handling of <code>mult</code> parameter for pair-copula fits in <code><a href="../reference/vinereg.html">vinereg()</a></code>.</p></li>
-<li><p>Fix orientation of asymmetric pair-copulas.</p></li>
-</ul>
-</div>
-    <div id="vinereg-0-3-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-3-0" class="anchor"></a>vinereg 0.3.0<small> 2018-06-02 </small>
-</h1>
-<p>DEPENDS</p>
-<ul>
-<li>Use <code>furrr</code> and <code>future</code> packages instead of <code>parallel</code>, <code>doParallel</code>, and <code>foreach</code> for parallelization.</li>
-</ul>
-<p>NEW FEATURES</p>
-<ul>
-<li><p>New <code><a href="https://rdrr.io/r/base/print.html">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> generics for <code>vinereg</code> objects.</p></li>
-<li><p>New <code><a href="../reference/plot_effects.html">plot_effects()</a></code> method to show the marginal effects of variables.</p></li>
-<li><p>Allow to predict the mean with <code><a href="https://rdrr.io/r/stats/predict.html">predict(object, alpha = NA)</a></code>.</p></li>
-</ul>
-</div>
-    <div id="vinereg-0-2-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-2-0" class="anchor"></a>vinereg 0.2.0<small> 2018-05-29 </small>
-</h1>
-<ul>
-<li>First official release.</li>
-</ul>
-</div>
-  </div>
+    <div class="ref-description">
+    <p>Calculates the conditional distribution of the response given the covariates.</p>
+    </div>
 
+    <pre class="usage"><span class='fu'>cpit</span>(<span class='no'>object</span>, <span class='no'>newdata</span>, <span class='kw'>cores</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>an object of class <code>vinereg</code>.</p></td>
+    </tr>
+    <tr>
+      <th>newdata</th>
+      <td><p>matrix of response and covariate values for which to compute
+the conditional distribution.</p></td>
+    </tr>
+    <tr>
+      <th>cores</th>
+      <td><p>integer; the number of cores to use for computations.</p></td>
+    </tr>
+    </table>
+
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># \dontshow{</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>)
+<span class='co'># }</span>
+<span class='co'># simulate data</span>
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>500</span>), <span class='fl'>250</span>, <span class='fl'>2</span>)
+<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='no'>x</span> <span class='kw'>%*%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, -<span class='fl'>2</span>)
+<span class='no'>dat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>z</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom</a></span>(<span class='fl'>250</span>, <span class='fl'>2</span>, <span class='fl'>0.5</span>)))
+
+<span class='co'># fit vine regression model</span>
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='vinereg.html'>vinereg</a></span>(<span class='no'>y</span> ~ <span class='no'>.</span>, <span class='no'>dat</span>)
+
+<span class='fu'><a href='https://rdrr.io/r/graphics/hist.html'>hist</a></span>(<span class='fu'>cpit</span>(<span class='no'>fit</span>, <span class='no'>dat</span>)) <span class='co'># should be approximately uniform</span></div><div class='img'><img src='cpit-1.png' alt='' width='700' height='433' /></div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#vinereg-0-7-0">0.7.0</a></li>
-        <li><a href="#vinereg-0-6-0">0.6.0</a></li>
-        <li><a href="#vinereg-0-5-0">0.5.0</a></li>
-        <li><a href="#vinereg-0-4-0">0.4.0</a></li>
-        <li><a href="#vinereg-0-3-0">0.3.0</a></li>
-        <li><a href="#vinereg-0-2-0">0.2.0</a></li>
-      </ul>
-    </div>
-  </div>
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
+  </div>
 </div>
 
 

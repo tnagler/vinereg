@@ -75,11 +75,12 @@ only use one-parameter families and the *t* copula here. The
 log-likelihood criterion for variable selection.
 
 ```{r}
-(fit_vine_par <- vinereg(
-    whole ~ length + diameter + height, 
-    data = abalone_f, 
-    selcrit = "aic"
-))
+fit_vine_par <- vinereg(
+  whole ~ length + diameter + height, 
+  data = abalone_f,  
+  family_set = c("onepar", "t"),
+  selcrit = "aic"
+)
 ```
 
 The result has a field `order` that shows the selected covariates and their 
@@ -173,12 +174,13 @@ We also want to check whether these results change, when we estimate the
 pair-copulas nonparametrically.
 
 ```{r,, fig.width=4.6, fig.height=4.6}
-(fit_vine_np <- vinereg(
-    whole ~ length + diameter + height,
-    data = abalone_f,
-    family_set = "nonpar",
-    selcrit = "aic"
-))
+fit_vine_np <- vinereg(
+  whole ~ length + diameter + height,
+  data = abalone_f,
+  family_set = "nonpar",
+  selcrit = "aic"
+)
+fit_vine_np
 contour(fit_vine_np$vine)
 ```
 
@@ -196,21 +198,16 @@ height and length are already accounted for.
 
 ## Discrete D-vine quantile regression
 
-To deal with discrete variables, we use the theory which is developed in 
-Nagler (2017) and applied to D-vine quantile regression in 
-Schallhorn et al. (2017). For the estimation the discrete variable(s) are 
-transformed to continuous ones by jittering. 
+To deal with discrete variables, we use the methodology of 
+Schallhorn et al. (2017). For estmiating nonparametric pair-copulas with 
+discrete variable(s), jittering is used (Nagler, 2017). 
 
 We let `vinereg()` know that a variable is discrete by declaring it `ordered`.
 
 ```{r, fig.width=4.7, fig.height=4}
 abalone_f$rings <- as.ordered(abalone_f$rings)
-(fit_disc <- vinereg(
-    rings ~ .,
-    data = abalone_f,
-    family_set = "nonpar", 
-    selcrit = "aic"
-))
+fit_disc <- vinereg(rings ~ ., data = abalone_f, selcrit = "aic")
+fit_disc
 plot_effects(fit_disc)
 ```
 
@@ -218,6 +215,6 @@ plot_effects(fit_disc)
 # References
 Kraus and Czado (2017), **D-vine copula based quantile regression**, *Computational Statistics and Data Analysis, 110, 1-18*
 
-Nagler (2017), **A generic approach to nonparametric function estimation with mixed data**, *arXiv preprint*
+Nagler (2017), **A generic approach to nonparametric function estimation with mixed data**, *Statistics & Probability Letters, 137:326–330*
 
 Schallhorn, Kraus, Nagler and Czado (2017), **D-vine quantile regression with discrete variables**, *arXiv preprint*
