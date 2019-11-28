@@ -1,29 +1,43 @@
+#ifndef BOOST_NO_AUTO_PTR
+#define BOOST_NO_AUTO_PTR 1
+#endif
+
 #include "dvine_reg_selector.hpp"
 #include <RcppThread.h>
-#include <vinecopulib/bicop/fit_controls.hpp>
-#include <vinecopulib-wrappers.hpp>
 #include <kde1d-wrappers.hpp>
+#include <vinecopulib-wrappers.hpp>
+#include <vinecopulib/bicop/fit_controls.hpp>
 
 using namespace vinecopulib;
 
 // [[Rcpp::export]]
-std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data,
-                                        const Eigen::VectorXi& nlevels,
-                                        const Eigen::VectorXd& mult,
-                                        const Eigen::VectorXd& xmin,
-                                        const Eigen::VectorXd& xmax,
-                                        const Eigen::VectorXd& bw,
-                                        const Eigen::VectorXi& deg,
-                                        const Eigen::VectorXd& weights,
-                                        size_t num_threads)
+std::vector<Rcpp::List>
+fit_margins_cpp(const Eigen::MatrixXd& data,
+                const Eigen::VectorXi& nlevels,
+                const Eigen::VectorXd& mult,
+                const Eigen::VectorXd& xmin,
+                const Eigen::VectorXd& xmax,
+                const Eigen::VectorXd& bw,
+                const Eigen::VectorXi& deg,
+                const Eigen::VectorXd& weights,
+                size_t num_threads)
 {
   size_t d = data.cols();
   std::vector<kde1d::Kde1d> fits_cpp(d);
   num_threads = (num_threads > 1) ? num_threads : 0;
-  RcppThread::parallelFor(0, d, [&] (const size_t& k) {
-    fits_cpp[k] = kde1d::Kde1d(
-      data.col(k), nlevels(k), bw(k), mult(k), xmin(k), xmax(k), deg(k), weights);
-  }, num_threads);
+  RcppThread::parallelFor(0,
+                          d,
+                          [&](const size_t& k) {
+                            fits_cpp[k] = kde1d::Kde1d(data.col(k),
+                                                       nlevels(k),
+                                                       bw(k),
+                                                       mult(k),
+                                                       xmin(k),
+                                                       xmax(k),
+                                                       deg(k),
+                                                       weights);
+                          },
+                          num_threads);
 
   // we can't do the following in parallel because it calls R API
   std::vector<Rcpp::List> fits_r(d);
@@ -34,34 +48,33 @@ std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data,
 }
 
 // [[Rcpp::export]]
-Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
-                            std::vector<std::string> family_set,
-                            std::string par_method,
-                            std::string nonpar_method,
-                            double mult,
-                            std::string selcrit,
-                            const Eigen::VectorXd& weights,
-                            double psi0,
-                            bool preselect_families,
-                            size_t cores,
-                            const std::vector<std::string>& var_types)
+Rcpp::List
+select_dvine_cpp(const Eigen::MatrixXd& data,
+                 std::vector<std::string> family_set,
+                 std::string par_method,
+                 std::string nonpar_method,
+                 double mult,
+                 std::string selcrit,
+                 const Eigen::VectorXd& weights,
+                 double psi0,
+                 bool preselect_families,
+                 size_t cores,
+                 const std::vector<std::string>& var_types)
 {
   // set up the cpp fit controls from all the arguments ------
   std::vector<BicopFamily> fam_set(family_set.size());
   for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
     fam_set[fam] = to_cpp_family(family_set[fam]);
   }
-  FitControlsBicop controls(
-      fam_set,
-      par_method,
-      nonpar_method,
-      mult,
-      selcrit,
-      weights,
-      psi0,
-      preselect_families,
-      cores
-  );
+  FitControlsBicop controls(fam_set,
+                            par_method,
+                            nonpar_method,
+                            mult,
+                            selcrit,
+                            weights,
+                            psi0,
+                            preselect_families,
+                            cores);
 
   // select the model -----------------------------------------
   vinereg::DVineRegSelector selector(data, var_types, controls);
@@ -85,28 +98,27 @@ Rcpp::List select_dvine_cpp(const Eigen::MatrixXd& data,
 
     vinecop_r = Rcpp::List::create(
       Rcpp::Named("pair_copulas") = pair_copulas_wrap(pcs, order.size(), true),
-      Rcpp::Named("structure")    = rvine_structure_wrap(new_struct),
-      Rcpp::Named("var_types")    = vt,
-      Rcpp::Named("npars")        = Vinecop(new_struct, pcs).get_npars(),
-      Rcpp::Named("nobs")         = data.rows(),
-      Rcpp::Named("loglik")       = NAN,
-      Rcpp::Named("threshold")    = 0
-    );
-    vinecop_r.attr("class") = Rcpp::CharacterVector{"vinecop", "vinecop_dist"};
+      Rcpp::Named("structure") = rvine_structure_wrap(new_struct),
+      Rcpp::Named("var_types") = vt,
+      Rcpp::Named("npars") = Vinecop(new_struct, pcs).get_npars(),
+      Rcpp::Named("nobs") = data.rows(),
+      Rcpp::Named("loglik") = NAN,
+      Rcpp::Named("threshold") = 0);
+    vinecop_r.attr("class") =
+      Rcpp::CharacterVector{ "vinecop", "vinecop_dist" };
   }
   for (auto& v : selected_vars) // R indexing starts at 1
     v++;
-  return Rcpp::List::create(
-    Rcpp::Named("vine") = vinecop_r,
-    Rcpp::Named("selected_vars") = selected_vars
-  );
+  return Rcpp::List::create(Rcpp::Named("vine") = vinecop_r,
+                            Rcpp::Named("selected_vars") = selected_vars);
 }
 
 // [[Rcpp::export]]
-std::vector<Eigen::VectorXd> cond_quantile_cpp(const Eigen::VectorXd& alpha,
-                                               const Eigen::MatrixXd& u,
-                                               const Rcpp::List& vinecop_r,
-                                               size_t num_threads)
+std::vector<Eigen::VectorXd>
+cond_quantile_cpp(const Eigen::VectorXd& alpha,
+                  const Eigen::MatrixXd& u,
+                  const Rcpp::List& vinecop_r,
+                  size_t num_threads)
 {
   tools_eigen::check_if_in_unit_cube(u);
   auto vinecop_cpp = vinecop_wrap(vinecop_r);
@@ -145,7 +157,8 @@ std::vector<Eigen::VectorXd> cond_quantile_cpp(const Eigen::VectorXd& alpha,
       tools_interface::check_user_interrupt(u.rows() * d > 1e5);
       for (size_t edge = 1; edge < d - tree - 1; ++edge) {
         tools_interface::check_user_interrupt(d * u.rows() > 1e5);
-        auto edge_copula = vinecop_cpp.get_pair_copula(tree, edge);
+        auto edge_copula =
+          vinecop_cpp.get_pair_copula(tree, edge).as_continuous();
         auto var_types = edge_copula.get_var_types();
         size_t m = vine_struct_.min_array(tree, edge);
 
@@ -157,7 +170,7 @@ std::vector<Eigen::VectorXd> cond_quantile_cpp(const Eigen::VectorXd& alpha,
           u_e.col(2) =
             (var_types[0] == "d") ? hfunc2_sub(tree, edge) : hfunc2(tree, edge);
           u_e.col(3) = (var_types[1] == "d") ? hfunc1_sub(tree, m - 1)
-            : hfunc1(tree, m - 1);
+                                             : hfunc1(tree, m - 1);
         }
 
         if (vine_struct_.needed_hfunc1(tree, edge)) {
@@ -200,9 +213,10 @@ std::vector<Eigen::VectorXd> cond_quantile_cpp(const Eigen::VectorXd& alpha,
 }
 
 // [[Rcpp::export]]
-Eigen::VectorXd cond_dist_cpp(const Eigen::MatrixXd& u,
-                              const Rcpp::List& vinecop_r,
-                              size_t num_threads)
+Eigen::VectorXd
+cond_dist_cpp(const Eigen::MatrixXd& u,
+              const Rcpp::List& vinecop_r,
+              size_t num_threads)
 {
   tools_eigen::check_if_in_unit_cube(u);
   auto vinecop_cpp = vinecop_wrap(vinecop_r);

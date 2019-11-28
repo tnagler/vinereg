@@ -6,3 +6,5 @@ inst/doc
 *cache*
 *.o
 *.so
+*.gcda
+*.gcno

@@ -96,6 +96,7 @@ predict_mean <- function(object, newdata) {
 
 #' @importFrom rvinecopulib rosenblatt inverse_rosenblatt
 qdvine <- function(u, alpha, vine, cores) {
+  vine$var_types[1] <- "c"
   q_hat <- as.data.frame(cond_quantile_cpp(alpha, as.matrix(u), vine, cores))
   names(q_hat) <- alpha
   q_hat
