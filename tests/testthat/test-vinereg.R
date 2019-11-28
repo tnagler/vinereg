@@ -1,10 +1,10 @@
 context("vinereg()")
 
 # simulate data
-set.seed(1)
-x <- matrix(rnorm(60), 20, 3)
+set.seed(5)
+x <- matrix(rnorm(120), 40, 3)
 y <- x %*% c(1, -1, 2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(20, 3, 0.5)))
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(40, 3, 0.5)))
 
 
 test_that("catches wrong arguments", {
@@ -39,7 +39,7 @@ test_that("all selcrits work", {
 test_that("works with discrete variables", {
   order <- c("x.1", "x.2", "x.3")
   expect_setequal(
-    vinereg(y ~ ., dat, fam = "gauss", selcrit = "bic")$order,
+    vinereg(y ~ ., dat, fam = "gauss", selcrit = "bic")$order[1:3],
     order
   )
   dat$y <- as.ordered(dat$y)
@@ -60,6 +60,6 @@ test_that("works with fixed order", {
 
 test_that("works in parallel", {
   fit <- vinereg(y ~ ., dat[-5])
-  fit_par <- vinereg(y ~ ., dat[-5], cores = 2)
+  fit_par <- vinereg(y ~ ., dat[-5], family = "par", cores = 2)
   expect_equal(fit$vine, fit_par$vine)
 })
