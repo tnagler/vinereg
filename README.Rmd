@@ -52,7 +52,7 @@ for (var in c("cyl", "vs", "gear", "carb"))
 mtcars[["am"]] <- as.factor(mtcars[["am"]])
 
 # fit model
-(fit <- vinereg(mpg ~ ., data = mtcars))
+(fit <- vinereg(mpg ~ ., family = "nonpar", data = mtcars))
 
 summary(fit)
 
