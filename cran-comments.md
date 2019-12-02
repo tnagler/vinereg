@@ -1,8 +1,8 @@
-Patch following the new version of 'rvinecopulib'.
-
 ## Test environments
-* ubuntu 12.04 (on travis-ci), R 3.5.1
-* win-builder (devel and release)
+* ubuntu 16.04 (release)
+* Windows Server 2019 (release)
+* macOS-catalina (release, devel)
+* ubuntum 18.04 with clang-ASAN/UBSAN (devel)
 
 ## R CMD check results
 
