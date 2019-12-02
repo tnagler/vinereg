@@ -1,5 +1,12 @@
 #ifndef BOOST_NO_AUTO_PTR
-#define BOOST_NO_AUTO_PTR 1
+#define BOOST_NO_AUTO_PTR
+#endif
+
+#ifndef BOOST_MATH_PROMOTE_DOUBLE_POLICY
+#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
+#else
+#undef BOOST_MATH_PROMOTE_DOUBLE_POLICY
+#define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
 #endif
 
 #include "dvine_reg_selector.hpp"
