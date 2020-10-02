@@ -152,10 +152,11 @@ expand_factors <- function(data) {
       if (is.numeric(x) | is.ordered(x)) {
         return(x)
       }
+      lvs <- levels(x)
       x <- model.matrix(~x)[, -1, drop = FALSE]
       x <- as.data.frame(x)
       x <- lapply(x, function(y) ordered(y, levels = 0:1))
-      names(x) <- seq_along(x)
+      names(x) <- lvs[-1]
       x
     })
   }
