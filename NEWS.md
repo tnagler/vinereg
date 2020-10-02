@@ -1,3 +1,16 @@
+# vinereg 0.7.1
+
+This is a maintainance release following an update in rvinecopulib.
+
+DEPENDS
+
+* requires rvinecopulib (>= 0.5.4.1.0) to fix an unitialized value issue.
+
+NEW FEATURES
+
+* variables generated from `factor`s are now named with the corresponding factor level.
+
+
 # vinereg 0.7.0
 
 DEPDENDENCIES
