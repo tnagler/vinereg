@@ -164,8 +164,7 @@ cond_quantile_cpp(const Eigen::VectorXd& alpha,
       tools_interface::check_user_interrupt(u.rows() * d > 1e5);
       for (size_t edge = 1; edge < d - tree - 1; ++edge) {
         tools_interface::check_user_interrupt(d * u.rows() > 1e5);
-        auto edge_copula =
-          vinecop_cpp.get_pair_copula(tree, edge).as_continuous();
+        auto edge_copula = vinecop_cpp.get_pair_copula(tree, edge);
         auto var_types = edge_copula.get_var_types();
         size_t m = vine_struct_.min_array(tree, edge);
 
@@ -200,12 +199,16 @@ cond_quantile_cpp(const Eigen::VectorXd& alpha,
     for (size_t a = 0; a < static_cast<size_t>(alpha.size()); a++) {
       hfunc2(trunc_lvl, 0) = Eigen::VectorXd::Constant(b.size, alpha[a]);
       for (ptrdiff_t tree = trunc_lvl - 1; tree >= 0; --tree) {
-        tools_interface::check_user_interrupt(d * u.rows() > 1e5);
-        Bicop edge_copula =
-          vinecop_cpp.get_pair_copula(tree, 0).as_continuous();
+        tools_interface::check_user_interrupt(d * u.rows() > 1e3);
+        Bicop edge_copula = vinecop_cpp.get_pair_copula(tree, 0);
         Eigen::MatrixXd U_e(b.size, 2);
         U_e.col(0) = hfunc2(tree + 1, 0);
         U_e.col(1) = hfunc1(tree, 1);
+        if (edge_copula.get_var_types()[1] == "d") {
+          U_e.conservativeResize(b.size, 4);
+          U_e.col(2) = U_e.col(0);
+          U_e.col(3) = hfunc1_sub(tree, 1);
+        }
         hfunc2(tree, 0) = edge_copula.hinv2(U_e);
       }
       q[a].segment(b.begin, b.size) = hfunc2(0, 0);
