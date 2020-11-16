@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -53,7 +57,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -67,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.2</span>
       </span>
     </div>
 
@@ -102,7 +106,12 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/tnagler/vinereg/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -116,13 +125,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Changelog <small></small></h1>
-      
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/tnagler/vinereg/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="vinereg-0-7-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-7-0" class="anchor"></a>vinereg 0.7.0<small> Unreleased </small>
+    <div id="vinereg-072" class="section level1">
+<h1 class="page-header" data-toc-text="0.7.2">
+<a href="#vinereg-072" class="anchor"></a>vinereg 0.7.2<small> Unreleased </small>
+</h1>
+<p>BUG FIXES</p>
+<ul>
+<li>remove bias in quantiles for discrete variables.</li>
+</ul>
+</div>
+    <div id="vinereg-071" class="section level1">
+<h1 class="page-header" data-toc-text="0.7.1">
+<a href="#vinereg-071" class="anchor"></a>vinereg 0.7.1<small> 2020-10-12 </small>
+</h1>
+<p>This is a maintenance release following an update in rvinecopulib.</p>
+<p>DEPENDS</p>
+<ul>
+<li>requires rvinecopulib (&gt;= 0.5.4.1.0) to fix an unitialized value issue.</li>
+</ul>
+<p>NEW FEATURES</p>
+<ul>
+<li>variables generated from <code>factor</code>s are now named with the corresponding factor level.</li>
+</ul>
+</div>
+    <div id="vinereg-070" class="section level1">
+<h1 class="page-header" data-toc-text="0.7.0">
+<a href="#vinereg-070" class="anchor"></a>vinereg 0.7.0<small> 2019-12-02 </small>
 </h1>
 <p>DEPDENDENCIES</p>
 <ul>
@@ -138,18 +170,18 @@
 <li>removed support for <code>uscale</code> argument.</li>
 </ul>
 </div>
-    <div id="vinereg-0-6-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-6-0" class="anchor"></a>vinereg 0.6.0<small> Unreleased </small>
+    <div id="vinereg-060" class="section level1">
+<h1 class="page-header" data-toc-text="0.6.0">
+<a href="#vinereg-060" class="anchor"></a>vinereg 0.6.0<small> Unreleased </small>
 </h1>
 <p>NEW FEATURES</p>
 <ul>
 <li>new function <code><a href="../reference/cpit.html">cpit()</a></code> to compute the conditional cdf.</li>
 </ul>
 </div>
-    <div id="vinereg-0-5-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-5-0" class="anchor"></a>vinereg 0.5.0<small> 2018-08-09 </small>
+    <div id="vinereg-050" class="section level1">
+<h1 class="page-header" data-toc-text="0.5.0">
+<a href="#vinereg-050" class="anchor"></a>vinereg 0.5.0<small> 2018-08-09 </small>
 </h1>
 <p>DEPENDS</p>
 <ul>
@@ -162,9 +194,9 @@
 <li><p>properly pass degree parameter for margin al estimation.</p></li>
 </ul>
 </div>
-    <div id="vinereg-0-4-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-4-0" class="anchor"></a>vinereg 0.4.0<small> Unreleased </small>
+    <div id="vinereg-040" class="section level1">
+<h1 class="page-header" data-toc-text="0.4.0">
+<a href="#vinereg-040" class="anchor"></a>vinereg 0.4.0<small> Unreleased </small>
 </h1>
 <p>BUG FIXES</p>
 <ul>
@@ -173,9 +205,9 @@
 <li><p>Fix orientation of asymmetric pair-copulas.</p></li>
 </ul>
 </div>
-    <div id="vinereg-0-3-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-3-0" class="anchor"></a>vinereg 0.3.0<small> 2018-06-02 </small>
+    <div id="vinereg-030" class="section level1">
+<h1 class="page-header" data-toc-text="0.3.0">
+<a href="#vinereg-030" class="anchor"></a>vinereg 0.3.0<small> 2018-06-02 </small>
 </h1>
 <p>DEPENDS</p>
 <ul>
@@ -188,9 +220,9 @@
 <li><p>Allow to predict the mean with <code><a href="https://rdrr.io/r/stats/predict.html">predict(object, alpha = NA)</a></code>.</p></li>
 </ul>
 </div>
-    <div id="vinereg-0-2-0" class="section level1">
-<h1 class="page-header">
-<a href="#vinereg-0-2-0" class="anchor"></a>vinereg 0.2.0<small> 2018-05-29 </small>
+    <div id="vinereg-020" class="section level1">
+<h1 class="page-header" data-toc-text="0.2.0">
+<a href="#vinereg-020" class="anchor"></a>vinereg 0.2.0<small> 2018-05-29 </small>
 </h1>
 <ul>
 <li>First official release.</li>
@@ -198,18 +230,10 @@
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div id="tocnav">
-      <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-        <li><a href="#vinereg-0-7-0">0.7.0</a></li>
-        <li><a href="#vinereg-0-6-0">0.6.0</a></li>
-        <li><a href="#vinereg-0-5-0">0.5.0</a></li>
-        <li><a href="#vinereg-0-4-0">0.4.0</a></li>
-        <li><a href="#vinereg-0-3-0">0.3.0</a></li>
-        <li><a href="#vinereg-0-2-0">0.2.0</a></li>
-      </ul>
-    </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 
 </div>
@@ -221,7 +245,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

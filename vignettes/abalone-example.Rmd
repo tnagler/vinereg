@@ -199,7 +199,7 @@ height and length are already accounted for.
 ## Discrete D-vine quantile regression
 
 To deal with discrete variables, we use the methodology of 
-Schallhorn et al. (2017). For estmiating nonparametric pair-copulas with 
+Schallhorn et al. (2017). For estmating nonparametric pair-copulas with 
 discrete variable(s), jittering is used (Nagler, 2017). 
 
 We let `vinereg()` know that a variable is discrete by declaring it `ordered`.

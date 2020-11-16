@@ -64,7 +64,7 @@ prediction as described in Kraus and Czado (2017).
 }
 \details{
 If discrete variables are declared as \code{ordered()} or \code{factor()}, they are
-handled as discribed in Panagiotelis et al. (2012). This is different from
+handled as described in Panagiotelis et al. (2012). This is different from
 previous version where the data was jittered before fitting.
 }
 \examples{

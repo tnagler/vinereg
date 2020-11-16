@@ -1,5 +1,3 @@
-Fixes "uninitialised value" detected by valgrind (https://cran.r-project.org/web/checks/check_results_vinereg.html).
-
 ## Test environments
 * ubuntu 16.04 (release)
 * Windows Server 2019 (release)

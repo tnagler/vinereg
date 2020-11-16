@@ -1,6 +1,13 @@
+# vinereg 0.7.2
+
+BUG FIXES
+
+* remove bias in quantiles for discrete variables.
+
+
 # vinereg 0.7.1
 
-This is a maintainance release following an update in rvinecopulib.
+This is a maintenance release following an update in rvinecopulib.
 
 DEPENDS
 

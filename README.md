@@ -29,7 +29,7 @@ An R package for D-vine copula based mean and quantile regression.
 
 ## Functionality
 
-See the [package website](https://tnagler.github.io/vinereg).
+See the [package website](https://tnagler.github.io/vinereg/).
 
 ## Example
 
@@ -45,15 +45,16 @@ mtcars[["am"]] <- as.factor(mtcars[["am"]])
 
 # fit model
 (fit <- vinereg(mpg ~ ., family = "nonpar", data = mtcars))
-#> D-vine regression model: mpg | wt, qsec, drat 
-#> nobs = 32, edf = 19.33, cll = -56.94, caic = 152.55, cbic = 180.88
+#> D-vine regression model: mpg | disp, qsec, hp, drat 
+#> nobs = 32, edf = 0, cll = -52.22, caic = 104.44, cbic = 104.44
 
 summary(fit)
-#>    var       edf         cll       caic       cbic      p_value
-#> 1  mpg  0.000000 -100.189867 200.379733 200.379733           NA
-#> 2   wt 10.597257   29.409422 -37.624331 -22.091551 1.062440e-08
-#> 3 qsec  5.739523    7.867765  -4.256484   4.156141 1.286392e-02
-#> 4 drat  2.996463    5.973303  -5.953681  -1.561657 7.542848e-03
+#>    var edf         cll       caic       cbic p_value
+#> 1  mpg   0 -100.189867 200.379733 200.379733      NA
+#> 2 disp   0   29.366035 -58.732070 -58.732070       0
+#> 3 qsec   0    4.262760  -8.525520  -8.525520       0
+#> 4   hp   0   10.747588 -21.495176 -21.495176       0
+#> 5 drat   0    3.592404  -7.184808  -7.184808       0
 
 # show marginal effects for all selected variables
 plot_effects(fit)
@@ -67,10 +68,10 @@ plot_effects(fit)
 # predict mean and median
 head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
 #>       mean      0.5
-#> 1 23.33594 22.56025
-#> 2 22.30219 21.68133
-#> 3 25.71678 25.58609
-#> 4 20.21699 20.36290
+#> 1 22.63644 22.48315
+#> 2 22.54666 22.38034
+#> 3 25.03134 24.72854
+#> 4 20.82258 20.82337
 ```
 
 ## Vignettes

@@ -4,7 +4,7 @@
 #' prediction as described in Kraus and Czado (2017).
 #'
 #' If discrete variables are declared as `ordered()` or `factor()`, they are
-#' handled as discribed in Panagiotelis et al. (2012). This is different from
+#' handled as described in Panagiotelis et al. (2012). This is different from
 #' previous version where the data was jittered before fitting.
 #'
 #' @param formula an object of class "formula"; same as [lm()].
