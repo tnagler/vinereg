@@ -1,4 +1,3 @@
-library(testthat)
 library(vinereg)
 
-test_check("vinereg")
+if (require(testthat)) test_check("vinereg")
