@@ -125,7 +125,10 @@ to_uscale <- function(data, margins, add_response = FALSE) {
     if (length(u_sub) > 0)
       u_sub <- c(list(0.5), u_sub)
   }
-  truncate_u(cbind(do.call(cbind, u), do.call(cbind, u_sub)))
+  u <- truncate_u(cbind(do.call(cbind, u), do.call(cbind, u_sub)))
+  if ((length(u) == 1) & (NROW(data) > 1))
+    u <- matrix(u, NROW(data))
+  u
 }
 
 #' ensures that u-scale data does not contain zeros or ones.

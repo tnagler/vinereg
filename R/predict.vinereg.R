@@ -62,7 +62,6 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
 
     ## preprocessing
     newdata <- prepare_newdata(newdata, object)
-
     newdata <- to_uscale(newdata, object$margins[-1], add_response = TRUE)
     preds <- qdvine(newdata, alpha, vine = object$vine, cores)
 
@@ -71,7 +70,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
 
     if (!is.null(preds_mean)) {
       preds <- cbind(preds_mean, preds)
-    }
+    } 
   } else {
     preds <- preds_mean
   }

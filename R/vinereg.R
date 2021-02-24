@@ -195,12 +195,13 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
   vine$nobs <- nobs
   var_edf <- c(
     margins[[1]]$edf,
-    sapply(vine$pair_copulas, function(pcs) pcs[[1]]$npars)
+    vapply(vine$pair_copulas, function(pcs) pcs[[1]]$npars, numeric(1))
   )
   var_cll <- c(
     margins[[1]]$loglik,
-    sapply(vine$pair_copulas, function(pcs) pcs[[1]]$loglik)
+    vapply(vine$pair_copulas, function(pcs) pcs[[1]]$loglik, numeric(1))
   )
+
   var_caic <- -2 * var_cll + 2 * var_edf
   var_cbic <- -2 * var_cll + log(nobs) * var_edf
   var_p_value <- suppressWarnings(

@@ -32,19 +32,20 @@ fit_margins_cpp(const Eigen::MatrixXd& data,
   size_t d = data.cols();
   std::vector<kde1d::Kde1d> fits_cpp(d);
   num_threads = (num_threads > 1) ? num_threads : 0;
-  RcppThread::parallelFor(0,
-                          d,
-                          [&](const size_t& k) {
-                            fits_cpp[k] = kde1d::Kde1d(data.col(k),
-                                                       nlevels(k),
-                                                       bw(k),
-                                                       mult(k),
-                                                       xmin(k),
-                                                       xmax(k),
-                                                       deg(k),
-                                                       weights);
-                          },
-                          num_threads);
+  RcppThread::parallelFor(
+    0,
+    d,
+    [&](const size_t& k) {
+      fits_cpp[k] = kde1d::Kde1d(data.col(k),
+                                 nlevels(k),
+                                 bw(k),
+                                 mult(k),
+                                 xmin(k),
+                                 xmax(k),
+                                 deg(k),
+                                 weights);
+    },
+    num_threads);
 
   // we can't do the following in parallel because it calls R API
   std::vector<Rcpp::List> fits_r(d);
@@ -91,29 +92,26 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
 
   // make results R-compatible -------------------------------
   Rcpp::List vinecop_r;
-  if (selected_vars.size() > 0) {
-    // rank ensures that vars are 1, ..., p_sel
-    auto order = tools_stl::cat({ 0 }, selected_vars);
-    auto new_struct = DVineStructure(tools_stl::rank(order));
+  // rank ensures that vars are 1, ..., p_sel
+  auto order = tools_stl::cat({ 0 }, selected_vars);
+  auto new_struct = DVineStructure(tools_stl::rank(order));
 
-    auto sv = selected_vars;
-    std::sort(sv.begin(), sv.end());
-    auto vt = std::vector<std::string>();
-    vt.push_back(var_types[0]);
-    for (auto v : sv)
-      vt.push_back(var_types[v]);
+  auto sv = selected_vars;
+  std::sort(sv.begin(), sv.end());
+  auto vt = std::vector<std::string>();
+  vt.push_back(var_types[0]);
+  for (auto v : sv)
+    vt.push_back(var_types[v]);
 
-    vinecop_r = Rcpp::List::create(
-      Rcpp::Named("pair_copulas") = pair_copulas_wrap(pcs, order.size(), true),
-      Rcpp::Named("structure") = rvine_structure_wrap(new_struct),
-      Rcpp::Named("var_types") = vt,
-      Rcpp::Named("npars") = Vinecop(new_struct, pcs).get_npars(),
-      Rcpp::Named("nobs") = data.rows(),
-      Rcpp::Named("loglik") = NAN,
-      Rcpp::Named("threshold") = 0);
-    vinecop_r.attr("class") =
-      Rcpp::CharacterVector{ "vinecop", "vinecop_dist" };
-  }
+  vinecop_r = Rcpp::List::create(
+    Rcpp::Named("pair_copulas") = pair_copulas_wrap(pcs, order.size(), true),
+    Rcpp::Named("structure") = rvine_structure_wrap(new_struct),
+    Rcpp::Named("var_types") = vt,
+    Rcpp::Named("npars") = Vinecop(new_struct, pcs).get_npars(),
+    Rcpp::Named("nobs") = data.rows(),
+    Rcpp::Named("loglik") = NAN,
+    Rcpp::Named("threshold") = 0);
+  vinecop_r.attr("class") = Rcpp::CharacterVector{ "vinecop", "vinecop_dist" };
   for (auto& v : selected_vars) // R indexing starts at 1
     v++;
   return Rcpp::List::create(Rcpp::Named("vine") = vinecop_r,
