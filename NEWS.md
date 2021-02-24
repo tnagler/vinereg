@@ -28,7 +28,7 @@ NEW FEATURES
 
 # vinereg 0.7.0
 
-DEPDENDENCIES
+DEPENDENCIES
 
 * removed dependence on future and furrr packages.
 

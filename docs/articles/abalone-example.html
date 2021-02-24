@@ -206,7 +206,7 @@
 <div id="discrete-d-vine-quantile-regression" class="section level2">
 <h2 class="hasAnchor">
 <a href="#discrete-d-vine-quantile-regression" class="anchor"></a>Discrete D-vine quantile regression</h2>
-<p>To deal with discrete variables, we use the methodology of Schallhorn et al. (2017). For estmating nonparametric pair-copulas with discrete variable(s), jittering is used (Nagler, 2017).</p>
+<p>To deal with discrete variables, we use the methodology of Schallhorn et al. (2017). For estimating nonparametric pair-copulas with discrete variable(s), jittering is used (Nagler, 2017).</p>
 <p>We let <code><a href="../reference/vinereg.html">vinereg()</a></code> know that a variable is discrete by declaring it <code>ordered</code>.</p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r">## abalone_f$rings &lt;- as.ordered(abalone_f$rings)
 ## fit_disc &lt;- vinereg(rings ~ ., data = abalone_f, selcrit = "aic")
