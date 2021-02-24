@@ -34,7 +34,7 @@ Suggests:
   knitr,
   rmarkdown,
   ggplot2,
-  PivotalR,
+  AppliedPredictiveModeling,
   quantreg,
   tidyr,
   dplyr,
