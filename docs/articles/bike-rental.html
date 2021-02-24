@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.3</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@
 
       
 
-      </header><script src="bike-rental_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>D-vine quantile regression with discrete variables: analysis of bike rental data</h1>
@@ -101,29 +101,26 @@
 <h4 class="hasAnchor">
 <a href="#required-packages" class="anchor"></a>Required packages</h4>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">vinereg</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">quantreg</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">dplyr</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">purrr</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">scales</span>)</pre></body></html></div>
+<span class="no">pkgs_required</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"ggplot2"</span>, <span class="st">"dplyr"</span>, <span class="st">"purrr"</span>, <span class="st">"scales"</span>, <span class="st">"quantreg"</span>)
+<span class="no">pkgs_available</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(<span class="no">pkgs_required</span>, <span class="no">require</span>)</pre></body></html></div>
 </div>
 <div id="plot-function-for-marginal-effects" class="section level4">
 <h4 class="hasAnchor">
 <a href="#plot-function-for-marginal-effects" class="anchor"></a>Plot function for marginal effects</h4>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">plot_marginal_effects</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">covs</span>, <span class="no">preds</span>) {
-    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(<span class="no">covs</span>, <span class="no">preds</span>) <span class="kw">%&gt;%</span>
-        <span class="kw pkg">tidyr</span><span class="kw ns">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span>(<span class="no">alpha</span>, <span class="no">prediction</span>, -<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">NCOL</a></span>(<span class="no">covs</span>))) <span class="kw">%&gt;%</span>
-        <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="kw">prediction</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="no">prediction</span>)) <span class="kw">%&gt;%</span>
-        <span class="kw pkg">tidyr</span><span class="kw ns">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span>(<span class="no">variable</span>, <span class="no">value</span>, -(<span class="no">alpha</span>:<span class="no">prediction</span>)) <span class="kw">%&gt;%</span>
-        <span class="kw pkg">dplyr</span><span class="kw ns">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="kw">value</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="no">value</span>)) <span class="kw">%&gt;%</span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="no">value</span>, <span class="no">prediction</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="no">alpha</span>)) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.15</span>) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span>(<span class="kw">span</span> <span class="kw">=</span> <span class="fl">0.5</span>, <span class="kw">se</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(~ <span class="no">variable</span>, <span class="kw">scale</span> <span class="kw">=</span> <span class="st">"free_x"</span>) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">legend.position</span> <span class="kw">=</span> <span class="st">"none"</span>) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">plot.margin</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/reexports.html">unit</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>), <span class="st">"mm"</span>)) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">""</span>)
-}</pre></body></html></div>
+<div class="sourceCode" id="cb2"><html><body><pre class="r">## plot_marginal_effects &lt;- function(covs, preds) {
+##     cbind(covs, preds) %&gt;%
+##         tidyr::gather(alpha, prediction, -seq_len(NCOL(covs))) %&gt;%
+##         dplyr::mutate(prediction = as.numeric(prediction)) %&gt;%
+##         tidyr::gather(variable, value, -(alpha:prediction)) %&gt;%
+##         dplyr::mutate(value = as.numeric(value)) %&gt;%
+##         ggplot(aes(value, prediction, color = alpha)) +
+##         geom_point(alpha = 0.15) + 
+##         geom_smooth(span = 0.5, se = FALSE) + 
+##         facet_wrap(~ variable, scale = "free_x") +
+##         theme(legend.position = "none") +
+##         theme(plot.margin = unit(c(0, 0, 0, 0), "mm")) +
+##         xlab("")
+## }</pre></body></html></div>
 </div>
 <div id="data-preparation" class="section level2">
 <h2 class="hasAnchor">
@@ -131,92 +128,76 @@
 <div id="load-data" class="section level4">
 <h4 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load data</h4>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">bikedata</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span>(<span class="st">"day.csv"</span>)
-<span class="no">bikedata</span>[, <span class="fl">2</span>] <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="no">bikedata</span>[, <span class="fl">2</span>])
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">bikedata</span>)</pre></body></html></div>
-<pre><code>##   instant     dteday season yr mnth holiday weekday workingday weathersit
-## 1       1 2011-01-01      1  0    1       0       6          0          2
-## 2       2 2011-01-02      1  0    1       0       0          0          2
-## 3       3 2011-01-03      1  0    1       0       1          1          1
-## 4       4 2011-01-04      1  0    1       0       2          1          1
-## 5       5 2011-01-05      1  0    1       0       3          1          1
-## 6       6 2011-01-06      1  0    1       0       4          1          1
-##       temp    atemp      hum windspeed casual registered  cnt
-## 1 0.344167 0.363625 0.805833 0.1604460    331        654  985
-## 2 0.363478 0.353739 0.696087 0.2485390    131        670  801
-## 3 0.196364 0.189405 0.437273 0.2483090    120       1229 1349
-## 4 0.200000 0.212122 0.590435 0.1602960    108       1454 1562
-## 5 0.226957 0.229270 0.436957 0.1869000     82       1518 1600
-## 6 0.204348 0.233209 0.518261 0.0895652     88       1518 1606</code></pre>
+<div class="sourceCode" id="cb3"><html><body><pre class="r">## bikedata &lt;- read.csv("day.csv")
+## bikedata[, 2] &lt;- as.Date(bikedata[, 2])
+## head(bikedata)</pre></body></html></div>
 </div>
 <div id="rename-variables" class="section level4">
 <h4 class="hasAnchor">
 <a href="#rename-variables" class="anchor"></a>Rename variables</h4>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">bikedata</span>  <span class="kw">&lt;-</span> <span class="no">bikedata</span> <span class="kw">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span>(
-        <span class="kw">temperature</span> <span class="kw">=</span> <span class="no">atemp</span>,
-        <span class="kw">month</span> <span class="kw">=</span> <span class="no">mnth</span>,
-        <span class="kw">weathersituation</span> <span class="kw">=</span> <span class="no">weathersit</span>,
-        <span class="kw">humidity</span> <span class="kw">=</span> <span class="no">hum</span>,
-        <span class="kw">count</span> <span class="kw">=</span> <span class="no">cnt</span>
-    )</pre></body></html></div>
+<div class="sourceCode" id="cb4"><html><body><pre class="r">## bikedata  &lt;- bikedata %&gt;%
+##     rename(
+##         temperature = atemp, 
+##         month = mnth,
+##         weathersituation = weathersit,
+##         humidity = hum,
+##         count = cnt
+##     )</pre></body></html></div>
 </div>
 <div id="un-normalize-variables" class="section level4">
 <h4 class="hasAnchor">
 <a href="#un-normalize-variables" class="anchor"></a>Un-normalize variables</h4>
 <p>See variable description on UCI web page.</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">bikedata</span> <span class="kw">&lt;-</span> <span class="no">bikedata</span> <span class="kw">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(
-        <span class="kw">temperature</span> <span class="kw">=</span> <span class="fl">66</span> * <span class="no">temperature</span> + <span class="fl">16</span>,
-        <span class="kw">windspeed</span> <span class="kw">=</span> <span class="fl">67</span> * <span class="no">windspeed</span>,
-        <span class="kw">humidity</span> <span class="kw">=</span> <span class="fl">100</span> * <span class="no">humidity</span>
-    )</pre></body></html></div>
+<div class="sourceCode" id="cb5"><html><body><pre class="r">## bikedata &lt;- bikedata %&gt;%
+##     mutate(
+##         temperature = 66 * temperature + 16,
+##         windspeed = 67 * windspeed,
+##         humidity = 100 * humidity
+##     )</pre></body></html></div>
 </div>
 <div id="show-trend" class="section level4">
 <h4 class="hasAnchor">
 <a href="#show-trend" class="anchor"></a>Show trend</h4>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">bikedata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="no">dteday</span>, <span class="no">count</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_date.html">scale_x_date</a></span>(<span class="kw">labels</span> <span class="kw">=</span> <span class="kw pkg">scales</span><span class="kw ns">::</span><span class="fu"><a href="https://scales.r-lib.org//reference/label_date.html">date_format</a></span>(<span class="st">"%b %y"</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"date"</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span>(<span class="st">"rental count"</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">stat_smooth</a></span>(<span class="kw">method</span> <span class="kw">=</span> <span class="st">"lm"</span>, <span class="kw">se</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">linetype</span> <span class="kw">=</span> <span class="st">"dashed"</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">plot.title</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">lineheight</span> <span class="kw">=</span> <span class="fl">0.8</span>, <span class="kw">face</span> <span class="kw">=</span> <span class="st">"bold"</span>, <span class="kw">size</span> <span class="kw">=</span> <span class="fl">20</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">text</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">size</span> <span class="kw">=</span> <span class="fl">18</span>))</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/count_with_trend-1.png" width="700"></p>
+<div class="sourceCode" id="cb6"><html><body><pre class="r">## ggplot(bikedata, aes(dteday, count)) +
+##     geom_line() + 
+##     scale_x_date(labels = scales::date_format("%b %y")) + 
+##     xlab("date") + 
+##     ylab("rental count") + 
+##     stat_smooth(method = "lm", se = FALSE, linetype = "dashed") + 
+##     theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) +
+##     theme(text = element_text(size = 18))</pre></body></html></div>
 </div>
 <div id="remove-trend" class="section level4">
 <h4 class="hasAnchor">
 <a href="#remove-trend" class="anchor"></a>Remove trend</h4>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">lm_trend</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span>(<span class="no">count</span> ~ <span class="no">instant</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">bikedata</span>)
-<span class="no">trend</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span>(<span class="no">lm_trend</span>)
-<span class="no">bikedata</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="no">bikedata</span>, <span class="kw">count</span> <span class="kw">=</span> <span class="no">count</span> / <span class="no">trend</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">bikedata</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="no">dteday</span>, <span class="no">count</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_date.html">scale_x_date</a></span>(<span class="kw">labels</span> <span class="kw">=</span> <span class="kw pkg">scales</span><span class="kw ns">::</span><span class="fu"><a href="https://scales.r-lib.org//reference/label_date.html">date_format</a></span>(<span class="st">"%b %y"</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"date"</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span>(<span class="st">"detrended rental count"</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">plot.title</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">lineheight</span> <span class="kw">=</span> <span class="fl">0.8</span>, <span class="kw">face</span> <span class="kw">=</span> <span class="st">"bold"</span>, <span class="kw">size</span> <span class="kw">=</span> <span class="fl">20</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">text</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">size</span> <span class="kw">=</span> <span class="fl">18</span>))</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/count_detrended-1.png" width="700"></p>
+<div class="sourceCode" id="cb7"><html><body><pre class="r">## lm_trend &lt;- lm(count ~ instant, data = bikedata)
+## trend &lt;- predict(lm_trend)
+## bikedata &lt;- mutate(bikedata, count = count / trend)
+## ggplot(bikedata, aes(dteday, count)) + 
+##     geom_line() + 
+##     scale_x_date(labels = scales::date_format("%b %y")) + 
+##     xlab("date") + 
+##     ylab("detrended rental count") + 
+##     theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) + 
+##     theme(text = element_text(size = 18))</pre></body></html></div>
 </div>
 <div id="drop-useless-variables" class="section level4">
 <h4 class="hasAnchor">
 <a href="#drop-useless-variables" class="anchor"></a>Drop useless variables</h4>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">bikedata</span> <span class="kw">&lt;-</span> <span class="no">bikedata</span> <span class="kw">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(-<span class="no">instant</span>, -<span class="no">dteday</span>, -<span class="no">yr</span>) <span class="kw">%&gt;%</span>  <span class="co"># time indices</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(-<span class="no">casual</span>, -<span class="no">registered</span>) <span class="kw">%&gt;%</span>    <span class="co"># casual + registered = count</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(-<span class="no">holiday</span>) <span class="kw">%&gt;%</span>                <span class="co"># we use 'workingday' instead</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(-<span class="no">temp</span>)                       <span class="co"># we use 'temperature' (feeling temperature)</span></pre></body></html></div>
+<div class="sourceCode" id="cb8"><html><body><pre class="r">## bikedata &lt;- bikedata %&gt;%
+##     select(-instant, -dteday, -yr) %&gt;%  # time indices
+##     select(-casual, -registered) %&gt;%    # casual + registered = count
+##     select(-holiday) %&gt;%                # we use 'workingday' instead
+##     select(-temp)                       # we use 'temperature' (feeling temperature)</pre></body></html></div>
 </div>
 <div id="declare-discrete-variables-as-ordered" class="section level4">
 <h4 class="hasAnchor">
 <a href="#declare-discrete-variables-as-ordered" class="anchor"></a>Declare discrete variables as <code>ordered</code>
 </h4>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">disc_vars</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"season"</span>, <span class="st">"month"</span>, <span class="st">"weekday"</span>, <span class="st">"workingday"</span>, <span class="st">"weathersituation"</span>)
-<span class="no">bikedata</span> <span class="kw">&lt;-</span> <span class="no">bikedata</span> <span class="kw">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="kw">weekday</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">weekday</span> <span class="kw">==</span> <span class="fl">0</span>, <span class="fl">7</span>, <span class="no">weekday</span>)) <span class="kw">%&gt;%</span>  <span class="co"># sun at end of week</span>
-    <span class="kw pkg">purrr</span><span class="kw ns">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/modify.html">modify_at</a></span>(<span class="no">disc_vars</span>, <span class="no">as.ordered</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb9"><html><body><pre class="r">## disc_vars &lt;- c("season", "month", "weekday", "workingday", "weathersituation")
+## bikedata &lt;- bikedata %&gt;%
+##     mutate(weekday = ifelse(weekday == 0, 7, weekday)) %&gt;%  # sun at end of week
+##     purrr::modify_at(disc_vars, as.ordered)</pre></body></html></div>
 </div>
 </div>
 <div id="d-vine-regression-model" class="section level2">
@@ -225,67 +206,48 @@
 <div id="fit-model" class="section level4">
 <h4 class="hasAnchor">
 <a href="#fit-model" class="anchor"></a>Fit model</h4>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/vinereg.html">vinereg</a></span>(
-  <span class="no">count</span> ~ <span class="no">.</span>,
-  <span class="kw">data</span> <span class="kw">=</span> <span class="no">bikedata</span>,
-  <span class="kw">family</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"onepar"</span>, <span class="st">"tll"</span>),
-  <span class="kw">selcrit</span> <span class="kw">=</span> <span class="st">"aic"</span>
-)
-<span class="no">fit</span></pre></body></html></div>
-<pre><code>## D-vine regression model: count | temperature, humidity, windspeed, month, season, weathersituation, weekday, workingday 
-## nobs = 731, edf = 14.6, cll = 435.13, caic = -841.07, cbic = -774.01</code></pre>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">fit</span>)</pre></body></html></div>
-<pre><code>##                var     edf         cll       caic        cbic      p_value
-## 1            count 9.59683 -198.076002  415.34567  459.437472           NA
-## 2      temperature 0.00000  415.812109 -831.62422 -831.624218 0.000000e+00
-## 3         humidity 0.00000  118.903193 -237.80639 -237.806387 0.000000e+00
-## 4        windspeed 1.00000   22.797655  -43.59531  -39.000897 1.453892e-11
-## 5            month 1.00000   13.189174  -24.37835  -19.783935 2.806692e-07
-## 6           season 1.00000   12.906850  -23.81370  -19.219286 3.760101e-07
-## 7 weathersituation 1.00000   12.981254  -23.96251  -19.368095 3.481125e-07
-## 8          weekday 0.00000   28.395759  -56.79152  -56.791517 0.000000e+00
-## 9       workingday 1.00000    8.222092  -14.44418   -9.849771 5.010365e-05</code></pre>
+<div class="sourceCode" id="cb10"><html><body><pre class="r">## fit &lt;- vinereg(
+##   count ~ ., 
+##   data = bikedata, 
+##   family = c("onepar", "tll"), 
+##   selcrit = "aic"
+## )
+## fit
+## summary(fit)</pre></body></html></div>
 </div>
 <div id="in-sample-predictions" class="section level4">
 <h4 class="hasAnchor">
 <a href="#in-sample-predictions" class="anchor"></a>In-sample predictions</h4>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">alpha_vec</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)
-<span class="no">pred</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span>(<span class="no">fit</span>, <span class="no">alpha_vec</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb11"><html><body><pre class="r">## alpha_vec &lt;- c(0.1, 0.5, 0.9)
+## pred &lt;- fitted(fit, alpha_vec)</pre></body></html></div>
 </div>
 <div id="marginal-effects" class="section level3">
 <h3 class="hasAnchor">
 <a href="#marginal-effects" class="anchor"></a>Marginal effects</h3>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="fu">plot_marginal_effects</span>(
-    <span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">temperature</span>),
-    <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>
-)</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_temperature-1.png" width="384"></p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">humidity</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html">xlim</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">25</span>, <span class="fl">100</span>))</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_humidity-1.png" width="384"></p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">windspeed</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>)</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_windspeed-1.png" width="384"></p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">month_labs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Jan"</span>,<span class="st">""</span>, <span class="st">"Mar"</span>, <span class="st">""</span>, <span class="st">"May"</span>, <span class="st">""</span>, <span class="st">"Jul"</span>, <span class="st">""</span>, <span class="st">"Sep"</span>, <span class="st">""</span>, <span class="st">"Nov"</span>, <span class="st">""</span>)
-<span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">month</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">12</span>, <span class="kw">labels</span> <span class="kw">=</span> <span class="no">month_labs</span>)</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_month-1.png" width="384"></p>
-<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">weathersituation</span>),
-                      <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">3</span>,<span class="kw">labels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"good"</span>, <span class="st">"medium"</span>, <span class="st">"bad"</span>))</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_weathersituation-1.png" width="384"></p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">weekday_labs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Mon"</span>, <span class="st">"Tue"</span>, <span class="st">"Wed"</span>, <span class="st">"Thu"</span>, <span class="st">"Fri"</span>, <span class="st">"Sat"</span>, <span class="st">"Sun"</span>)
-<span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">weekday</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">labels</span> <span class="kw">=</span> <span class="no">weekday_labs</span>)</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_weekday-1.png" width="384"></p>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">workingday</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fl">0</span>:<span class="fl">1</span>, <span class="kw">labels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span>(<span class="kw">method</span> <span class="kw">=</span> <span class="st">"lm"</span>, <span class="kw">se</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html">xlim</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">1</span>))</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_workingday-1.png" width="384"></p>
-<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="no">season_labs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"spring"</span>, <span class="st">"summer"</span>, <span class="st">"fall"</span>, <span class="st">"winter"</span>)
-<span class="fu">plot_marginal_effects</span>(<span class="kw">covs</span> <span class="kw">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(<span class="no">bikedata</span>, <span class="no">season</span>), <span class="kw">preds</span> <span class="kw">=</span> <span class="no">pred</span>) +
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">scale_x_discrete</a></span>(<span class="kw">limits</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">4</span>, <span class="kw">labels</span> <span class="kw">=</span> <span class="no">season_labs</span>)</pre></body></html></div>
-<p><img src="bike-rental_files/figure-html/me_season-1.png" width="384"></p>
+<div class="sourceCode" id="cb12"><html><body><pre class="r">## plot_marginal_effects(
+##     covs = select(bikedata, temperature), 
+##     preds = pred
+## )</pre></body></html></div>
+<div class="sourceCode" id="cb13"><html><body><pre class="r">## plot_marginal_effects(covs = select(bikedata, humidity), preds = pred) +
+##     xlim(c(25, 100))</pre></body></html></div>
+<div class="sourceCode" id="cb14"><html><body><pre class="r">## plot_marginal_effects(covs = select(bikedata, windspeed), preds = pred)</pre></body></html></div>
+<div class="sourceCode" id="cb15"><html><body><pre class="r">## month_labs &lt;- c("Jan","", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")
+## plot_marginal_effects(covs = select(bikedata, month), preds = pred) +
+##         scale_x_discrete(limits = 1:12, labels = month_labs)
+## </pre></body></html></div>
+<div class="sourceCode" id="cb16"><html><body><pre class="r">## plot_marginal_effects(covs = select(bikedata, weathersituation), 
+##                       preds = pred) +
+##     scale_x_discrete(limits = 1:3,labels = c("good", "medium", "bad"))</pre></body></html></div>
+<div class="sourceCode" id="cb17"><html><body><pre class="r">## weekday_labs &lt;- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+## plot_marginal_effects(covs = select(bikedata, weekday), preds = pred) +
+##     scale_x_discrete(limits = 1:7, labels = weekday_labs)</pre></body></html></div>
+<div class="sourceCode" id="cb18"><html><body><pre class="r">## plot_marginal_effects(covs = select(bikedata, workingday), preds = pred) +
+##     scale_x_discrete(limits = 0:1, labels = c("no", "yes")) +
+##     geom_smooth(method = "lm", se = FALSE) +
+##     xlim(c(0, 1))</pre></body></html></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r">## season_labs &lt;- c("spring", "summer", "fall", "winter")
+## plot_marginal_effects(covs = select(bikedata, season), preds = pred) +
+##     scale_x_discrete(limits = 1:4, labels = season_labs)</pre></body></html></div>
 </div>
 </div>
   </div>
