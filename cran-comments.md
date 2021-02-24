@@ -1,8 +1,11 @@
+* Archived package PivotalR has been removed from Suggests.
+* All packages in Suggests are now used conditionally.
+
 ## Test environments
 * ubuntu 16.04 (release)
 * Windows Server 2019 (release)
+* CRAN win-builder (devel)
 * macOS-catalina (release, devel)
-* ubuntu 20.04 with valgrind (devel)
 
 ## R CMD check results
 

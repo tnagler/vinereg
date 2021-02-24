@@ -24,7 +24,7 @@ Please, feel free to address questions to <daniel.kraus@tum.de>.
 ```{r, message = FALSE}
 library(vinereg) 
 
-pkgs_required <- c("ggplot2", "dplyr", "tidyr", "PivotalR")
+pkgs_required <- c("ggplot2", "dplyr", "tidyr", "AppliedPredictiveModeling")
 pkgs_available <- sapply(pkgs_required, require)
 ```
 
@@ -47,7 +47,7 @@ fit models to predict the quantiles of weight (`whole`) given the predictors
 ## Load and clean data
 
 ```{r}
-data(abalone, package = "PivotalR")
+data(abalone, package = "AppliedPredictiveModeling")
 abalone_f <- abalone %>%
     dplyr::filter(sex == "F") %>%        # select female abalones
     dplyr::select(-id, -sex) %>%         # remove id and sex variables
@@ -202,7 +202,7 @@ height and length are already accounted for.
 ## Discrete D-vine quantile regression
 
 To deal with discrete variables, we use the methodology of 
-Schallhorn et al. (2017). For estmating nonparametric pair-copulas with 
+Schallhorn et al. (2017). For estimating nonparametric pair-copulas with 
 discrete variable(s), jittering is used (Nagler, 2017). 
 
 We let `vinereg()` know that a variable is discrete by declaring it `ordered`.

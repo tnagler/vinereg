@@ -1,3 +1,11 @@
+# vinereg 0.7.3
+
+BUG FIXES
+
+* properly handle case where no covariates are selected.
+* conditional use of packages in Suggests.
+
+
 # vinereg 0.7.2
 
 BUG FIXES
@@ -20,7 +28,7 @@ NEW FEATURES
 
 # vinereg 0.7.0
 
-DEPDENDENCIES
+DEPENDENCIES
 
 * removed dependence on future and furrr packages.
 
