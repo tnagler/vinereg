@@ -1,3 +1,11 @@
+# vinereg 0.7.3
+
+BUG FIXES
+
+* properly handle case where no covariates are selected.
+* conditional use of packages in Suggests.
+
+
 # vinereg 0.7.2
 
 BUG FIXES
