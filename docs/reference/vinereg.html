@@ -73,7 +73,7 @@ prediction as described in Kraus and Czado (2017)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.4</span>
       </span>
     </div>
 
@@ -232,18 +232,18 @@ multivariate discrete data. Journal of the American Statistical Association,
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># simulate data</span>
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>300</span>), <span class='fl'>100</span>, <span class='fl'>2</span>)
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>200</span>), <span class='fl'>100</span>, <span class='fl'>2</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='no'>x</span> <span class='kw'>%*%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, -<span class='fl'>2</span>)
 <span class='no'>dat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x</span>, <span class='kw'>z</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom</a></span>(<span class='fl'>100</span>, <span class='fl'>2</span>, <span class='fl'>0.5</span>)))
 
 <span class='co'># fit vine regression model</span>
 (<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>vinereg</span>(<span class='no'>y</span> ~ <span class='no'>.</span>, <span class='no'>dat</span>))</div><div class='output co'>#&gt; D-vine regression model: y | x.2, x.1 
-#&gt; nobs = 100, edf = 2, cll = 25.36, caic = -46.72, cbic = -41.51 </div><div class='input'>
+#&gt; nobs = 100, edf = 2, cll = 17.47, caic = -30.94, cbic = -25.73 </div><div class='input'>
 <span class='co'># inspect model</span>
 <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt;   var edf        cll      caic      cbic      p_value
-#&gt; 1   y   0 -213.56881  427.1376  427.1376           NA
-#&gt; 2 x.2   1   71.75312 -141.5062 -138.9011 4.555620e-33
-#&gt; 3 x.1   1  167.17400 -332.3480 -329.7428 1.085938e-74</div><div class='input'><span class='fu'><a href='plot_effects.html'>plot_effects</a></span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt; <span class='message'>`geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></div><div class='img'><img src='vinereg-1.png' alt='' width='700' height='433' /></div><div class='input'>
+#&gt; 1   y   0 -218.94275  437.8855  437.8855           NA
+#&gt; 2 x.2   1   73.02642 -144.0528 -141.4477 1.264121e-33
+#&gt; 3 x.1   1  163.38599 -324.7720 -322.1668 4.851392e-73</div><div class='input'><span class='fu'><a href='plot_effects.html'>plot_effects</a></span>(<span class='no'>fit</span>)</div><div class='output co'>#&gt; <span class='message'>`geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></div><div class='img'><img src='vinereg-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># model predictions</span>
 <span class='no'>mu_hat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>fit</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>dat</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>NA</span>) <span class='co'># mean</span>
 <span class='no'>med_hat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>fit</span>, <span class='kw'>newdata</span> <span class='kw'>=</span> <span class='no'>dat</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.5</span>) <span class='co'># median</span>
@@ -252,7 +252,7 @@ multivariate discrete data. Journal of the American Statistical Association,
 <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span>(<span class='no'>y</span>, <span class='no'>mu_hat</span>))</div><div class='img'><img src='vinereg-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'>## fixed variable order (no selection)</span>
 (<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>vinereg</span>(<span class='no'>y</span> ~ <span class='no'>.</span>, <span class='no'>dat</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"x.2"</span>, <span class='st'>"x.1"</span>, <span class='st'>"z.1"</span>)))</div><div class='output co'>#&gt; D-vine regression model: y | x.2, x.1, z.1 
-#&gt; nobs = 100, edf = 2, cll = 25.36, caic = -46.72, cbic = -41.51 </div></pre>
+#&gt; nobs = 100, edf = 2, cll = 17.47, caic = -30.94, cbic = -25.73 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
