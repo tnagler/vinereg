@@ -2,6 +2,12 @@
 
 BUG FIXES
 
+* fix simulated data size in documentation examples.
+
+# vinereg 0.7.3
+
+BUG FIXES
+
 * properly handle case where no covariates are selected.
 * conditional use of packages in Suggests.
 

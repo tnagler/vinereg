@@ -1,5 +1,4 @@
-* Archived package PivotalR has been removed from Suggests.
-* All packages in Suggests are now used conditionally.
+Fixes 'data length differs from size of matrix' issue.
 
 ## Test environments
 * ubuntu 16.04 (release)
