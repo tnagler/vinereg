@@ -19,7 +19,7 @@ is meant with respect to all other variables.
 }
 \examples{
 # simulate data
-x <- matrix(rnorm(300), 100, 2)
+x <- matrix(rnorm(200), 100, 2)
 y <- x \%*\% c(1, -2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
 
