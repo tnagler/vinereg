@@ -51,3 +51,12 @@ test_that("works with discrete response", {
   expect_equal(fitted(fit), predict(fit, dat))
   expect_error(fitted(fit, alpha = NA))
 })
+
+
+test_that("works on uscale", {
+  dat[] <- runif(100)
+  expect_silent(fit <- vinereg(y ~ ., dat, uscale = TRUE))
+  q <- predict(fit, dat)
+  expect_true(all(q >= 0 & q <= 1))
+})
+

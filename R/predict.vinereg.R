@@ -67,10 +67,8 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
 
     ## actual predictions on original scale
     preds <- to_yscale(preds, object)
-
-    if (!is.null(preds_mean)) {
+    if (!is.null(preds_mean))
       preds <- cbind(preds_mean, preds)
-    } 
   } else {
     preds <- preds_mean
   }

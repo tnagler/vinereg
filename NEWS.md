@@ -4,6 +4,10 @@ BUG FIXES
 
 * fix `cpit()` (last conditioning was sometimes omitted).
 
+NEW FEATURES
+
+* add `uscale` option to allow for external marginal modeling.
+
 
 # vinereg 0.7.3
 

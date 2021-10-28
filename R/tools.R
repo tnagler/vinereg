@@ -98,6 +98,12 @@ remove_unused <- function(newdata, object, use_response = FALSE) {
 #' For discrete variables, the output has dimension 2*d
 #' @noRd
 to_uscale <- function(data, margins, add_response = FALSE) {
+  if (any(sapply(margins, length) == 2)) {
+    # uscale = TRUE during fitting
+    if (add_response == TRUE)
+      data <- cbind(0.5, data)
+    return(as.matrix(data))
+  }
   u_sub <- list()
   u <- lapply(seq_along(margins), function(k) pkde1d(data[[k]], margins[[k]]))
 
@@ -137,9 +143,11 @@ truncate_u <- function(u) {
   pmin(pmax(u, 1e-10), 1 - 1e-10)
 }
 
-#' transforms predicted response back to orginal variable scale.
+#' transforms predicted response back to original variable scale.
 #' @noRd
 to_yscale <- function(u, object) {
+  if (any(sapply(object$margins, length) == 2))
+    return(u)  # uscale = TRUE during fitting
   nms <- colnames(u)
   u <- lapply(u, qkde1d, obj = object$margins[[1]])
   u <- as.data.frame(u)

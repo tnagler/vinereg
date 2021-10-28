@@ -63,3 +63,8 @@ test_that("works in parallel", {
   fit_par <- vinereg(y ~ ., dat[-5], family = "par", cores = 2)
   expect_equal(fit$vine, fit_par$vine)
 })
+
+test_that("works on uscale", {
+  dat[] <- runif(100)
+  expect_silent(fit <- vinereg(y ~ ., dat, uscale = TRUE))
+})

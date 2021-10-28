@@ -24,6 +24,8 @@
 #' @param weights optional vector of weights for each observation.
 #' @param cores integer; the number of cores to use for computations.
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
+#' @param uscale if TRUE, vinereg assumes that marginal distributions have been
+#'   taken care of in a preliminary step.
 #'
 #' @return An object of class vinereg. It is a list containing the elements
 #'   \describe{ \item{formula}{the formula used for the fit.}
@@ -82,16 +84,17 @@
 #' @useDynLib vinereg, .registration = TRUE
 vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
                     order = NA, par_1d = list(), weights = numeric(),
-                    cores = 1, ...) {
+                    cores = 1, ..., uscale = FALSE) {
   # remove unused variables
   if (!missing(data)) {
     mf <- model.frame(formula, data)
   } else {
     mf <- model.frame(formula, parent.frame())
   }
-  if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]]))) {
+  if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
     stop("response must be numeric or ordered")
-  }
+  if (any(sapply(mf, is.factor)) && uscale)
+    stop("factors are not allowed with uscale = TRUE")
 
   # expand factors and deduce variable types
   mfx <- expand_factors(mf)
@@ -125,18 +128,23 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     var_types <- var_types[c(1, selected_vars)]
     mfx <- mfx[, c(1, selected_vars)]
 
-    par_1d <- process_par_1d(mfx, par_1d)
-    margins <- fit_margins_cpp(prep_for_kde1d(mfx),
-                               sapply(mfx, nlevels),
-                               mult = par_1d$mult,
-                               xmin = par_1d$xmin,
-                               xmax = par_1d$xmax,
-                               bw = par_1d$bw,
-                               deg = par_1d$deg,
-                               weights = weights,
-                               cores)
-    margins <- finalize_margins(margins, mfx)
-    u <- to_uscale(mfx, margins)
+    if (!uscale) {
+      par_1d <- process_par_1d(mfx, par_1d)
+      margins <- fit_margins_cpp(prep_for_kde1d(mfx),
+                                 sapply(mfx, nlevels),
+                                 mult = par_1d$mult,
+                                 xmin = par_1d$xmin,
+                                 xmax = par_1d$xmax,
+                                 bw = par_1d$bw,
+                                 deg = par_1d$deg,
+                                 weights = weights,
+                                 cores)
+      margins <- finalize_margins(margins, mfx)
+      u <- to_uscale(mfx, margins)
+    } else {
+      margins <- lapply(1:d, function(x) list(edf = NA, loglik = NA))
+      u <- as.matrix(mfx)
+    }
 
     # now we need the correct ordering in selected_vars
     selected_vars <- sapply(order, function(x) which(x == names(mfx)))
@@ -154,24 +162,31 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
       selected_vars = selected_vars
     )
   } else {
-    par_1d <- process_par_1d(mfx, par_1d)
-    margins <- fit_margins_cpp(prep_for_kde1d(mfx),
-                               sapply(mfx, nlevels),
-                               mult = par_1d$mult,
-                               xmin = par_1d$xmin,
-                               xmax = par_1d$xmax,
-                               bw = par_1d$bw,
-                               deg = par_1d$deg,
-                               weights = weights,
-                               cores)
-    margins <- finalize_margins(margins, mfx)
-    u <- to_uscale(mfx, margins)
+    if (!uscale) {
+      par_1d <- process_par_1d(mfx, par_1d)
+      margins <- fit_margins_cpp(prep_for_kde1d(mfx),
+                                 sapply(mfx, nlevels),
+                                 mult = par_1d$mult,
+                                 xmin = par_1d$xmin,
+                                 xmax = par_1d$xmax,
+                                 bw = par_1d$bw,
+                                 deg = par_1d$deg,
+                                 weights = weights,
+                                 cores)
+      margins <- finalize_margins(margins, mfx)
+      u <- to_uscale(mfx, margins)
+    }  else {
+      margins <- lapply(1:d, function(x) list(edf = NA, loglik = NA))
+      u <- as.matrix(mfx)
+    }
+
     args <- append(
       ctrl,
       list(data = u, var_types = var_types, cores = cores)
     )
     fit <- do.call(select_dvine_cpp, args)
-    margins <- margins[c(1, sort(fit$selected_vars))] # other margins useless
+    if (!uscale)
+      margins <- margins[c(1, sort(fit$selected_vars))] # other margins useless
   }
 
   finalize_vinereg_object(
