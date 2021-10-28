@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // fit_margins_cpp
 std::vector<Rcpp::List> fit_margins_cpp(const Eigen::MatrixXd& data, const Eigen::VectorXi& nlevels, const Eigen::VectorXd& mult, const Eigen::VectorXd& xmin, const Eigen::VectorXd& xmax, const Eigen::VectorXd& bw, const Eigen::VectorXi& deg, const Eigen::VectorXd& weights, size_t num_threads);
 RcppExport SEXP _vinereg_fit_margins_cpp(SEXP dataSEXP, SEXP nlevelsSEXP, SEXP multSEXP, SEXP xminSEXP, SEXP xmaxSEXP, SEXP bwSEXP, SEXP degSEXP, SEXP weightsSEXP, SEXP num_threadsSEXP) {

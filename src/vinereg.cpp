@@ -237,6 +237,7 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
 
   auto trunc_lvl = vine_struct_.get_trunc_lvl();
   auto order = vine_struct_.get_order();
+  auto inverse_order = tools_stl::invert_permutation(order);
 
   Eigen::VectorXd p(u.rows());
   auto do_batch = [&](const tools_batch::Batch& b) {
@@ -255,9 +256,8 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
     }
 
     for (size_t tree = 0; tree < trunc_lvl; ++tree) {
-      tools_interface::check_user_interrupt(u.rows() * d > 1e5);
       for (size_t edge = 0; edge < d - tree - 1; ++edge) {
-        tools_interface::check_user_interrupt(edge % 100 == 0);
+        tools_interface::check_user_interrupt();
         Bicop edge_copula = vinecop_cpp.get_pair_copula(tree, edge);
         auto var_types = edge_copula.get_var_types();
         size_t m = vine_struct_.min_array(tree, edge);
@@ -288,13 +288,12 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
             hfunc1_sub.col(edge) = edge_copula.hfunc1(u_e_sub);
           }
         }
-        if (vine_struct_.needed_hfunc2(tree, edge)) {
-          hfunc2.col(edge) = edge_copula.hfunc2(u_e);
-          if (var_types[0] == "d") {
-            u_e_sub = u_e;
-            u_e_sub.col(0) = u_e.col(2);
-            hfunc2_sub.col(edge) = edge_copula.hfunc2(u_e_sub);
-          }
+
+        hfunc2.col(edge) = edge_copula.hfunc2(u_e);
+        if (var_types[0] == "d" && vine_struct_.needed_hfunc2(tree, edge)) {
+          u_e_sub = u_e;
+          u_e_sub.col(0) = u_e.col(2);
+          hfunc2_sub.col(edge) = edge_copula.hfunc2(u_e_sub);
         }
       }
     }

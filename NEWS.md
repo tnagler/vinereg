@@ -1,3 +1,10 @@
+# vinereg 0.8.0
+
+BUG FIXES
+
+* fix `cpit()` (last conditioning was sometimes omitted).
+
+
 # vinereg 0.7.3
 
 BUG FIXES
