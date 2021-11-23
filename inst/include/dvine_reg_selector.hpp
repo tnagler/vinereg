@@ -103,10 +103,10 @@ inline DVineRegSelector::DVineRegSelector(
 
 inline void DVineRegSelector::select_model()
 {
-  std::vector<std::vector<Bicop>> pcs;
   std::mutex m; // required to synchronize write/reads to the selector
   auto num_threads = controls_.get_num_threads();
   RcppThread::ThreadPool pool(num_threads > 1 ? num_threads : 0);
+  controls_.set_num_threads(0);
 
   while (fit_.selected_vars.size() < p_) {
     auto old_fit = fit_;  // fix current model (fit_ will be modified below)
@@ -130,6 +130,7 @@ inline void DVineRegSelector::select_model()
       pcs_[t].push_back(fit_.pcs[t]);
   }
   pool.join();
+  controls_.set_num_threads(num_threads);
 }
 
 inline void DVineRegSelector::extend_fit(DVineFitTemporaries& fit,
