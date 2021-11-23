@@ -99,14 +99,12 @@
 <ul>
 <li>
 <p>the stable release from CRAN:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"vinereg"</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"vinereg"</span>)</span></code></pre></div>
 </li>
 <li>
 <p>the latest development version:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"tnagler/vinereg"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("devtools")</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"tnagler/vinereg"</span>, <span class="at">build_vignettes =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -118,50 +116,45 @@
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tnagler.github.io/vinereg/">vinereg</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>
-
-<span class="co"># declare factors and discrete variables</span>
-<span class="kw">for</span> <span class="op">(</span><span class="va">var</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"vs"</span>, <span class="st">"gear"</span>, <span class="st">"carb"</span><span class="op">)</span><span class="op">)</span>
-    <span class="va">mtcars</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.ordered</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[[</span><span class="va">var</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="va">mtcars</span><span class="op">[[</span><span class="st">"am"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[[</span><span class="st">"am"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-
-<span class="co"># fit model</span>
-<span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vinereg.html">vinereg</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span>, family <span class="op">=</span> <span class="st">"nonpar"</span>, data <span class="op">=</span> <span class="va">mtcars</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp, drat </span>
-<span class="co">#&gt; nobs = 32, edf = 0, cll = -52.22, caic = 104.44, cbic = 104.44</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt;    var edf         cll       caic       cbic p_value</span>
-<span class="co">#&gt; 1  mpg   0 -100.189867 200.379733 200.379733      NA</span>
-<span class="co">#&gt; 2 disp   0   29.366035 -58.732070 -58.732070       0</span>
-<span class="co">#&gt; 3 qsec   0    4.262760  -8.525520  -8.525520       0</span>
-<span class="co">#&gt; 4   hp   0   10.747588 -21.495176 -21.495176       0</span>
-<span class="co">#&gt; 5 drat   0    3.592404  -7.184808  -7.184808       0</span>
-
-<span class="co"># show marginal effects for all selected variables</span>
-<span class="fu"><a href="reference/plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vinereg)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># declare factors and discrete variables</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (var <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"cyl"</span>, <span class="st">"vs"</span>, <span class="st">"gear"</span>, <span class="st">"carb"</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    mtcars[[var]] <span class="ot">&lt;-</span> <span class="fu">as.ordered</span>(mtcars[[var]])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>mtcars[[<span class="st">"am"</span>]] <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(mtcars[[<span class="st">"am"</span>]])</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># fit model</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>(fit <span class="ot">&lt;-</span> <span class="fu">vinereg</span>(mpg <span class="sc">~</span> ., <span class="at">family =</span> <span class="st">"nonpar"</span>, <span class="at">data =</span> mtcars))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; nobs = 32, edf = 21.86, cll = -55.94, caic = 155.59, cbic = 187.63</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    var       edf         cll       caic        cbic      p_value</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 disp 11.177711   29.363521 -36.371618 -19.9880453 1.873313e-08</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 qsec  2.328636    4.167727  -3.678182  -0.2650159 2.180106e-02</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   hp  8.353178   10.723533  -4.740711   7.5028411 7.480400e-03</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># show marginal effects for all selected variables</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_effects</span>(fit)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-1-1.png" width="100%"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co"># predict mean and median</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">mtcars</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>
-<span class="co">#&gt;       mean      0.5</span>
-<span class="co">#&gt; 1 22.63644 22.48315</span>
-<span class="co">#&gt; 2 22.54666 22.38034</span>
-<span class="co">#&gt; 3 25.03134 24.72854</span>
-<span class="co">#&gt; 4 20.82258 20.82337</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict mean and median</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">predict</span>(fit, mtcars, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       mean      0.5</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 22.36600 22.27170</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 22.18247 22.01755</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 25.33357 24.90170</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 20.24950 20.03959</span></span></code></pre></div>
 </div>
 <div id="vignettes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#vignettes" class="anchor"></a>Vignettes</h2>
 <p>For more examples, have a look at the vignettes with</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span><span class="op">(</span><span class="st">"abalone-example"</span>, package <span class="op">=</span> <span class="st">"vinereg"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span><span class="op">(</span><span class="st">"bike-rental"</span>, package <span class="op">=</span> <span class="st">"vinereg"</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"abalone-example"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"bike-rental"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span></code></pre></div>
 <div id="references" class="section level3">
 <h3 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h3>

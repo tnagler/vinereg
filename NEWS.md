@@ -4,7 +4,9 @@ BUG FIXES
 
 * fix `cpit()` (last conditioning was sometimes omitted).
 
-NEW FEATURES
+* prevent `rvinecopulib` from spawning own threads.
+
+# NEW FEATURES
 
 * add `uscale` option to allow for external marginal modeling.
 

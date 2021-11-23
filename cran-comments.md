@@ -1,10 +1,9 @@
-Fixes 'data length differs from size of matrix' issue.
-
 ## Test environments
-* ubuntu 16.04 (release)
+* ubuntu 20.04 (devel, release, oldrel)
 * Windows Server 2019 (release)
 * CRAN win-builder (devel)
-* macOS-catalina (release, devel)
+* macOS-catalina (release)
+* rhub::check_for_cran()
 
 ## R CMD check results
 
