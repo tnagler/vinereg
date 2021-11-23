@@ -37,7 +37,7 @@ test_that("works with discrete response", {
 })
 
 test_that("works on uscale", {
-  dat[] <- runif(100)
+  dat[] <- runif(nrow(dat) * ncol(dat))
   fit <- vinereg(y ~ ., dat, uscale = TRUE)
   p <- cpit(fit, dat)
   expect_true(all(p >= 0 & p <= 1))
