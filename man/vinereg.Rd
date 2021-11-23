@@ -13,7 +13,8 @@ vinereg(
   par_1d = list(),
   weights = numeric(),
   cores = 1,
-  ...
+  ...,
+  uscale = FALSE
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ covariate have non-negative support.}
 \item{cores}{integer; the number of cores to use for computations.}
 
 \item{...}{further arguments passed to \code{\link[rvinecopulib:bicop]{rvinecopulib::bicop()}}.}
+
+\item{uscale}{if TRUE, vinereg assumes that marginal distributions have been
+taken care of in a preliminary step.}
 }
 \value{
 An object of class vinereg. It is a list containing the elements
