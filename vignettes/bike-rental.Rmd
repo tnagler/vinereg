@@ -86,7 +86,7 @@ ggplot(bikedata, aes(dteday, count)) +
     xlab("date") + 
     ylab("rental count") + 
     stat_smooth(method = "lm", se = FALSE, linetype = "dashed") + 
-    theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) +
+    theme(plot.title = element_text(lineheight = 0.8, size = 20)) +
     theme(text = element_text(size = 18))
 ```
 
@@ -100,7 +100,7 @@ ggplot(bikedata, aes(dteday, count)) +
     scale_x_date(labels = scales::date_format("%b %y")) + 
     xlab("date") + 
     ylab("detrended rental count") + 
-    theme(plot.title = element_text(lineheight = 0.8, face = "bold", size = 20)) + 
+    theme(plot.title = element_text(lineheight = 0.8, size = 20)) + 
     theme(text = element_text(size = 18))
 ```
 
