@@ -25,7 +25,7 @@ Please, feel free to address questions to <daniel.kraus@tum.de>.
 library(vinereg) 
 require(ggplot2)
 require(dplyr)
-require(tridyr)
+require(tidyr)
 require(AppliedPredictiveModeling)
 ```
 
@@ -45,9 +45,13 @@ fit models to predict the quantiles of weight (`whole`) given the predictors
 
 ```{r}
 data(abalone, package = "AppliedPredictiveModeling")
+colnames(abalone) <- c(
+  "sex", "length", "diameter", "height", "whole", 
+  "shucked", "viscera", "shell", "rings"
+)
 abalone_f <- abalone %>%
     dplyr::filter(sex == "F") %>%        # select female abalones
-    dplyr::select(-id, -sex) %>%         # remove id and sex variables
+    dplyr::select(-sex) %>%         # remove id and sex variables
     dplyr::filter(height < max(height))  # remove height outlier
 ```
 
