@@ -25,7 +25,7 @@ Please, feel free to address questions to <daniel.kraus@tum.de>.
 library(vinereg) 
 
 pkgs_required <- c("ggplot2", "dplyr", "tidyr", "AppliedPredictiveModeling")
-pkgs_available <- sapply(pkgs_required, require)
+pkgs_available <- sapply(pkgs_required, require, character.only = TRUE)
 ```
 
 ```{r conditional_eval, include=FALSE}
