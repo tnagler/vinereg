@@ -23,13 +23,10 @@ Please, feel free to address questions to <daniel.kraus@tum.de>.
 # Load required packages 
 ```{r, message = FALSE}
 library(vinereg) 
-
-pkgs_required <- c("ggplot2", "dplyr", "tidyr", "AppliedPredictiveModeling")
-pkgs_available <- sapply(pkgs_required, require, character.only = TRUE)
-```
-
-```{r conditional_eval, include=FALSE}
-knitr::opts_chunk$set(eval = sum(pkgs_available))
+require(ggplot2)
+require(dplyr)
+require(tridyr)
+require(AppliedPredictiveModeling)
 ```
 
 

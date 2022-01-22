@@ -17,13 +17,13 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 #### Required packages
 ```{r, message = FALSE}
 library(vinereg)
-pkgs_required <- c("ggplot2", "dplyr", "purrr", "scales", "quantreg")
-pkgs_available <- sapply(pkgs_required, require)
+require(ggplot2)
+require(dplyr)
+require(purrr)
+require(scales)
+require(quantreg)
 ```
 
-```{r conditional_eval, include=FALSE}
-knitr::opts_chunk$set(eval = sum(pkgs_available))
-```
 
 #### Plot function for marginal effects
 
