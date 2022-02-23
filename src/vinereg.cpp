@@ -9,6 +9,10 @@
 #define BOOST_MATH_PROMOTE_DOUBLE_POLICY false
 #endif
 
+#ifndef BOOST_ALLOW_DEPRECATED_HEADERS
+#define BOOST_ALLOW_DEPRECATED_HEADERS
+#endif
+
 #include "dvine_reg_selector.hpp"
 #include <RcppThread.h>
 #include <kde1d-wrappers.hpp>
