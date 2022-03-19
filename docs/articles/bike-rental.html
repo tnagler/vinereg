@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3</span>
       </span>
     </div>
 
@@ -187,7 +187,7 @@
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"date"</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"rental count"</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">stat_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span> 
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>lineheight <span class="op">=</span> <span class="fl">0.8</span>, face <span class="op">=</span> <span class="st">"bold"</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>lineheight <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">18</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="bike-rental_files/figure-html/count_with_trend-1.png" width="700"></p>
 </div>
@@ -203,7 +203,7 @@
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_date.html">scale_x_date</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/label_date.html">date_format</a></span><span class="op">(</span><span class="st">"%b %y"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"date"</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"detrended rental count"</span><span class="op">)</span> <span class="op">+</span> 
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>lineheight <span class="op">=</span> <span class="fl">0.8</span>, face <span class="op">=</span> <span class="st">"bold"</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>lineheight <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">18</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="bike-rental_files/figure-html/count_detrended-1.png" width="700"></p>
 </div>
@@ -242,20 +242,20 @@
   selcrit <span class="op">=</span> <span class="st">"aic"</span>
 <span class="op">)</span>
 <span class="va">fit</span></code></pre></div>
-<pre><code>## D-vine regression model: count | temperature, humidity, windspeed, month, season, weathersituation, workingday, weekday 
-## nobs = 731, edf = 66.42, cll = 424.25, caic = -715.66, cbic = -410.5</code></pre>
+<pre><code>## D-vine regression model: count | temperature, humidity, windspeed, month, season, weathersituation, weekday, workingday 
+## nobs = 731, edf = 72.82, cll = 436.36, caic = -727.09, cbic = -392.54</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
-<pre><code>##                var      edf         cll        caic       cbic       p_value
-## 1            count  9.59683 -198.076002  415.345665  459.43747            NA
-## 2      temperature 21.96135  415.792948 -787.663199 -686.76369 1.076638e-161
-## 3         humidity 17.92531  119.002570 -202.154520 -119.79823  2.012538e-40
-## 4        windspeed  1.00000   22.851447  -43.702894  -39.10848  1.376193e-11
-## 5            month  1.00000   13.820625  -25.641250  -21.04684  1.460312e-07
-## 6           season  1.00000   11.237830  -20.475661  -15.88125  2.128233e-06
-## 7 weathersituation  1.00000   13.284465  -24.568930  -19.97452  2.543006e-07
-## 8       workingday  1.00000    9.607241  -17.214481  -12.62007  1.168238e-05
-## 9          weekday 11.93605   16.727094   -9.582084   45.25707  7.912733e-04</code></pre>
+<pre><code>##                var      edf         cll       caic       cbic       p_value
+## 1            count  9.59683 -198.076002  415.34567  459.43747            NA
+## 2      temperature 21.98331  415.786154 -787.60568 -686.60525 1.128529e-161
+## 3         humidity 17.93515  118.945781 -202.02127 -119.61979  2.149975e-40
+## 4        windspeed  1.00000   22.843501  -43.68700  -39.09259  1.387404e-11
+## 5            month  1.00000   13.846220  -25.69244  -21.09803  1.422175e-07
+## 6           season  1.00000   12.324711  -22.64942  -18.05501  6.876540e-07
+## 7 weathersituation  1.00000   12.737383  -23.47477  -18.88035  4.482071e-07
+## 8          weekday 18.30101   29.457650  -22.31328   61.76912  3.708185e-06
+## 9       workingday  1.00000    8.494936  -14.98987  -10.39546  3.757975e-05</code></pre>
 </div>
 <div id="in-sample-predictions" class="section level4">
 <h4 class="hasAnchor">
