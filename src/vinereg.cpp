@@ -97,7 +97,7 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
   // make results R-compatible -------------------------------
   Rcpp::List vinecop_r;
   // rank ensures that vars are 1, ..., p_sel
-  auto order = tools_stl::cat({ 0 }, selected_vars);
+  auto order = tools_stl::cat(static_cast<size_t>(0), selected_vars);
   auto new_struct = DVineStructure(tools_stl::rank(order));
 
   auto sv = selected_vars;
@@ -173,7 +173,7 @@ cond_quantile_cpp(const Eigen::VectorXd& alpha,
         u_e = Eigen::MatrixXd(b.size, 2);
         u_e.col(0) = hfunc2(tree, edge);
         u_e.col(1) = hfunc1(tree, m - 1);
-        if ((var_types[0] == "d") | (var_types[1] == "d")) {
+        if ((var_types[0] == "d") || (var_types[1] == "d")) {
           u_e.conservativeResize(b.size, 4);
           u_e.col(2) =
             (var_types[0] == "d") ? hfunc2_sub(tree, edge) : hfunc2(tree, edge);
@@ -274,7 +274,7 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
           u_e.col(1) = hfunc1.col(m - 1);
         }
 
-        if ((var_types[0] == "d") | (var_types[1] == "d")) {
+        if ((var_types[0] == "d") || (var_types[1] == "d")) {
           u_e.conservativeResize(b.size, 4);
           u_e.col(2) = hfunc2_sub.col(edge);
           if (m == vine_struct_.struct_array(tree, edge, true)) {

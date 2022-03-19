@@ -5,6 +5,5 @@
 
 ## Results
 * 0 errors, 0 warnings
-* 1 note (installed package size)
 
 There are no reverse dependencies.

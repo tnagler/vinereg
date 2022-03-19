@@ -1,11 +1,26 @@
-# vinereg 0.8.0
+# vinereg 0.8.3
+
+BUG FIX
+
+* avoid bit-wise operations on boolean variables (fixes warnings for clang>=14).
+ 
+
+# vinereg 0.8.2
+
+DEPENDS
+
+* require recent version of vinecopulib (>= 0.6.1.1.2) to ensure compatible
+ RcppThread versions.
+ 
+
+# vinereg 0.8.1
 
 BUG FIXES
 
 * `require()` calls with single argument in vignettes.
 
 
- vinereg 0.8.0
+vinereg 0.8.0
 
 BUG FIXES
 
