@@ -19,8 +19,8 @@ An R package for D-vine copula based mean and quantile regression.
 
 -   the latest development version:
 
-        # install.packages("devtools")
-        devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
+        # install.packages("remotes")
+        remotes::install_github("tnagler/vinereg", build_vignettes = TRUE)
 
 ## Functionality
 
@@ -40,14 +40,14 @@ See the [package website](https://tnagler.github.io/vinereg/).
     # fit model
     (fit <- vinereg(mpg ~ ., family = "nonpar", data = mtcars))
     #> D-vine regression model: mpg | disp, qsec, hp 
-    #> nobs = 32, edf = 21.86, cll = -55.94, caic = 155.59, cbic = 187.63
+    #> nobs = 32, edf = 24.35, cll = -56.11, caic = 160.93, cbic = 196.63
 
     summary(fit)
     #>    var       edf         cll       caic        cbic      p_value
     #> 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA
-    #> 2 disp 11.177711   29.363521 -36.371618 -19.9880453 1.873313e-08
-    #> 3 qsec  2.328636    4.167727  -3.678182  -0.2650159 2.180106e-02
-    #> 4   hp  8.353178   10.723533  -4.740711   7.5028411 7.480400e-03
+    #> 2 disp 12.663078   29.654825 -33.983493 -15.4227648 5.284917e-08
+    #> 3 qsec  2.447922    4.326359  -3.756874  -0.1688666 2.101665e-02
+    #> 4   hp  9.242147   10.096325  -1.708356  11.8381898 1.898984e-02
 
     # show marginal effects for all selected variables
     plot_effects(fit)
@@ -59,10 +59,10 @@ See the [package website](https://tnagler.github.io/vinereg/).
     # predict mean and median
     head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
     #>       mean      0.5
-    #> 1 22.36600 22.27170
-    #> 2 22.18247 22.01755
-    #> 3 25.33357 24.90170
-    #> 4 20.24950 20.03959
+    #> 1 22.39380 22.29866
+    #> 2 22.23677 22.08015
+    #> 3 25.33841 24.92450
+    #> 4 20.33708 20.16153
 
 ## Vignettes
 

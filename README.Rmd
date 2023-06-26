@@ -31,8 +31,8 @@ An R package for D-vine copula based mean and quantile regression.
 - the latest development version:
     
     ``` r
-    # install.packages("devtools")
-    devtools::install_github("tnagler/vinereg", build_vignettes = TRUE)
+    # install.packages("remotes")
+    remotes::install_github("tnagler/vinereg", build_vignettes = TRUE)
     ```
 
 ## Functionality

@@ -1,3 +1,10 @@
+# vinereg 0.9.0
+
+NEW FEATURE
+
+* New function `cll()` to compute the conditional log-likelihood.
+ 
+ 
 # vinereg 0.8.3
 
 BUG FIX
