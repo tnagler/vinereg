@@ -23,6 +23,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -35,23 +37,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -71,7 +67,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/tnagler/vinereg/">
+  <a href="https://github.com/tnagler/vinereg/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -88,78 +84,83 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="vinereg" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#vinereg" class="anchor"></a>vinereg</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="vinereg">vinereg<a class="anchor" aria-label="anchor" href="#vinereg"></a>
+</h1></div>
 
-<p>An R package for D-vine copula based mean and quantile regression.</p>
-<div id="how-to-install" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-install" class="anchor"></a>How to install</h2>
+<p>An R package for D-vine copula based mean and quantile
+regression.</p>
+<div class="section level2">
+<h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a>
+</h2>
 <ul>
 <li>
 <p>the stable release from CRAN:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"vinereg"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"vinereg"</span>)</span></code></pre></div>
 </li>
 <li>
 <p>the latest development version:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("devtools")</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"tnagler/vinereg"</span>, <span class="at">build_vignettes =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># install.packages("remotes")</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"tnagler/vinereg"</span>, <span class="at">build_vignettes =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </li>
 </ul>
 </div>
-<div id="functionality" class="section level2">
-<h2 class="hasAnchor">
-<a href="#functionality" class="anchor"></a>Functionality</h2>
-<p>See the <a href="https://tnagler.github.io/vinereg/">package website</a>.</p>
+<div class="section level2">
+<h2 id="functionality">Functionality<a class="anchor" aria-label="anchor" href="#functionality"></a>
+</h2>
+<p>See the <a href="https://tnagler.github.io/vinereg/" class="external-link">package
+website</a>.</p>
 </div>
-<div id="example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vinereg)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># declare factors and discrete variables</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (var <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"cyl"</span>, <span class="st">"vs"</span>, <span class="st">"gear"</span>, <span class="st">"carb"</span>))</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    mtcars[[var]] <span class="ot">&lt;-</span> <span class="fu">as.ordered</span>(mtcars[[var]])</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>mtcars[[<span class="st">"am"</span>]] <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(mtcars[[<span class="st">"am"</span>]])</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># fit model</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>(fit <span class="ot">&lt;-</span> <span class="fu">vinereg</span>(mpg <span class="sc">~</span> ., <span class="at">family =</span> <span class="st">"nonpar"</span>, <span class="at">data =</span> mtcars))</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp </span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; nobs = 32, edf = 21.86, cll = -55.94, caic = 155.59, cbic = 187.63</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    var       edf         cll       caic        cbic      p_value</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 disp 11.177711   29.363521 -36.371618 -19.9880453 1.873313e-08</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 qsec  2.328636    4.167727  -3.678182  -0.2650159 2.180106e-02</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   hp  8.353178   10.723533  -4.740711   7.5028411 7.480400e-03</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># show marginal effects for all selected variables</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_effects</span>(fit)</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>(vinereg)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">data</span>(mtcars)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co"># declare factors and discrete variables</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="cf">for</span> (var <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"cyl"</span>, <span class="st">"vs"</span>, <span class="st">"gear"</span>, <span class="st">"carb"</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    mtcars[[var]] <span class="ot">&lt;-</span> <span class="fu">as.ordered</span>(mtcars[[var]])</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>mtcars[[<span class="st">"am"</span>]] <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(mtcars[[<span class="st">"am"</span>]])</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co"># fit model</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>(fit <span class="ot">&lt;-</span> <span class="fu">vinereg</span>(mpg <span class="sc">~</span> ., <span class="at">family =</span> <span class="st">"nonpar"</span>, <span class="at">data =</span> mtcars))</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; nobs = 32, edf = 24.35, cll = -56.11, caic = 160.93, cbic = 196.63</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;    var       edf         cll       caic        cbic      p_value</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 2 disp 12.663078   29.654825 -33.983493 -15.4227648 5.284917e-08</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 3 qsec  2.447922    4.326359  -3.756874  -0.1688666 2.101665e-02</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 4   hp  9.242147   10.096325  -1.708356  11.8381898 1.898984e-02</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co"># show marginal effects for all selected variables</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="fu">plot_effects</span>(fit)</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-1-1.png" width="100%"></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict mean and median</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">predict</span>(fit, mtcars, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       mean      0.5</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 22.36600 22.27170</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 22.18247 22.01755</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 25.33357 24.90170</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 20.24950 20.03959</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># predict mean and median</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">predict</span>(fit, mtcars, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;       mean      0.5</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1 22.39380 22.29866</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 2 22.23677 22.08015</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 3 25.33841 24.92450</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 4 20.33708 20.16153</span></span></code></pre></div>
 </div>
-<div id="vignettes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#vignettes" class="anchor"></a>Vignettes</h2>
+<div class="section level2">
+<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h2>
 <p>For more examples, have a look at the vignettes with</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"abalone-example"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"bike-rental"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span></code></pre></div>
-<div id="references" class="section level3">
-<h3 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h3>
-<p>Kraus and Czado (2017). D-vine copula based quantile regression. <em>Computational Statistics &amp; Data Analysis</em>, 110, 1-18. <a href="https://www.sciencedirect.com/science/article/pii/S0167947316303073">link</a>, <a href="https://arxiv.org/abs/1510.04161">preprint</a></p>
-<p>Schallhorn, N., Kraus, D., Nagler, T., Czado, C. (2017). D-vine quantile regression with discrete variables. Working paper, <a href="https://arxiv.org/abs/1705.08310">preprint</a>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"abalone-example"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"bike-rental"</span>, <span class="at">package =</span> <span class="st">"vinereg"</span>)</span></code></pre></div>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<p>Kraus and Czado (2017). D-vine copula based quantile regression.
+<em>Computational Statistics &amp; Data Analysis</em>, 110, 1-18. <a href="https://www.sciencedirect.com/science/article/pii/S0167947316303073" class="external-link">link</a>,
+<a href="https://arxiv.org/abs/1510.04161" class="external-link">preprint</a></p>
+<p>Schallhorn, N., Kraus, D., Nagler, T., Czado, C. (2017). D-vine
+quantile regression with discrete variables. Working paper, <a href="https://arxiv.org/abs/1705.08310" class="external-link">preprint</a>.</p>
 </div>
 </div>
 </div>
@@ -167,48 +168,59 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=vinereg">https://​cloud.r-project.org/​package=vinereg</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/tnagler/vinereg/">https://​github.com/​tnagler/​vinereg/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/tnagler/vinereg/issues">https://​github.com/​tnagler/​vinereg/​issues</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Thomas Nagler <br><small class="roles"> Author, maintainer </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="https://cloud.r-project.org/package=vinereg" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/tnagler/vinereg/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/tnagler/vinereg/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/tnagler/vinereg"><img src="https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://codecov.io/github/tnagler/vinereg?branch=master"><img src="https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
-<li><a href="https://cran.r-project.org/package=vinereg"><img src="https://www.r-pkg.org/badges/version/vinereg" alt="CRAN status"></a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing vinereg</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Thomas Nagler <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/tnagler/vinereg" class="external-link"><img src="https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/github/tnagler/vinereg?branch=master" class="external-link"><img src="https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
+<li><a href="https://cran.r-project.org/package=vinereg" class="external-link"><img src="https://www.r-pkg.org/badges/version/vinereg" alt="CRAN status"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Thomas Nagler.</p>
+  <p></p>
+<p>Developed by Thomas Nagler.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.1.</p>
 </div>
 
       </footer>
@@ -216,6 +228,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,23 +33,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -67,7 +63,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/tnagler/vinereg/">
+  <a href="https://github.com/tnagler/vinereg/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -82,160 +78,200 @@
 
       
 
-      </header><script src="abalone-example_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Example usage of the vinereg package</h1>
-                        <h4 class="author">Daniel Kraus and Claudia Czado</h4>
+                        <h4 data-toc-skip class="author">Daniel Kraus
+and Claudia Czado</h4>
             
-            <h4 class="date">September 2017</h4>
+            <h4 data-toc-skip class="date">September 2017</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/tnagler/vinereg/blob/master/vignettes/abalone-example.Rmd"><code>vignettes/abalone-example.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/tnagler/vinereg/blob/HEAD/vignettes/abalone-example.Rmd" class="external-link"><code>vignettes/abalone-example.Rmd</code></a></small>
       <div class="hidden name"><code>abalone-example.Rmd</code></div>
 
     </div>
 
     
     
-<p>This file contains the source code of an exemplary application of the D-vine copula based quantile regression approach implemented in the R-package <em>vinereg</em> and presented in Kraus and Czado (2017): <em>D-vine copula based quantile regression</em>, Computational Statistics and Data Analysis, 110, 1-18. Please, feel free to address questions to <a href="mailto:daniel.kraus@tum.de" class="email">daniel.kraus@tum.de</a>.</p>
-<div id="load-required-packages" class="section level1">
-<h1 class="hasAnchor">
-<a href="#load-required-packages" class="anchor"></a>Load required packages</h1>
+<p>This file contains the source code of an exemplary application of the
+D-vine copula based quantile regression approach implemented in the
+R-package <em>vinereg</em> and presented in Kraus and Czado (2017):
+<em>D-vine copula based quantile regression</em>, Computational
+Statistics and Data Analysis, 110, 1-18. Please, feel free to address
+questions to <a href="mailto:daniel.kraus@tum.de" class="email">daniel.kraus@tum.de</a>.</p>
+<div class="section level1">
+<h1 id="load-required-packages">Load required packages<a class="anchor" aria-label="anchor" href="#load-required-packages"></a>
+</h1>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tnagler.github.io/vinereg/">vinereg</a></span><span class="op">)</span> 
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="http://appliedpredictivemodeling.com/">AppliedPredictiveModeling</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tnagler.github.io/vinereg/" class="external-link">vinereg</a></span><span class="op">)</span> 
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="http://appliedpredictivemodeling.com/" class="external-link">AppliedPredictiveModeling</a></span><span class="op">)</span></code></pre></div>
 </div>
-<div id="data-analysis" class="section level1">
-<h1 class="hasAnchor">
-<a href="#data-analysis" class="anchor"></a>Data analysis</h1>
+<div class="section level1">
+<h1 id="data-analysis">Data analysis<a class="anchor" aria-label="anchor" href="#data-analysis"></a>
+</h1>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
-<p>We consider the data set <code>abalone</code> from the UCI Machine Learning Repository (<a href="https://archive.ics.uci.edu/ml/datasets/abalone" class="uri">https://archive.ics.uci.edu/ml/datasets/abalone</a>) and focus on the female sub-population. In a first application we only consider continuous variables and fit models to predict the quantiles of weight (<code>whole</code>) given the predictors <code>length</code>, <code>diameter</code>, and <code>height</code>.</p>
-<div id="load-and-clean-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#load-and-clean-data" class="anchor"></a>Load and clean data</h2>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
+<p>We consider the data set <code>abalone</code> from the UCI Machine
+Learning Repository (<a href="https://archive.ics.uci.edu/ml/datasets/abalone" class="external-link uri">https://archive.ics.uci.edu/ml/datasets/abalone</a>) and
+focus on the female sub-population. In a first application we only
+consider continuous variables and fit models to predict the quantiles of
+weight (<code>whole</code>) given the predictors <code>length</code>,
+<code>diameter</code>, and <code>height</code>.</p>
+<div class="section level2">
+<h2 id="load-and-clean-data">Load and clean data<a class="anchor" aria-label="anchor" href="#load-and-clean-data"></a>
+</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">abalone</span>, package <span class="op">=</span> <span class="st">"AppliedPredictiveModeling"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">abalone</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">abalone</span>, package <span class="op">=</span> <span class="st">"AppliedPredictiveModeling"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">abalone</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
   <span class="st">"sex"</span>, <span class="st">"length"</span>, <span class="st">"diameter"</span>, <span class="st">"height"</span>, <span class="st">"whole"</span>, 
   <span class="st">"shucked"</span>, <span class="st">"viscera"</span>, <span class="st">"shell"</span>, <span class="st">"rings"</span>
 <span class="op">)</span>
-<span class="va">abalone_f</span> <span class="op">&lt;-</span> <span class="va">abalone</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>        <span class="co"># select female abalones</span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>         <span class="co"># remove id and sex variables</span>
-    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">height</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">height</span><span class="op">)</span><span class="op">)</span>  <span class="co"># remove height outlier</span></code></pre></div>
+<span class="va">abalone_f</span> <span class="op">&lt;-</span> <span class="va">abalone</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="st">"F"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>        <span class="co"># select female abalones</span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>         <span class="co"># remove id and sex variables</span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">height</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">height</span><span class="op">)</span><span class="op">)</span>  <span class="co"># remove height outlier</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/pairs.html">pairs</a></span><span class="op">(</span><span class="va">abalone_f</span>, pch <span class="op">=</span> <span class="st">"."</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/pairs.html" class="external-link">pairs</a></span><span class="op">(</span><span class="va">abalone_f</span>, pch <span class="op">=</span> <span class="st">"."</span><span class="op">)</span></code></pre></div>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 </div>
 </div>
-<div id="d-vine-regression-models" class="section level1">
-<h1 class="hasAnchor">
-<a href="#d-vine-regression-models" class="anchor"></a>D-vine regression models</h1>
-<div id="parametric-d-vine-quantile-regression" class="section level2">
-<h2 class="hasAnchor">
-<a href="#parametric-d-vine-quantile-regression" class="anchor"></a>Parametric D-vine quantile regression</h2>
-<p>We consider the female subset and fit a parametric regression D-vine for the response weight given the covariates len, diameter and height (ignoring the discreteness of some of the variables). The D-vine based model is selected sequentially by maximizing the conditional log-likelihood of the response given the covariates. Covariates are only added if they increase the (possibly AIC- or BIC-corrected) conditional log-likelihood.</p>
-<p>We use the function <code><a href="../reference/vinereg.html">vinereg()</a></code> to fit a regression D-vine for predicting the response weight given the covariates <code>length</code>, <code>diameter</code>, and <code>height</code>. The argument <code>family_set</code> determines how the pair-copulas are estimated. We will only use one-parameter families and the <em>t</em> copula here. The <code>selcrit</code> argument specifies the penalty type for the conditional log-likelihood criterion for variable selection.</p>
+<div class="section level1">
+<h1 id="d-vine-regression-models">D-vine regression models<a class="anchor" aria-label="anchor" href="#d-vine-regression-models"></a>
+</h1>
+<div class="section level2">
+<h2 id="parametric-d-vine-quantile-regression">Parametric D-vine quantile regression<a class="anchor" aria-label="anchor" href="#parametric-d-vine-quantile-regression"></a>
+</h2>
+<p>We consider the female subset and fit a parametric regression D-vine
+for the response weight given the covariates len, diameter and height
+(ignoring the discreteness of some of the variables). The D-vine based
+model is selected sequentially by maximizing the conditional
+log-likelihood of the response given the covariates. Covariates are only
+added if they increase the (possibly AIC- or BIC-corrected) conditional
+log-likelihood.</p>
+<p>We use the function <code><a href="../reference/vinereg.html">vinereg()</a></code> to fit a regression D-vine
+for predicting the response weight given the covariates
+<code>length</code>, <code>diameter</code>, and <code>height</code>. The
+argument <code>family_set</code> determines how the pair-copulas are
+estimated. We will only use one-parameter families and the <em>t</em>
+copula here. The <code>selcrit</code> argument specifies the penalty
+type for the conditional log-likelihood criterion for variable
+selection.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_vine_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vinereg.html">vinereg</a></span><span class="op">(</span>
   <span class="va">whole</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">diameter</span> <span class="op">+</span> <span class="va">height</span>, 
   data <span class="op">=</span> <span class="va">abalone_f</span>,  
-  family_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"onepar"</span>, <span class="st">"t"</span><span class="op">)</span>,
+  family_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"onepar"</span>, <span class="st">"t"</span><span class="op">)</span>,
   selcrit <span class="op">=</span> <span class="st">"aic"</span>
 <span class="op">)</span></code></pre></div>
-<p>The result has a field <code>order</code> that shows the selected covariates and their ranking order in the D-vine.</p>
+<p>The result has a field <code>order</code> that shows the selected
+covariates and their ranking order in the D-vine.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_vine_par</span><span class="op">$</span><span class="va">order</span></code></pre></div>
-<pre><code>## [1] "length"   "height"   "diameter"</code></pre>
-<p>The field <code>vine</code> contains the fitted D-vine, where the first variable corresponds to the response. The object is of class <code>"vinecop_dist"</code> so we can use <code>rvineocpulib</code>’s functionality to summarize the model</p>
+<pre><code><span class="co">## [1] "length"   "height"   "diameter"</span></code></pre>
+<p>The field <code>vine</code> contains the fitted D-vine, where the
+first variable corresponds to the response. The object is of class
+<code>"vinecop_dist"</code> so we can use <code>rvineocpulib</code>’s
+functionality to summarize the model</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">fit_vine_par</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
-<pre><code>## # A data.frame: 6 x 11 
-##  tree edge conditioned conditioning var_types family rotation  parameters df
-##     1    1        1, 2                    c,c gumbel      180         5.2  1
-##     1    2        2, 4                    c,c gumbel      180         2.4  1
-##     1    3        4, 3                    c,c gumbel      180         2.4  1
-##     2    1        1, 4            2       c,c      t        0 0.45, 16.94  2
-##     2    2        2, 3            4       c,c      t        0  0.91, 4.68  2
-##     3    1        1, 3         4, 2       c,c      t        0  0.31, 7.36  2
-##   tau loglik
-##  0.81   1629
-##  0.58    672
-##  0.59    709
-##  0.30    147
-##  0.73   1193
-##  0.20     72</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_vine_par</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## # A data.frame: 6 x 11 </span>
+<span class="co">##  tree edge conditioned conditioning var_types family rotation  parameters df</span>
+<span class="co">##     1    1        1, 2                    c,c gumbel      180         5.2  1</span>
+<span class="co">##     1    2        2, 4                    c,c gumbel      180         2.4  1</span>
+<span class="co">##     1    3        4, 3                    c,c gumbel      180         2.4  1</span>
+<span class="co">##     2    1        1, 4            2       c,c      t        0 0.45, 20.20  2</span>
+<span class="co">##     2    2        2, 3            4       c,c      t        0  0.91, 4.68  2</span>
+<span class="co">##     3    1        1, 3         4, 2       c,c      t        0  0.31, 7.39  2</span>
+<span class="co">##   tau loglik</span>
+<span class="co">##  0.81   1629</span>
+<span class="co">##  0.58    672</span>
+<span class="co">##  0.59    709</span>
+<span class="co">##  0.30    147</span>
+<span class="co">##  0.73   1193</span>
+<span class="co">##  0.20     72</span></code></pre>
 <p>We can also plot the contours of the fitted pair-copulas.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html">contour</a></span><span class="op">(</span><span class="va">fit_vine_par</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">fit_vine_par</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 </div>
-<div id="estimation-of-corresponding-conditional-quantiles" class="section level2">
-<h2 class="hasAnchor">
-<a href="#estimation-of-corresponding-conditional-quantiles" class="anchor"></a>Estimation of corresponding conditional quantiles</h2>
-<p>In order to visualize the predicted influence of the covariates, we plot the estimated quantiles arising from the D-vine model at levels 0.1, 0.5 and 0.9 against each of the covariates.</p>
+<div class="section level2">
+<h2 id="estimation-of-corresponding-conditional-quantiles">Estimation of corresponding conditional quantiles<a class="anchor" aria-label="anchor" href="#estimation-of-corresponding-conditional-quantiles"></a>
+</h2>
+<p>In order to visualize the predicted influence of the covariates, we
+plot the estimated quantiles arising from the D-vine model at levels
+0.1, 0.5 and 0.9 against each of the covariates.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># quantile levels</span>
-<span class="va">alpha_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span> </code></pre></div>
-<p>We call the <code><a href="https://rdrr.io/r/stats/fitted.values.html">fitted()</a></code> function on <code>fit_vine_par</code> to extract the fitted values for multiple quantile levels. This is equivalent to predicting the quantile at the training data. The latter function is more useful for out-of-sample predictions.</p>
+<span class="va">alpha_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span> </code></pre></div>
+<p>We call the <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> function on
+<code>fit_vine_par</code> to extract the fitted values for multiple
+quantile levels. This is equivalent to predicting the quantile at the
+training data. The latter function is more useful for out-of-sample
+predictions.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pred_vine_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span><span class="op">(</span><span class="va">fit_vine_par</span>, alpha <span class="op">=</span> <span class="va">alpha_vec</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">pred_vine_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_vine_par</span>, alpha <span class="op">=</span> <span class="va">alpha_vec</span><span class="op">)</span>
 <span class="co"># equivalent to:</span>
 <span class="co"># predict(fit_vine_par, newdata = abalone.f, alpha = alpha_vec)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">pred_vine_par</span><span class="op">)</span></code></pre></div>
-<pre><code>##         0.1       0.5       0.9
-## 1 0.6723651 0.7666475 0.8713561
-## 2 0.6972505 0.7904207 0.9005937
-## 3 0.6793975 0.7840285 0.8923618
-## 4 0.7759436 0.8799531 0.9967233
-## 5 0.5958959 0.6999980 0.8270238
-## 6 0.6762859 0.7730820 0.8854436</code></pre>
-<p>To examine the effect of the individual variables, we will plot the predicted quantiles against each of the variables. To visualize the relationship more clearly, we add a smoothed line for each quantile level. This gives an estimate of the expected effect of a variable (taking expectation with respect to all other variables).</p>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_vine_par</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">##         0.1       0.5       0.9</span>
+<span class="co">## 1 0.6719522 0.7666997 0.8715491</span>
+<span class="co">## 2 0.6969903 0.7903960 0.9012124</span>
+<span class="co">## 3 0.6794323 0.7842671 0.8916937</span>
+<span class="co">## 4 0.7755592 0.8800229 0.9974089</span>
+<span class="co">## 5 0.5952851 0.6997763 0.8272583</span>
+<span class="co">## 6 0.6757838 0.7729635 0.8858529</span></code></pre>
+<p>To examine the effect of the individual variables, we will plot the
+predicted quantiles against each of the variables. To visualize the
+relationship more clearly, we add a smoothed line for each quantile
+level. This gives an estimate of the expected effect of a variable
+(taking expectation with respect to all other variables).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit_vine_par</span><span class="op">)</span></code></pre></div>
-<pre><code>## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</code></pre>
+<pre><code><span class="co">## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></code></pre>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-11-1.png" width="672"></p>
-<p>The fitted quantile curves suggest a non-linear effect of all three variables.</p>
+<p>The fitted quantile curves suggest a non-linear effect of all three
+variables.</p>
 </div>
-<div id="comparison-to-the-benchmark-model-linear-quantile-regression" class="section level2">
-<h2 class="hasAnchor">
-<a href="#comparison-to-the-benchmark-model-linear-quantile-regression" class="anchor"></a>Comparison to the benchmark model: linear quantile regression</h2>
+<div class="section level2">
+<h2 id="comparison-to-the-benchmark-model-linear-quantile-regression">Comparison to the benchmark model: linear quantile regression<a class="anchor" aria-label="anchor" href="#comparison-to-the-benchmark-model-linear-quantile-regression"></a>
+</h2>
 <p>This can be compared to linear quantile regression:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pred_lqr</span> <span class="op">&lt;-</span> <span class="va">pred_vine_par</span>
-<span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="va">alpha_vec</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
-    <span class="va">my.rq</span> <span class="op">&lt;-</span> <span class="fu">quantreg</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/quantreg/man/rq.html">rq</a></span><span class="op">(</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">alpha_vec</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+    <span class="va">my.rq</span> <span class="op">&lt;-</span> <span class="fu">quantreg</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/quantreg/man/rq.html" class="external-link">rq</a></span><span class="op">(</span>
         <span class="va">whole</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">diameter</span> <span class="op">+</span> <span class="va">height</span>, 
         tau <span class="op">=</span> <span class="va">alpha_vec</span><span class="op">[</span><span class="va">a</span><span class="op">]</span>, 
         data <span class="op">=</span> <span class="va">abalone_f</span>
     <span class="op">)</span>
-    <span class="va">pred_lqr</span><span class="op">[</span>, <span class="va">a</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">quantreg</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/quantreg/man/predict.rq.html">predict.rq</a></span><span class="op">(</span><span class="va">my.rq</span><span class="op">)</span>
+    <span class="va">pred_lqr</span><span class="op">[</span>, <span class="va">a</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">quantreg</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/quantreg/man/predict.rq.html" class="external-link">predict.rq</a></span><span class="op">(</span><span class="va">my.rq</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">plot_marginal_effects</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">covs</span>, <span class="va">preds</span><span class="op">)</span> <span class="op">{</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">covs</span>, <span class="va">preds</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>
-        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="va">prediction</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">NCOL</a></span><span class="op">(</span><span class="va">covs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>
-        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>prediction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">prediction</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>
-        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html">gather</a></span><span class="op">(</span><span class="va">variable</span>, <span class="va">value</span>, <span class="op">-</span><span class="op">(</span><span class="va">alpha</span><span class="op">:</span><span class="va">prediction</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span><span class="va">value</span>, <span class="va">prediction</span>, color <span class="op">=</span> <span class="va">alpha</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> 
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"gam"</span>, formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="fu">s</span><span class="op">(</span><span class="va">x</span>, bs <span class="op">=</span> <span class="st">"cs"</span><span class="op">)</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> 
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">variable</span>, scale <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html">quote</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/quit.html">q</a></span><span class="op">(</span><span class="va">y</span><span class="op">*</span> <span class="st">"|"</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="st">",...,"</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span><span class="va">p</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html">quote</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="va">k</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">covs</span>, <span class="va">preds</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html" class="external-link">gather</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="va">prediction</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NCOL</a></span><span class="op">(</span><span class="va">covs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>prediction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">prediction</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html" class="external-link">gather</a></span><span class="op">(</span><span class="va">variable</span>, <span class="va">value</span>, <span class="op">-</span><span class="op">(</span><span class="va">alpha</span><span class="op">:</span><span class="va">prediction</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">value</span>, <span class="va">prediction</span>, color <span class="op">=</span> <span class="va">alpha</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> 
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"gam"</span>, formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="fu">s</span><span class="op">(</span><span class="va">x</span>, bs <span class="op">=</span> <span class="st">"cs"</span><span class="op">)</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> 
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">variable</span>, scale <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span>
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/quit.html" class="external-link">q</a></span><span class="op">(</span><span class="va">y</span><span class="op">*</span> <span class="st">"|"</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="st">",...,"</span> <span class="op">*</span> <span class="va">x</span><span class="op">[</span><span class="va">p</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="va">k</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>
 <span class="op">}</span>
 <span class="fu">plot_marginal_effects</span><span class="op">(</span><span class="va">abalone_f</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">pred_lqr</span><span class="op">)</span></code></pre></div>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-12-1.png" width="672"></p>
 </div>
-<div id="nonparametric-d-vine-quantile-regression" class="section level2">
-<h2 class="hasAnchor">
-<a href="#nonparametric-d-vine-quantile-regression" class="anchor"></a>Nonparametric D-vine quantile regression</h2>
-<p>We also want to check whether these results change, when we estimate the pair-copulas nonparametrically.</p>
+<div class="section level2">
+<h2 id="nonparametric-d-vine-quantile-regression">Nonparametric D-vine quantile regression<a class="anchor" aria-label="anchor" href="#nonparametric-d-vine-quantile-regression"></a>
+</h2>
+<p>We also want to check whether these results change, when we estimate
+the pair-copulas nonparametrically.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_vine_np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vinereg.html">vinereg</a></span><span class="op">(</span>
   <span class="va">whole</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">diameter</span> <span class="op">+</span> <span class="va">height</span>,
@@ -244,41 +280,54 @@
   selcrit <span class="op">=</span> <span class="st">"aic"</span>
 <span class="op">)</span>
 <span class="va">fit_vine_np</span></code></pre></div>
-<pre><code>## D-vine regression model: whole | length, height, diameter 
-## nobs = 1306, edf = 95.15, cll = 1209.48, caic = -2228.66, cbic = -1736.29</code></pre>
+<pre><code><span class="co">## D-vine regression model: whole | length, height, diameter </span>
+<span class="co">## nobs = 1306, edf = 95.59, cll = 1208.61, caic = -2226.04, cbic = -1731.39</span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html">contour</a></span><span class="op">(</span><span class="va">fit_vine_np</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">fit_vine_np</span><span class="op">$</span><span class="va">vine</span><span class="op">)</span></code></pre></div>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-13-1.png" width="441.6"></p>
-<p>Now only the length and height variables are selected as predictors. Let’s have a look at the marginal effects.</p>
+<p>Now only the length and height variables are selected as predictors.
+Let’s have a look at the marginal effects.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit_vine_np</span>, var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"diameter"</span>, <span class="st">"height"</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit_vine_np</span>, var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"diameter"</span>, <span class="st">"height"</span>, <span class="st">"length"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></code></pre>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-14-1.png" width="672"></p>
-<p>The effects look similar to the parametric one, but slightly more wiggly. Note that even the diameter was not selected as a covariate, it’s marginal effect is captured by the model. It just does not provide additional information when height and length are already accounted for.</p>
+<p>The effects look similar to the parametric one, but slightly more
+wiggly. Note that even the diameter was not selected as a covariate,
+it’s marginal effect is captured by the model. It just does not provide
+additional information when height and length are already accounted
+for.</p>
 </div>
-<div id="discrete-d-vine-quantile-regression" class="section level2">
-<h2 class="hasAnchor">
-<a href="#discrete-d-vine-quantile-regression" class="anchor"></a>Discrete D-vine quantile regression</h2>
-<p>To deal with discrete variables, we use the methodology of Schallhorn et al. (2017). For estimating nonparametric pair-copulas with discrete variable(s), jittering is used (Nagler, 2017).</p>
-<p>We let <code><a href="../reference/vinereg.html">vinereg()</a></code> know that a variable is discrete by declaring it <code>ordered</code>.</p>
+<div class="section level2">
+<h2 id="discrete-d-vine-quantile-regression">Discrete D-vine quantile regression<a class="anchor" aria-label="anchor" href="#discrete-d-vine-quantile-regression"></a>
+</h2>
+<p>To deal with discrete variables, we use the methodology of Schallhorn
+et al. (2017). For estimating nonparametric pair-copulas with discrete
+variable(s), jittering is used (Nagler, 2017).</p>
+<p>We let <code><a href="../reference/vinereg.html">vinereg()</a></code> know that a variable is discrete by
+declaring it <code>ordered</code>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">abalone_f</span><span class="op">$</span><span class="va">rings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.ordered</a></span><span class="op">(</span><span class="va">abalone_f</span><span class="op">$</span><span class="va">rings</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">abalone_f</span><span class="op">$</span><span class="va">rings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.ordered</a></span><span class="op">(</span><span class="va">abalone_f</span><span class="op">$</span><span class="va">rings</span><span class="op">)</span>
 <span class="va">fit_disc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vinereg.html">vinereg</a></span><span class="op">(</span><span class="va">rings</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">abalone_f</span>, selcrit <span class="op">=</span> <span class="st">"aic"</span><span class="op">)</span>
 <span class="va">fit_disc</span></code></pre></div>
-<pre><code>## D-vine regression model: rings | shell, shucked, whole, height, viscera, length, diameter 
-## nobs = 1306, edf = 9, cll = -2782.44, caic = 5582.88, cbic = 5629.45</code></pre>
+<pre><code><span class="co">## D-vine regression model: rings | shell, shucked, whole, height, viscera, length, diameter </span>
+<span class="co">## nobs = 1306, edf = 9, cll = -2782.06, caic = 5582.12, cbic = 5628.69</span></code></pre>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit_disc</span><span class="op">)</span></code></pre></div>
-<pre><code>## `geom_smooth()` using method = 'loess' and formula 'y ~ x'</code></pre>
+<pre><code><span class="co">## `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></code></pre>
 <p><img src="abalone-example_files/figure-html/unnamed-chunk-15-1.png" width="451.2"></p>
 </div>
 </div>
-<div id="references" class="section level1">
-<h1 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h1>
-<p>Kraus and Czado (2017), <strong>D-vine copula based quantile regression</strong>, <em>Computational Statistics and Data Analysis, 110, 1-18</em></p>
-<p>Nagler (2017), <strong>A generic approach to nonparametric function estimation with mixed data</strong>, <em>Statistics &amp; Probability Letters, 137:326–330</em></p>
-<p>Schallhorn, Kraus, Nagler and Czado (2017), <strong>D-vine quantile regression with discrete variables</strong>, <em>arXiv preprint</em></p>
+<div class="section level1">
+<h1 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h1>
+<p>Kraus and Czado (2017), <strong>D-vine copula based quantile
+regression</strong>, <em>Computational Statistics and Data Analysis,
+110, 1-18</em></p>
+<p>Nagler (2017), <strong>A generic approach to nonparametric function
+estimation with mixed data</strong>, <em>Statistics &amp; Probability
+Letters, 137:326–330</em></p>
+<p>Schallhorn, Kraus, Nagler and Czado (2017), <strong>D-vine quantile
+regression with discrete variables</strong>, <em>arXiv preprint</em></p>
 </div>
   </div>
 
@@ -293,11 +342,14 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Thomas Nagler.</p>
+  <p></p>
+<p>Developed by Thomas Nagler.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.1.</p>
 </div>
 
       </footer>
@@ -305,6 +357,8 @@
 
   
 
+
+  
 
   </body>
 </html>
