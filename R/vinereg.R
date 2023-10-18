@@ -111,7 +111,6 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     par_method = "mle",
     nonpar_method = "quadratic",
     mult = 1,
-    weights = weights,
     psi0 = 0.9,
     presel = TRUE,
     keep_data = FALSE
@@ -120,6 +119,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     bicop,
     modifyList(arg, list(...))
   )$controls
+  ctrl$weights <- NULL
 
   if (!all(is.na(order))) {
     check_order(order, names(mfx))
@@ -154,6 +154,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
         data = u,
         var_types = var_types,
         cores = cores,
+        weights = weights,
         structure = dvine_structure(rank(c(1, selected_vars)))
       )
     )
@@ -182,7 +183,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
 
     args <- append(
       ctrl,
-      list(data = u, var_types = var_types, cores = cores)
+      list(data = u, var_types = var_types, cores = cores, weights = weights)
     )
     fit <- do.call(select_dvine_cpp, args)
     if (!uscale)
