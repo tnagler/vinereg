@@ -119,7 +119,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     bicop,
     modifyList(arg, list(...))
   )$controls
-  ctrl$weights <- NULL
+  ctrl$weights <- numeric()
 
   if (!all(is.na(order))) {
     check_order(order, names(mfx))
@@ -148,7 +148,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
 
     # now we need the correct ordering in selected_vars
     selected_vars <- sapply(order, function(x) which(x == names(mfx)))
-    args <- append(
+    args <- modifyList(
       ctrl,
       list(
         data = u,
@@ -181,7 +181,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
       u <- as.matrix(mfx)
     }
 
-    args <- append(
+    args <- modifyList(
       ctrl,
       list(data = u, var_types = var_types, cores = cores, weights = weights)
     )
