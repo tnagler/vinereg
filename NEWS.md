@@ -1,4 +1,11 @@
-# vinereg 0.9.0
+# vinereg 0.9.1
+
+BUG FIX
+
+* fix unnecessary error when calling `vinereg()` with weights.
+ 
+ 
+ # vinereg 0.9.0
 
 NEW FEATURE
 

@@ -18,7 +18,7 @@ prediction as described in Kraus and Czado (2017)."><!-- mathjax --><script src=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.1</span>
       </span>
     </div>
 
@@ -68,55 +68,76 @@ prediction as described in Kraus and Czado (2017).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">vinereg</span><span class="op">(</span>
-  <span class="va">formula</span>,
-  <span class="va">data</span>,
-  family_set <span class="op">=</span> <span class="st">"parametric"</span>,
-  selcrit <span class="op">=</span> <span class="st">"aic"</span>,
-  order <span class="op">=</span> <span class="cn">NA</span>,
-  par_1d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,
-  cores <span class="op">=</span> <span class="fl">1</span>,
-  <span class="va">...</span>,
-  uscale <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">vinereg</span><span class="op">(</span></span>
+<span>  <span class="va">formula</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  family_set <span class="op">=</span> <span class="st">"parametric"</span>,</span>
+<span>  selcrit <span class="op">=</span> <span class="st">"aic"</span>,</span>
+<span>  order <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  par_1d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  uscale <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>formula</dt>
 <dd><p>an object of class "formula"; same as <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>data frame (or object coercible by <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>) containing
 the variables in the model.</p></dd>
+
+
 <dt>family_set</dt>
 <dd><p>see <code>family_set</code> argument of <code><a href="https://rdrr.io/pkg/rvinecopulib/man/bicop.html" class="external-link">rvinecopulib::bicop()</a></code>.</p></dd>
+
+
 <dt>selcrit</dt>
 <dd><p>selection criterion based on conditional log-likelihood.
 <code>"loglik"</code> (default) imposes no correction; other choices are
 <code>"aic"</code> and <code>"bic"</code>.</p></dd>
+
+
 <dt>order</dt>
 <dd><p>the order of covariates in the D-vine, provided as vector of
 variable names (after calling
 <code>vinereg:::expand_factors(model.frame(formula, data))</code>); selected
 automatically if <code>order = NA</code> (default).</p></dd>
+
+
 <dt>par_1d</dt>
 <dd><p>list of options passed to <code><a href="https://rdrr.io/pkg/kde1d/man/kde1d.html" class="external-link">kde1d::kde1d()</a></code>, must be one value
 for each margin, e.g. <code>list(xmin = c(0, 0, NaN))</code> if the response and first
 covariate have non-negative support.</p></dd>
+
+
 <dt>weights</dt>
 <dd><p>optional vector of weights for each observation.</p></dd>
+
+
 <dt>cores</dt>
 <dd><p>integer; the number of cores to use for computations.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>further arguments passed to <code><a href="https://rdrr.io/pkg/rvinecopulib/man/bicop.html" class="external-link">rvinecopulib::bicop()</a></code>.</p></dd>
+
+
 <dt>uscale</dt>
 <dd><p>if TRUE, vinereg assumes that marginal distributions have been
 taken care of in a preliminary step.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An object of class vinereg. It is a list containing the elements</p><dl><dt>formula</dt>
+    
+
+<p>An object of class vinereg. It is a list containing the elements</p><dl><dt>formula</dt>
 <dd><p>the formula used for the fit.</p></dd>
 
 <dt>selcrit</dt>
@@ -142,7 +163,10 @@ algorithm.</p></dd>
 <dd><p>indices of selected variables.</p></dd>
  
 </dl><p>Use
-<code><a href="predict.vinereg.html">predict.vinereg()</a></code> to predict conditional quantiles. <code>summary.vinereg()</code>shows the contribution of each selected variable with the associated
+<code><a href="predict.vinereg.html">predict.vinereg()</a></code> to predict conditional quantiles. <code>summary.vinereg()</code></p>
+
+
+<p>shows the contribution of each selected variable with the associated
 p-value derived from a likelihood ratio test.</p>
     </div>
     <div id="details">
@@ -166,36 +190,36 @@ multivariate discrete data. Journal of the American Statistical Association,
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># simulate data</span></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span>, <span class="fl">100</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">x</span>, z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">2</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># fit vine regression model</span></span>
-<span class="r-in"><span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">vinereg</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">dat</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># simulate data</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span>, <span class="fl">100</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">x</span>, z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">2</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># fit vine regression model</span></span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">vinereg</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">dat</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> D-vine regression model: y | x.2, x.1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> nobs = 100, edf = 2, cll = 17.47, caic = -30.94, cbic = -25.73 </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># inspect model</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># inspect model</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   var edf        cll      caic      cbic      p_value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   y   0 -218.94275  437.8855  437.8855           NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 x.2   1   73.02642 -144.0528 -141.4477 1.264121e-33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 x.1   1  163.38599 -324.7720 -322.1668 4.851392e-73</span>
-<span class="r-in"><span class="fu"><a href="plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span>
+<span class="r-in"><span><span class="fu"><a href="plot_effects.html">plot_effects</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span>
 <span class="r-plt img"><img src="vinereg-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># model predictions</span></span>
-<span class="r-in"><span class="va">mu_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">dat</span>, alpha <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="co"># mean</span></span>
-<span class="r-in"><span class="va">med_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">dat</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="co"># median</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># observed vs predicted</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">mu_hat</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># model predictions</span></span></span>
+<span class="r-in"><span><span class="va">mu_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">dat</span>, alpha <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="co"># mean</span></span></span>
+<span class="r-in"><span><span class="va">med_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">dat</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="co"># median</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># observed vs predicted</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">mu_hat</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="vinereg-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## fixed variable order (no selection)</span></span>
-<span class="r-in"><span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">vinereg</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">dat</span>, order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x.2"</span>, <span class="st">"x.1"</span>, <span class="st">"z.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## fixed variable order (no selection)</span></span></span>
+<span class="r-in"><span><span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">vinereg</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">dat</span>, order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x.2"</span>, <span class="st">"x.1"</span>, <span class="st">"z.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> D-vine regression model: y | x.2, x.1, z.1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> nobs = 100, edf = 2, cll = 17.47, caic = -30.94, cbic = -25.73 </span>
 </code></pre></div>
@@ -212,8 +236,7 @@ multivariate discrete data. Journal of the American Statistical Association,
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
