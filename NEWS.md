@@ -4,8 +4,8 @@ BUG FIX
 
 * fix unnecessary error when calling `vinereg()` with weights.
  
- 
- # vinereg 0.9.0
+
+# vinereg 0.9.0
 
 NEW FEATURE
 
@@ -42,7 +42,7 @@ BUG FIXES
 
 * prevent `rvinecopulib` from spawning own threads.
 
-# NEW FEATURES
+NEW FEATURES
 
 * add `uscale` option to allow for external marginal modeling.
 
