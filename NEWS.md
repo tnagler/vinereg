@@ -1,3 +1,10 @@
+# vinereg 0.9.2
+
+BUG FIX
+
+* add compiler flag to prevent boost/functional from using `unary_function`.
+
+
 # vinereg 0.9.1
 
 BUG FIX
