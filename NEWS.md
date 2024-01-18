@@ -1,3 +1,17 @@
+# vinereg 0.9.2
+
+BUG FIX
+
+* add compiler flag to prevent boost/functional from using `unary_function`.
+
+
+# vinereg 0.9.1
+
+BUG FIX
+
+* fix unnecessary error when calling `vinereg()` with weights.
+ 
+
 # vinereg 0.9.0
 
 NEW FEATURE
@@ -35,7 +49,7 @@ BUG FIXES
 
 * prevent `rvinecopulib` from spawning own threads.
 
-# NEW FEATURES
+NEW FEATURES
 
 * add `uscale` option to allow for external marginal modeling.
 

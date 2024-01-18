@@ -264,6 +264,7 @@ finalize_margins <- function(margins, data) {
     margins[[k]]$nobs <- nrow(data)
     margins[[k]]$var_name <- names(margins)[k] <- colnames(data)[k]
   }
+  margins[[1]]$loglik <- sum(log(kde1d::dkde1d(data[[1]], margins[[1]])))
   margins
 }
 

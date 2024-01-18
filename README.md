@@ -4,8 +4,7 @@
 
 [![R build
 status](https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/vinereg)
-[![Coverage
-status](https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg)](https://codecov.io/github/tnagler/vinereg?branch=master)
+<!-- [![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main) -->
 [![CRAN
 status](https://www.r-pkg.org/badges/version/vinereg)](https://cran.r-project.org/package=vinereg)
 
@@ -39,19 +38,20 @@ See the [package website](https://tnagler.github.io/vinereg/).
 
     # fit model
     (fit <- vinereg(mpg ~ ., family = "nonpar", data = mtcars))
-    #> D-vine regression model: mpg | disp, qsec, hp 
-    #> nobs = 32, edf = 24.35, cll = -56.11, caic = 160.93, cbic = 196.63
+    #> D-vine regression model: mpg | disp, qsec, hp, drat 
+    #> nobs = 32, edf = 25.6, cll = -51.94, caic = 155.08, cbic = 192.61
 
     summary(fit)
-    #>    var       edf         cll       caic        cbic      p_value
-    #> 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA
-    #> 2 disp 12.663078   29.654825 -33.983493 -15.4227648 5.284917e-08
-    #> 3 qsec  2.447922    4.326359  -3.756874  -0.1688666 2.101665e-02
-    #> 4   hp  9.242147   10.096325  -1.708356  11.8381898 1.898984e-02
+    #>    var       edf         cll       caic       cbic      p_value
+    #> 1  mpg  0.000000 -100.189867 200.379733 200.379733           NA
+    #> 2 disp 13.187762   29.521786 -32.668047 -13.338271 9.065782e-08
+    #> 3 qsec  2.272103    4.454079  -4.363952  -1.033648 1.559593e-02
+    #> 4   hp  7.178554   10.836467  -7.315826   3.206038 3.267907e-03
+    #> 5 drat  2.965553    3.441702  -0.952298   3.394419 7.382604e-02
 
     # show marginal effects for all selected variables
     plot_effects(fit)
-    #> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+    #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 <img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" />
 
@@ -59,10 +59,10 @@ See the [package website](https://tnagler.github.io/vinereg/).
     # predict mean and median
     head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
     #>       mean      0.5
-    #> 1 22.39380 22.29866
-    #> 2 22.23677 22.08015
-    #> 3 25.33841 24.92450
-    #> 4 20.33708 20.16153
+    #> 1 22.58394 22.45433
+    #> 2 22.53425 22.41825
+    #> 3 25.10289 24.93384
+    #> 4 20.70358 20.80241
 
 ## Vignettes
 

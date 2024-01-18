@@ -68,3 +68,10 @@ test_that("works on uscale", {
   dat[] <- runif(100)
   expect_silent(fit <- vinereg(y ~ ., dat, uscale = TRUE))
 })
+
+
+test_that("works with weights", {
+  set.seed(2)
+  ww <- rep(1, nrow(dat))
+  expect_silent(fit <- vinereg(formula=y ~ ., data=dat, weights = ww))
+})

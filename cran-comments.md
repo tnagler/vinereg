@@ -5,5 +5,3 @@
 
 ## Results
 * 0 errors, 0 warnings
-
-There are no reverse dependencies.
