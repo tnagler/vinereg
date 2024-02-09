@@ -1,3 +1,10 @@
+# vinereg 0.10.0
+
+NEW FEATURE
+
+ * New function `pdf()` to compute the conditional log-likelihood.
+
+
 # vinereg 0.9.2
 
 BUG FIX

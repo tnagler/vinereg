@@ -318,10 +318,10 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
 }
 
 // [[Rcpp::export]]
-double
-cond_loglik_cpp(const Eigen::MatrixXd& u,
-                const Rcpp::List& vinecop_r,
-                size_t num_threads)
+Eigen::VectorXd
+cond_dens_cpp(const Eigen::MatrixXd& u,
+              const Rcpp::List& vinecop_r,
+              size_t num_threads)
 {
     tools_eigen::check_if_in_unit_cube(u);
     auto vinecop_cpp = vinecop_wrap(vinecop_r);
@@ -429,7 +429,16 @@ cond_loglik_cpp(const Eigen::MatrixXd& u,
         pool.join();
     }
 
-    return pdf.array().log().sum();
+    return pdf;
+}
+
+// [[Rcpp::export]]
+double
+cond_loglik_cpp(const Eigen::MatrixXd& u,
+                const Rcpp::List& vinecop_r,
+                size_t num_threads)
+{
+  return cond_dens_cpp(u, vinecop_r, num_threads).array().log().sum();
 }
 
 // [[Rcpp::export()]]

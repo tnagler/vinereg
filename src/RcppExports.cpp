@@ -79,6 +79,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cond_dens_cpp
+Eigen::VectorXd cond_dens_cpp(const Eigen::MatrixXd& u, const Rcpp::List& vinecop_r, size_t num_threads);
+RcppExport SEXP _vinereg_cond_dens_cpp(SEXP uSEXP, SEXP vinecop_rSEXP, SEXP num_threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type vinecop_r(vinecop_rSEXP);
+    Rcpp::traits::input_parameter< size_t >::type num_threads(num_threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cond_dens_cpp(u, vinecop_r, num_threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cond_loglik_cpp
 double cond_loglik_cpp(const Eigen::MatrixXd& u, const Rcpp::List& vinecop_r, size_t num_threads);
 RcppExport SEXP _vinereg_cond_loglik_cpp(SEXP uSEXP, SEXP vinecop_rSEXP, SEXP num_threadsSEXP) {
@@ -110,6 +123,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_vinereg_select_dvine_cpp", (DL_FUNC) &_vinereg_select_dvine_cpp, 11},
     {"_vinereg_cond_quantile_cpp", (DL_FUNC) &_vinereg_cond_quantile_cpp, 4},
     {"_vinereg_cond_dist_cpp", (DL_FUNC) &_vinereg_cond_dist_cpp, 3},
+    {"_vinereg_cond_dens_cpp", (DL_FUNC) &_vinereg_cond_dens_cpp, 3},
     {"_vinereg_cond_loglik_cpp", (DL_FUNC) &_vinereg_cond_loglik_cpp, 3},
     {"_vinereg_with_parameters_cop_cpp", (DL_FUNC) &_vinereg_with_parameters_cop_cpp, 2},
     {NULL, NULL, 0}

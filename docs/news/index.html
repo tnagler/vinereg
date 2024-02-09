@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.10.0</span>
       </span>
     </div>
 
@@ -61,22 +61,34 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="0.10.0" id="vinereg-0100">vinereg 0.10.0<a class="anchor" aria-label="anchor" href="#vinereg-0100"></a></h2>
+<p>NEW FEATURE</p>
+<ul><li>New function <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> to compute the conditional log-likelihood.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.9.2" id="vinereg-092">vinereg 0.9.2<small>2023-11-02</small><a class="anchor" aria-label="anchor" href="#vinereg-092"></a></h2>
+<p>BUG FIX</p>
+<ul><li>add compiler flag to prevent boost/functional from using <code>unary_function</code>.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.9.1" id="vinereg-091">vinereg 0.9.1<small>2023-10-23</small><a class="anchor" aria-label="anchor" href="#vinereg-091"></a></h2>
+<p>BUG FIX</p>
+<ul><li>fix unnecessary error when calling <code><a href="../reference/vinereg.html">vinereg()</a></code> with weights.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.9.0" id="vinereg-090">vinereg 0.9.0<a class="anchor" aria-label="anchor" href="#vinereg-090"></a></h2>
 <p>NEW FEATURE</p>
-<ul><li>New function <code><a href="../reference/cll.html">cll()</a></code> to compute the conditional
-log-likelihood.</li>
+<ul><li>New function <code><a href="../reference/cll.html">cll()</a></code> to compute the conditional log-likelihood.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.8.3" id="vinereg-083">vinereg 0.8.3<small>2022-03-23</small><a class="anchor" aria-label="anchor" href="#vinereg-083"></a></h2>
 <p>BUG FIX</p>
-<ul><li>avoid bit-wise operations on boolean variables (fixes warnings for
-clang&gt;=14).</li>
+<ul><li>avoid bit-wise operations on boolean variables (fixes warnings for clang&gt;=14).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.8.2" id="vinereg-082">vinereg 0.8.2<small>2022-03-15</small><a class="anchor" aria-label="anchor" href="#vinereg-082"></a></h2>
 <p>DEPENDS</p>
-<ul><li>require recent version of vinecopulib (&gt;= 0.6.1.1.2) to ensure
-compatible RcppThread versions.</li>
+<ul><li>require recent version of vinecopulib (&gt;= 0.6.1.1.2) to ensure compatible RcppThread versions.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.8.1" id="vinereg-081">vinereg 0.8.1<small>2022-01-22</small><a class="anchor" aria-label="anchor" href="#vinereg-081"></a></h2>
@@ -85,10 +97,10 @@ compatible RcppThread versions.</li>
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require()</a></code> calls with single argument in vignettes.</li>
 </ul><p>vinereg 0.8.0</p>
 <p>BUG FIXES</p>
-<ul><li><p>fix <code><a href="../reference/cpit.html">cpit()</a></code> (last conditioning was sometimes
-omitted).</p></li>
-<li><p>prevent <code>rvinecopulib</code> from spawning own
-threads.</p></li>
+<ul><li><p>fix <code><a href="../reference/cpit.html">cpit()</a></code> (last conditioning was sometimes omitted).</p></li>
+<li><p>prevent <code>rvinecopulib</code> from spawning own threads.</p></li>
+</ul><p>NEW FEATURES</p>
+<ul><li>add <code>uscale</code> option to allow for external marginal modeling.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.3" id="vinereg-073">vinereg 0.7.3<small>2021-02-24</small><a class="anchor" aria-label="anchor" href="#vinereg-073"></a></h2>
@@ -108,14 +120,11 @@ threads.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.1" id="vinereg-071">vinereg 0.7.1<small>2020-10-12</small><a class="anchor" aria-label="anchor" href="#vinereg-071"></a></h2>
-<p>This is a maintenance release following an update in
-rvinecopulib.</p>
+<p>This is a maintenance release following an update in rvinecopulib.</p>
 <p>DEPENDS</p>
-<ul><li>requires rvinecopulib (&gt;= 0.5.4.1.0) to fix an unitialized value
-issue.</li>
+<ul><li>requires rvinecopulib (&gt;= 0.5.4.1.0) to fix an unitialized value issue.</li>
 </ul><p>NEW FEATURES</p>
-<ul><li>variables generated from <code>factor</code>s are now named with the
-corresponding factor level.</li>
+<ul><li>variables generated from <code>factor</code>s are now named with the corresponding factor level.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.0" id="vinereg-070">vinereg 0.7.0<small>2019-12-02</small><a class="anchor" aria-label="anchor" href="#vinereg-070"></a></h2>
@@ -123,22 +132,19 @@ corresponding factor level.</li>
 <ul><li>removed dependence on future and furrr packages.</li>
 </ul><p>NEW FEATURES</p>
 <ul><li><p>faster runtimes, especially for parallelized code.</p></li>
-<li><p>handle discrete variables properly with both parametric and
-nonparametric pair-copulas.</p></li>
+<li><p>handle discrete variables properly with both parametric and nonparametric pair-copulas.</p></li>
 </ul><p>REMOVED FEATURES</p>
 <ul><li>removed support for <code>uscale</code> argument.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.6.0" id="vinereg-060">vinereg 0.6.0<a class="anchor" aria-label="anchor" href="#vinereg-060"></a></h2>
 <p>NEW FEATURES</p>
-<ul><li>new function <code><a href="../reference/cpit.html">cpit()</a></code> to compute the conditional
-cdf.</li>
+<ul><li>new function <code><a href="../reference/cpit.html">cpit()</a></code> to compute the conditional cdf.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.5.0" id="vinereg-050">vinereg 0.5.0<small>2018-08-09</small><a class="anchor" aria-label="anchor" href="#vinereg-050"></a></h2>
 <p>DEPENDS</p>
-<ul><li>require rvinecopulib (&gt;= 0.3.0) due to breaking changes in this
-package.</li>
+<ul><li>require rvinecopulib (&gt;= 0.3.0) due to breaking changes in this package.</li>
 </ul><p>BUG FIXES</p>
 <ul><li><p>prevent nan errors in loglik calculation.</p></li>
 <li><p>allow for empty and bivariate models.</p></li>
@@ -147,25 +153,18 @@ package.</li>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.4.0" id="vinereg-040">vinereg 0.4.0<a class="anchor" aria-label="anchor" href="#vinereg-040"></a></h2>
 <p>BUG FIXES</p>
-<ul><li><p>Fix handling of <code>uscale</code> in
-<code><a href="../reference/predict.vinereg.html">fitted.vinereg()</a></code>.</p></li>
-<li><p>Fix handling of <code>mult</code> parameter for pair-copula fits
-in <code><a href="../reference/vinereg.html">vinereg()</a></code>.</p></li>
+<ul><li><p>Fix handling of <code>uscale</code> in <code><a href="../reference/predict.vinereg.html">fitted.vinereg()</a></code>.</p></li>
+<li><p>Fix handling of <code>mult</code> parameter for pair-copula fits in <code><a href="../reference/vinereg.html">vinereg()</a></code>.</p></li>
 <li><p>Fix orientation of asymmetric pair-copulas.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.0" id="vinereg-030">vinereg 0.3.0<small>2018-06-02</small><a class="anchor" aria-label="anchor" href="#vinereg-030"></a></h2>
 <p>DEPENDS</p>
-<ul><li>Use <code>furrr</code> and <code>future</code> packages instead of
-<code>parallel</code>, <code>doParallel</code>, and <code>foreach</code>
-for parallelization.</li>
+<ul><li>Use <code>furrr</code> and <code>future</code> packages instead of <code>parallel</code>, <code>doParallel</code>, and <code>foreach</code> for parallelization.</li>
 </ul><p>NEW FEATURES</p>
-<ul><li><p>New <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> generics for
-<code>vinereg</code> objects.</p></li>
-<li><p>New <code><a href="../reference/plot_effects.html">plot_effects()</a></code> method to show the marginal
-effects of variables.</p></li>
-<li><p>Allow to predict the mean with
-<code>predict(object, alpha = NA)</code>.</p></li>
+<ul><li><p>New <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> generics for <code>vinereg</code> objects.</p></li>
+<li><p>New <code><a href="../reference/plot_effects.html">plot_effects()</a></code> method to show the marginal effects of variables.</p></li>
+<li><p>Allow to predict the mean with <code>predict(object, alpha = NA)</code>.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.0" id="vinereg-020">vinereg 0.2.0<small>2018-05-29</small><a class="anchor" aria-label="anchor" href="#vinereg-020"></a></h2>
@@ -185,8 +184,7 @@ effects of variables.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
