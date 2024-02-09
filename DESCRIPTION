@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.9.2
+Version: 0.10.0
 Authors@R: c(
         person("Thomas", "Nagler",, "mail@tnagler.com", role = c("aut", "cre")),
         person("Dani", "Kraus",,, role = c("ctb"))
@@ -26,7 +26,7 @@ LinkingTo:
   wdm,
   RcppThread, 
   kde1d
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
   knitr,

@@ -17,6 +17,10 @@ cond_dist_cpp <- function(u, vinecop_r, num_threads) {
     .Call(`_vinereg_cond_dist_cpp`, u, vinecop_r, num_threads)
 }
 
+cond_dens_cpp <- function(u, vinecop_r, num_threads) {
+    .Call(`_vinereg_cond_dens_cpp`, u, vinecop_r, num_threads)
+}
+
 cond_loglik_cpp <- function(u, vinecop_r, num_threads) {
     .Call(`_vinereg_cond_loglik_cpp`, u, vinecop_r, num_threads)
 }
