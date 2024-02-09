@@ -22,9 +22,9 @@ Calculates the conditional log-likelihood of the response given the covariates.
 set.seed(1)
 }
 # simulate data
-x <- matrix(rnorm(500), 250, 2)
+x <- matrix(rnorm(200), 100, 2)
 y <- x \%*\% c(1, -2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(250, 2, 0.5)))
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
 
 # fit vine regression model
 fit <- vinereg(y ~ ., dat)
