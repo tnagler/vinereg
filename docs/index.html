@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">vinereg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.10.0</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
 <div class="section level1">
 <div class="page-header"><h1 id="vinereg">vinereg<a class="anchor" aria-label="anchor" href="#vinereg"></a>
 </h1></div>
-<p><a href="https://github.com/tnagler/vinereg" class="external-link"><img src="https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg" alt="R build status"></a> <a href="https://codecov.io/github/tnagler/vinereg?branch=master" class="external-link"><img src="https://codecov.io/gh/tnagler/vinereg/branch/master/graph/badge.svg" alt="Coverage status"></a> <a href="https://cran.r-project.org/package=vinereg" class="external-link"><img src="https://www.r-pkg.org/badges/version/vinereg" alt="CRAN status"></a></p>
+<p><a href="https://github.com/tnagler/vinereg" class="external-link"><img src="https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg" alt="R build status"></a> <!-- [![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main) --> <a href="https://cran.r-project.org/package=vinereg" class="external-link"><img src="https://www.r-pkg.org/badges/version/vinereg" alt="CRAN status"></a></p>
 <p>An R package for D-vine copula based mean and quantile regression.</p>
 <div class="section level2">
 <h2 id="how-to-install">How to install<a class="anchor" aria-label="anchor" href="#how-to-install"></a>
@@ -123,27 +123,28 @@
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co"># fit model</span></span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>(fit <span class="ot">&lt;-</span> <span class="fu">vinereg</span>(mpg <span class="sc">~</span> ., <span class="at">family =</span> <span class="st">"nonpar"</span>, <span class="at">data =</span> mtcars))</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp </span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; nobs = 32, edf = 24.35, cll = -56.11, caic = 160.93, cbic = 196.63</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; D-vine regression model: mpg | disp, qsec, hp, drat </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; nobs = 32, edf = 25.6, cll = -51.94, caic = 155.08, cbic = 192.61</span></span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;    var       edf         cll       caic        cbic      p_value</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 1  mpg  0.000000 -100.189867 200.379733 200.3797334           NA</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 2 disp 12.663078   29.654825 -33.983493 -15.4227648 5.284917e-08</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 3 qsec  2.447922    4.326359  -3.756874  -0.1688666 2.101665e-02</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 4   hp  9.242147   10.096325  -1.708356  11.8381898 1.898984e-02</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co"># show marginal effects for all selected variables</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="fu">plot_effects</span>(fit)</span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula 'y ~ x'</span></span></code></pre></div>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;    var       edf         cll       caic       cbic      p_value</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 1  mpg  0.000000 -100.189867 200.379733 200.379733           NA</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 2 disp 13.187762   29.521786 -32.668047 -13.338271 9.065782e-08</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 3 qsec  2.272103    4.454079  -4.363952  -1.033648 1.559593e-02</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 4   hp  7.178554   10.836467  -7.315826   3.206038 3.267907e-03</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 5 drat  2.965553    3.441702  -0.952298   3.394419 7.382604e-02</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co"># show marginal effects for all selected variables</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="fu">plot_effects</span>(fit)</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; `geom_smooth()` using method = 'loess' and formula = 'y ~ x'</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-1-1.png" width="100%"></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># predict mean and median</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">predict</span>(fit, mtcars, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">0.5</span>)), <span class="dv">4</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;       mean      0.5</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1 22.39380 22.29866</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 2 22.23677 22.08015</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 3 25.33841 24.92450</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 4 20.33708 20.16153</span></span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1 22.58394 22.45433</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 2 22.53425 22.41825</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 3 25.10289 24.93384</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 4 20.70358 20.80241</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
