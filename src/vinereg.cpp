@@ -141,7 +141,6 @@ cond_quantile_cpp(const Eigen::VectorXd& alpha,
 
     auto trunc_lvl = vine_struct_.get_trunc_lvl();
     auto order = vine_struct_.get_order();
-    auto inverse_order = tools_stl::invert_permutation(order);
     std::vector<Eigen::VectorXd> q(alpha.size());
     for (auto& qq : q)
         qq.resize(u.rows());
@@ -245,7 +244,6 @@ cond_dist_cpp(const Eigen::MatrixXd& u,
 
     auto trunc_lvl = vine_struct_.get_trunc_lvl();
     auto order = vine_struct_.get_order();
-    auto inverse_order = tools_stl::invert_permutation(order);
 
     Eigen::VectorXd p(u.rows());
     auto do_batch = [&](const tools_batch::Batch& b) {
@@ -342,7 +340,6 @@ cond_dens_cpp(const Eigen::MatrixXd& u,
     // indexing)
     size_t trunc_lvl = rvine_structure_.get_trunc_lvl();
     auto order = rvine_structure_.get_order();
-    auto disc_cols = tools_select::get_disc_cols(var_types_);
 
     // initial value must be 1.0 for multiplication
     Eigen::VectorXd pdf = Eigen::VectorXd::Constant(u.rows(), 1.0);
@@ -363,7 +360,7 @@ cond_dens_cpp(const Eigen::MatrixXd& u,
             hfunc2.col(j) = u.block(b.begin, order[j] - 1, b.size, 1);
             if (var_types_[order[j] - 1] == "d") {
                 hfunc2_sub.col(j) =
-                  u.block(b.begin, d_ + disc_cols[order[j] - 1], b.size, 1);
+                  u.block(b.begin, d_ + order[j] - 1, b.size, 1);
             }
         }
 
