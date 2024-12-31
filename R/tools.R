@@ -179,17 +179,23 @@ process_par_1d <- function(data, pars) {
   d <- ncol(data)
   if (!is.null(pars$xmin)) {
     if (length(pars$xmin) != d)
-      stop("'xmin'  must be a vector with one value for each variable")
+      stop("'xmin' must be a vector with one value for each variable")
   } else {
     pars$xmin = rep(NaN, d)
   }
   if (!is.null(pars$xmax)) {
     if (length(pars$xmax) != d)
-      stop("'xmax'  must be a vector with one value for each variable")
+      stop("'xmax' must be a vector with one value for each variable")
   } else {
     pars$xmax = rep(NaN, d)
   }
 
+  if (!is.null(pars$type)) {
+    if (length(pars$type) != d)
+      stop("'type' must be a vector with one value for each variable")
+  } else {
+    pars$type = rep("c", d)
+  }
 
   if (is.null(pars$bw))
     pars$bw <- NA
@@ -199,11 +205,18 @@ process_par_1d <- function(data, pars) {
     pars$mult <- 1
   if (length(pars$mult) == 1)
     pars$mult <- rep(pars$mult, d)
-
   if (is.null(pars$deg))
     pars$deg <- 2
   if (length(pars$deg) == 1)
     pars$deg <- rep(pars$deg, d)
+  if (is.null(pars$type))
+    pars$type <- "c"
+  if (length(pars$type) == 1)
+    pars$type <- rep(pars$type, d)
+
+  for (k in which(sapply(data, is.ordered))) {
+    pars$type[k] <- "d"
+  }
 
   check_par_1d(data, pars)
   pars
@@ -218,19 +231,17 @@ check_par_1d <- function(data, ctrl) {
   }
   lapply(seq_len(NCOL(data)), function(k) {
     msg_var <- paste0("Problem with par_1d for variable ", nms[k], ": ")
+    allowed_margins_controls <- c("xmin", "xmax", "type", "mult", "bw", "deg")
     tryCatch(
       assert_that(
         is.numeric(ctrl$mult[k]), ctrl$mult[k] > 0,
         is.numeric(ctrl$xmin[k]), is.numeric(ctrl$xmax[k]),
+        assert_that(all(names(ctrl) %in% allowed_margins_controls)),
         is.na(ctrl$bw[k]) | (is.numeric(ctrl$bw[k]) & (ctrl$bw[k] > 0)),
         is.numeric(ctrl$deg[k])
       ),
       error = function(e) stop(msg_var, e$message)
     )
-
-    if (is.ordered(data[, k]) & (!is.nan(ctrl$xmin[k]) | !is.nan(ctrl$xmax[k]))) {
-      stop(msg_var, "xmin and xmax are not meaningful for x of type ordered.")
-    }
 
     if (!is.nan(ctrl$xmax[k]) & !is.nan(ctrl$xmin[k])) {
       if (ctrl$xmin[k] > ctrl$xmax[k]) {
