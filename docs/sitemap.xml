@@ -1,48 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/abalone-example.html</loc>
-  </url>
-  <url>
-    <loc>/articles/bike-rental.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cll.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cpdf.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cpit.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_effects.html</loc>
-  </url>
-  <url>
-    <loc>/reference/predict.vinereg.html</loc>
-  </url>
-  <url>
-    <loc>/reference/vinereg.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://tnagler.github.io/vinereg/404.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/LICENSE-text.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/articles/abalone-example.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/articles/bike-rental.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/articles/index.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/authors.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/index.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/news/index.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/cll.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/cpdf.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/cpit.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/index.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/plot_effects.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/predict.vinereg.html</loc></url>
+<url><loc>https://tnagler.github.io/vinereg/reference/vinereg.html</loc></url>
 </urlset>
+

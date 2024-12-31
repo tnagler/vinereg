@@ -1,8 +1,20 @@
+# vinereg 0.11.0
+
+DEPENDS
+
+* Adapts to new and now required versions of kde1d (>= 1.1.0) and 
+ rvinecopulib (>= 0.7.0.1.0).
+
+BUG FIX
+
+* Fixed conditional density computations for discrete variables (#17, thanks 
+  @FLBuchner.)
+
 # vinereg 0.10.0
 
 NEW FEATURE
 
- * New function `pdf()` to compute the conditional log-likelihood.
+* New function `pdf()` to compute the conditional log-likelihood.
 
 
 # vinereg 0.9.2
