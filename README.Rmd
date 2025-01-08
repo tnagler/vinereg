@@ -76,7 +76,7 @@ vignette("bike-rental", package = "vinereg")
 
 Kraus and Czado (2017). D-vine copula based quantile regression.
 *Computational Statistics \& Data Analysis*, 110, 1-18. 
-[link](https://www.sciencedirect.com/science/article/pii/S0167947316303073), 
+[link](https://doi.org/10.1016/j.csda.2016.12.009), 
 [preprint](https://arxiv.org/abs/1510.04161)
 
 Schallhorn, N., Kraus, D., Nagler, T., Czado, C. (2017). D-vine quantile 
