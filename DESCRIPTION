@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.10.0
+Version: 0.11.0
 Authors@R: c(
         person("Thomas", "Nagler",, "mail@tnagler.com", role = c("aut", "cre")),
         person("Dani", "Kraus",,, role = c("ctb"))
@@ -11,11 +11,11 @@ Description:
   Implements D-vine quantile regression models with
   parametric or nonparametric pair-copulas. See 
   Kraus and Czado (2017) <doi:10.1016/j.csda.2016.12.009> and
-  Schallhorn et al. (2017) <arXiv:1705.08310>.
+  Schallhorn et al. (2017) <doi:10.48550/arXiv.1705.08310>.
 License: GPL-3
 Imports: 
   rvinecopulib (>= 0.6.1.1.2), 
-  kde1d (>= 1.0.2),
+  kde1d (>= 1.1.0),
   Rcpp,
   assertthat
 LinkingTo: 

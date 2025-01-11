@@ -131,14 +131,14 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     if (!uscale) {
       par_1d <- process_par_1d(mfx, par_1d)
       margins <- fit_margins_cpp(prep_for_kde1d(mfx),
-                                 sapply(mfx, nlevels),
-                                 mult = par_1d$mult,
                                  xmin = par_1d$xmin,
                                  xmax = par_1d$xmax,
+                                 type = par_1d$type,
+                                 mult = par_1d$mult,
                                  bw = par_1d$bw,
                                  deg = par_1d$deg,
                                  weights = weights,
-                                 cores)
+                                 num_threads = cores)
       margins <- finalize_margins(margins, mfx)
       u <- to_uscale(mfx, margins)
     } else {
@@ -166,14 +166,14 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     if (!uscale) {
       par_1d <- process_par_1d(mfx, par_1d)
       margins <- fit_margins_cpp(prep_for_kde1d(mfx),
-                                 sapply(mfx, nlevels),
-                                 mult = par_1d$mult,
                                  xmin = par_1d$xmin,
                                  xmax = par_1d$xmax,
+                                 type = par_1d$type,
+                                 mult = par_1d$mult,
                                  bw = par_1d$bw,
                                  deg = par_1d$deg,
                                  weights = weights,
-                                 cores)
+                                 num_threads = cores)
       margins <- finalize_margins(margins, mfx)
       u <- to_uscale(mfx, margins)
     }  else {
