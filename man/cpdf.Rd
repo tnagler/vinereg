@@ -22,7 +22,7 @@ Calculates the conditional density of the response given the covariates.
 set.seed(1)
 }
 # simulate data
-x <- matrix(rnorm(200), 100, 2)
+x <- matrix(rnorm(100), 50, 2)
 y <- x \%*\% c(1, -2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
 

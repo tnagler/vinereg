@@ -2,8 +2,7 @@
 
 DEPENDS
 
-* Adapts to new and now required versions of kde1d (>= 1.1.0) and 
- rvinecopulib (>= 0.7.0.1.0).
+* Adapts to new and now required version of kde1d (>= 1.1.0).
 
 BUG FIX
 
