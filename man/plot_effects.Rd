@@ -21,7 +21,7 @@ is meant with respect to all other variables.
 # simulate data
 x <- matrix(rnorm(100), 50, 2)
 y <- x \%*\% c(1, -2)
-dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 2, 0.5)))
 
 # fit vine regression model
 fit <- vinereg(y ~ ., dat)
