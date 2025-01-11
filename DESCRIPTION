@@ -14,7 +14,7 @@ Description:
   Schallhorn et al. (2017) <doi:10.48550/arXiv.1705.08310>.
 License: GPL-3
 Imports: 
-  rvinecopulib (>= 0.7.0.1.0), 
+  rvinecopulib (>= 0.6.1.1.2), 
   kde1d (>= 1.1.0),
   Rcpp,
   assertthat
