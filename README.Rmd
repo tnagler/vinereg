@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
 ```
 
 # vinereg
-[![R build status](https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/vinereg)
-<!-- [![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main) -->
+[![R-CMD-check](https://github.com/tnagler/vinereg/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/tnagler/vinereg/actions/workflows/R-CMD-check.yaml)
+[![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main)
 [![CRAN status](https://www.r-pkg.org/badges/version/vinereg)](https://cran.r-project.org/package=vinereg)
 
 An R package for D-vine copula based mean and quantile regression.

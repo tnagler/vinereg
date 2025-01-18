@@ -2,9 +2,9 @@
 
 # vinereg
 
-[![R build
-status](https://github.com/tnagler/vinereg/workflows/R-CMD-check/badge.svg)](https://github.com/tnagler/vinereg)
-<!-- [![Coverage status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main) -->
+[![R-CMD-check](https://github.com/tnagler/vinereg/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/tnagler/vinereg/actions/workflows/R-CMD-check.yaml)
+[![Coverage
+status](https://codecov.io/gh/tnagler/vinereg/branch/main/graph/badge.svg)](https://app.codecov.io/github/tnagler/vinereg?branch=main)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/vinereg)](https://cran.r-project.org/package=vinereg)
 
@@ -38,16 +38,16 @@ See the [package website](https://tnagler.github.io/vinereg/).
 
     # fit model
     (fit <- vinereg(mpg ~ ., family = "nonpar", data = mtcars))
-    #> D-vine regression model: mpg | wt, qsec, drat, gear 
-    #> nobs = 32, edf = 23.63, cll = -55.86, caic = 158.98, cbic = 193.62
+    #> D-vine regression model: mpg | disp, qsec, hp, drat 
+    #> nobs = 32, edf = 18.39, cll = -50.08, caic = 136.93, cbic = 163.88
 
     summary(fit)
-    #>    var       edf         cll       caic        cbic      p_value
-    #> 1  mpg  0.000000 -100.135440 200.270879 200.2708794           NA
-    #> 2   wt 11.452248   28.706110 -34.507723 -17.7217520 4.161832e-08
-    #> 3 qsec  6.091637    7.596924  -3.010573   5.9181583 1.990142e-02
-    #> 4 drat  5.089693    5.742895  -1.306405   6.1537401 4.494112e-02
-    #> 5 gear  1.000000    2.232423  -2.464845  -0.9991094 3.459922e-02
+    #>    var      edf         cll       caic       cbic      p_value
+    #> 1  mpg 0.000000 -100.135440 200.270879 200.270879           NA
+    #> 2 disp 8.391335   31.185601 -45.588532 -33.289052 2.446502e-10
+    #> 3 qsec 1.624310    3.907191  -4.565762  -2.184953 1.300182e-02
+    #> 4   hp 7.371096   11.928452  -9.114713   1.689367 1.576882e-03
+    #> 5 drat 1.000000    3.038036  -4.076071  -2.610335 1.370252e-02
 
     # show marginal effects for all selected variables
     plot_effects(fit)
@@ -59,10 +59,10 @@ See the [package website](https://tnagler.github.io/vinereg/).
     # predict mean and median
     head(predict(fit, mtcars, alpha = c(NA, 0.5)), 4)
     #>       mean      0.5
-    #> 1 23.38467 23.04676
-    #> 2 22.69125 22.36638
-    #> 3 26.29842 26.10553
-    #> 4 20.62143 20.63283
+    #> 1 22.46158 22.35297
+    #> 2 22.45410 22.35836
+    #> 3 24.89114 24.60640
+    #> 4 20.44469 20.44982
 
 ## Vignettes
 
