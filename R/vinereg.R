@@ -120,6 +120,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     modifyList(arg, list(...))
   )$controls
   ctrl$weights <- numeric()
+  # ctrl$allow_rotations <- NULL
 
   if (!all(is.na(order))) {
     check_order(order, names(mfx))
@@ -181,6 +182,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
       u <- as.matrix(mfx)
     }
 
+    ctrl <- ctrl[names(ctrl) %in% names(formals(vinereg:::select_dvine_cpp))]
     args <- modifyList(
       ctrl,
       list(data = u, var_types = var_types, cores = cores, weights = weights)

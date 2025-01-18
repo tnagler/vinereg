@@ -1,3 +1,9 @@
+# vinereg 0.12.0
+
+DEPENDS
+
+* Adapts to new and now required version of rvinecopulib (>= 0.7.1.1.0).
+
 # vinereg 0.11.0
 
 DEPENDS
