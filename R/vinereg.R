@@ -113,6 +113,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     mult = 1,
     psi0 = 0.9,
     presel = TRUE,
+    allow_rotations = TRUE,
     keep_data = FALSE
   )
   ctrl <- do.call(
@@ -120,6 +121,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     modifyList(arg, list(...))
   )$controls
   ctrl$weights <- numeric()
+  ctrl$allow_rotations <- TRUE
 
   if (!all(is.na(order))) {
     check_order(order, names(mfx))

@@ -71,6 +71,7 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
                  const Eigen::VectorXd& weights,
                  double psi0,
                  bool preselect_families,
+                 bool allow_rotations,
                  size_t cores,
                  const std::vector<std::string>& var_types)
 {
@@ -87,6 +88,7 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
                               weights,
                               psi0,
                               preselect_families,
+                              allow_rotations,
                               cores);
 
     // select the model -----------------------------------------
