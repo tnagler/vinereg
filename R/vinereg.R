@@ -54,7 +54,7 @@
 #' # simulate data
 #' x <- matrix(rnorm(100), 50, 2)
 #' y <- x %*% c(1, -2)
-#' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(100, 2, 0.5)))
+#' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 2, 0.5)))
 #'
 #' # fit vine regression model
 #' (fit <- vinereg(y ~ ., dat))
@@ -120,6 +120,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     modifyList(arg, list(...))
   )$controls
   ctrl$weights <- numeric()
+  # ctrl$allow_rotations <- NULL
 
   if (!all(is.na(order))) {
     check_order(order, names(mfx))
@@ -181,6 +182,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
       u <- as.matrix(mfx)
     }
 
+    ctrl <- ctrl[names(ctrl) %in% names(formals(vinereg:::select_dvine_cpp))]
     args <- modifyList(
       ctrl,
       list(data = u, var_types = var_types, cores = cores, weights = weights)
