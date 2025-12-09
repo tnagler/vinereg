@@ -56,6 +56,7 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
                  const Eigen::VectorXd& weights,
                  double psi0,
                  bool presel,
+                 bool allow_rotations,
                  size_t cores,
                  const std::vector<std::string>& var_types)
 {
@@ -64,19 +65,16 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
     for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
         fam_set[fam] = to_cpp_family(family_set[fam]);
     }
-    FitControlsBicop controls(
-      FitControlsConfig{
-        .family_set = fam_set,
-        .parametric_method = par_method,
-        .nonparametric_method = nonpar_method,
-        .nonparametric_mult = mult,
-        .selection_criterion = selcrit,
-        .weights = weights,
-        .psi0 = psi0,
-        .preselect_families = presel,
-        .num_threads = cores
-      }
-    );
+    FitControlsBicop controls(fam_set,
+                              par_method,
+                              nonpar_method,
+                              mult,
+                              selcrit,
+                              weights,
+                              psi0,
+                              presel,
+                              allow_rotations,
+                              cores);
 
     // select the model -----------------------------------------
     vinereg::DVineRegSelector selector(data, var_types, controls);

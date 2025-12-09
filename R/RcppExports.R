@@ -5,8 +5,8 @@ fit_margins_cpp <- function(data, xmin, xmax, type, mult, bw, deg, weights, num_
     .Call(`_vinereg_fit_margins_cpp`, data, xmin, xmax, type, mult, bw, deg, weights, num_threads)
 }
 
-select_dvine_cpp <- function(data, family_set, par_method, nonpar_method, mult, selcrit, weights, psi0, presel, cores, var_types) {
-    .Call(`_vinereg_select_dvine_cpp`, data, family_set, par_method, nonpar_method, mult, selcrit, weights, psi0, presel, cores, var_types)
+select_dvine_cpp <- function(data, family_set, par_method, nonpar_method, mult, selcrit, weights, psi0, presel, allow_rotations, cores, var_types) {
+    .Call(`_vinereg_select_dvine_cpp`, data, family_set, par_method, nonpar_method, mult, selcrit, weights, psi0, presel, allow_rotations, cores, var_types)
 }
 
 cond_quantile_cpp <- function(alpha, u, vinecop_r, num_threads) {
