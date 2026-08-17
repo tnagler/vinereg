@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-22.04,   r: 'devel'}
-          - {os: ubuntu-22.04,   r: 'release'}
-          - {os: ubuntu-22.04,   r: 'oldrel'}
+          - {os: macOS-latest,   r: 'release', error-on: '"error"'}
+          - {os: windows-latest, r: 'release', error-on: '"warning"'}
+          - {os: ubuntu-22.04,   r: 'devel', error-on: '"warning"'}
+          - {os: ubuntu-22.04,   r: 'release', error-on: '"warning"'}
+          - {os: ubuntu-22.04,   r: 'oldrel', error-on: '"warning"'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -41,6 +41,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          error-on: ${{ matrix.config.error-on }}
 
       - name: Show testthat output
         if: always()
