@@ -26,6 +26,24 @@ test_that("catches wrong arguments", {
   expect_error(vinereg(z ~ .))
 })
 
+test_that("requires formulas with untransformed variable names", {
+  expect_error(
+    vinereg(y ~ log(x.1), dat),
+    "untransformed variable names",
+    fixed = TRUE
+  )
+  expect_error(
+    vinereg(y ~ x.1 * x.2, dat),
+    "untransformed variable names",
+    fixed = TRUE
+  )
+
+  dat$log_x1 <- log(abs(dat$x.1) + 1)
+  expect_silent(
+    vinereg(y ~ log_x1, dat, family_set = "gauss", order = "log_x1")
+  )
+})
+
 test_that("all selcrits work", {
   order <- c("x.3", "x.1")
   for (selcrit in c("loglik", "aic", "bic")) {
@@ -58,6 +76,39 @@ test_that("works with fixed order", {
   expect_equal(summary(fit_auto$vine), summary(fit_ord$vine), tolerance = 1e-7)
 })
 
+test_that("accepts original and expanded factor names in fixed orders", {
+  mf <- model.frame(y ~ z + x.1, dat)
+  factor_map <- attr(vinereg:::expand_factors(mf), "factor_map")
+  expanded_order <- c(factor_map$z, "x.1")
+
+  fit_original <- vinereg(
+    y ~ z + x.1,
+    dat,
+    family_set = "gauss",
+    order = c("z", "x.1")
+  )
+  fit_expanded <- vinereg(
+    y ~ z + x.1,
+    dat,
+    family_set = "gauss",
+    order = expanded_order
+  )
+
+  expect_equal(fit_original$order, expanded_order)
+  expect_equal(fit_original$factor_map$z, factor_map$z)
+  expect_equal(fit_original$order, fit_expanded$order)
+  expect_error(
+    vinereg(
+      y ~ z + x.1,
+      dat,
+      family_set = "gauss",
+      order = c("z", factor_map$z[1])
+    ),
+    "duplicate variable names",
+    fixed = TRUE
+  )
+})
+
 test_that("works in parallel", {
   fit <- vinereg(y ~ ., dat[-5])
   fit_par <- vinereg(y ~ ., dat[-5], family = "par", cores = 2)
@@ -74,4 +125,53 @@ test_that("works with weights", {
   set.seed(2)
   ww <- rep(1, nrow(dat))
   expect_silent(fit <- vinereg(formula=y ~ ., data=dat, weights = ww))
+})
+
+test_that("aligns weights with omitted observations", {
+  dat_missing <- dat
+  dat_missing$x.1[2] <- NA
+  weights <- seq_len(nrow(dat_missing))
+  used <- complete.cases(dat_missing[, c("y", "x.1")])
+
+  fit_full <- vinereg(
+    y ~ x.1,
+    dat_missing,
+    weights = weights,
+    family_set = "gauss",
+    order = "x.1"
+  )
+  fit_used <- vinereg(
+    y ~ x.1,
+    dat_missing[used, ],
+    weights = weights[used],
+    family_set = "gauss",
+    order = "x.1"
+  )
+
+  expect_equal(fit_full$stats$nobs, sum(used))
+  expect_equal(summary(fit_full$vine), summary(fit_used$vine))
+})
+
+test_that("omits missing weights and rejects invalid weights", {
+  weights <- rep(1, nrow(dat))
+  weights[2] <- NA
+  fit <- vinereg(
+    y ~ x.1,
+    dat,
+    weights = weights,
+    family_set = "gauss",
+    order = "x.1"
+  )
+  expect_equal(fit$stats$nobs, nrow(dat) - 1)
+
+  expect_error(
+    vinereg(y ~ x.1, dat, weights = weights[-1]),
+    "one value for every row",
+    fixed = TRUE
+  )
+  expect_error(
+    vinereg(y ~ x.1, dat, weights = c(-1, rep(1, nrow(dat) - 1))),
+    "finite and nonnegative",
+    fixed = TRUE
+  )
 })

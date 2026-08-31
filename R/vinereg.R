@@ -77,7 +77,7 @@
 #' @export
 #'
 #' @importFrom kde1d kde1d pkde1d
-#' @importFrom stats model.frame logLik
+#' @importFrom stats logLik model.frame terms
 #' @importFrom utils modifyList
 #' @importFrom rvinecopulib bicop vinecop dvine_structure
 #' @importFrom Rcpp sourceCpp
@@ -87,10 +87,16 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
                     cores = 1, ..., uscale = FALSE) {
   # remove unused variables
   if (!missing(data)) {
+    check_formula(formula, data)
     mf <- model.frame(formula, data)
   } else {
-    mf <- model.frame(formula, parent.frame())
+    data_env <- parent.frame()
+    check_formula(formula, data_env)
+    mf <- model.frame(formula, data_env)
   }
+  fit_data <- align_weights(mf, weights)
+  mf <- fit_data$model_frame
+  weights <- fit_data$weights
   if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
     stop("response must be numeric or ordered")
   if (any(sapply(mf, is.factor)) && uscale)
@@ -98,6 +104,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
 
   # expand factors and deduce variable types
   mfx <- expand_factors(mf)
+  factor_map <- attr(mfx, "factor_map")
   d <- ncol(mfx)
   var_types <- rep("c", d)
   var_types[sapply(mfx, is.ordered)] <- "d"
@@ -121,6 +128,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
   ctrl$allow_rotations <- if (!is.null(arg$allow_rotations)) arg$allow_rotations else TRUE
 
   if (!all(is.na(order))) {
+    order <- expand_order(order, factor_map)
     check_order(order, names(mfx))
 
     selected_vars <- which(names(mfx) %in% order)
@@ -197,15 +205,66 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     margins = margins,
     vine = fit$vine,
     selected_vars = fit$selected_vars,
-    var_nms = colnames(mfx)
+    var_nms = colnames(mfx),
+    factor_map = factor_map
   )
+}
+
+align_weights <- function(model_frame, weights) {
+  if (length(weights) == 0) {
+    return(list(model_frame = model_frame, weights = weights))
+  }
+  if (!is.numeric(weights)) {
+    stop("'weights' must be numeric.", call. = FALSE)
+  }
+
+  omitted <- as.integer(attr(model_frame, "na.action"))
+  n_used <- nrow(model_frame)
+  n_original <- n_used + length(omitted)
+  if (length(weights) == n_original) {
+    if (length(omitted) > 0) {
+      weights <- weights[-omitted]
+    }
+  } else if (length(weights) != n_used) {
+    stop(
+      "'weights' must have one value for every row in 'data' or the model frame.",
+      call. = FALSE
+    )
+  }
+
+  missing_weights <- is.na(weights)
+  if (any(missing_weights)) {
+    model_frame <- model_frame[!missing_weights, , drop = FALSE]
+    weights <- weights[!missing_weights]
+  }
+  if (any(!is.finite(weights)) || any(weights < 0)) {
+    stop("'weights' must be finite and nonnegative.", call. = FALSE)
+  }
+
+  list(model_frame = model_frame, weights = weights)
+}
+
+check_formula <- function(formula, data) {
+  formula_terms <- terms(formula, data = data)
+  variables <- as.list(attr(formula_terms, "variables"))[-1]
+  has_response <- attr(formula_terms, "response") == 1
+  has_only_names <- all(vapply(variables, is.name, logical(1)))
+  has_only_main_effects <- all(attr(formula_terms, "order") <= 1)
+
+  if (!has_response || !has_only_names || !has_only_main_effects) {
+    stop(
+      "'formula' must contain a response and untransformed variable names; ",
+      "compute transformations and interactions in 'data' before fitting.",
+      call. = FALSE
+    )
+  }
 }
 
 #' @noRd
 #' @importFrom stats pchisq
 #' @importFrom rvinecopulib as_rvine_structure
 finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine,
-                                    selected_vars, var_nms) {
+                                    selected_vars, var_nms, factor_map) {
   vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
   nobs <- nrow(model_frame)
   vine$nobs <- nobs
@@ -250,10 +309,17 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
     vine = vine,
     stats = stats,
     order = var_nms[selected_vars],
-    selected_vars = selected_vars
+    selected_vars = selected_vars,
+    factor_map = factor_map
   )
   class(out) <- "vinereg"
   out
+}
+
+expand_order <- function(order, factor_map) {
+  unname(unlist(lapply(order, function(x) {
+    if (x %in% names(factor_map)) factor_map[[x]] else x
+  })))
 }
 
 check_order <- function(order, var_nms) {

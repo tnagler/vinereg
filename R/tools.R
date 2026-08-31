@@ -171,7 +171,13 @@ expand_factors <- function(data) {
       x
     })
   }
-  as.data.frame(data)
+  widths <- vapply(data, function(x) if (is.list(x)) length(x) else 1L, integer(1))
+  owners <- rep(names(data), widths)
+  data <- as.data.frame(data)
+  factor_map <- lapply(names(widths), function(x) names(data)[owners == x])
+  names(factor_map) <- names(widths)
+  attr(data, "factor_map") <- factor_map
+  data
 }
 
 
