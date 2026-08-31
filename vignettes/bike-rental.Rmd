@@ -5,7 +5,7 @@ author: "Dani Kraus and Thomas Nagler"
 date: "November 8, 2017"
 output: rmarkdown::html_vignette
 vignette: >
-    %\VignetteIndexEntry{Analysis of bike rental data}
+    %\VignetteIndexEntry{D-vine quantile regression with discrete variables: analysis of bike rental data}
     %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -186,5 +186,4 @@ season_labs <- c("spring", "summer", "fall", "winter")
 plot_marginal_effects(covs = select(bikedata, season), preds = pred) +
     scale_x_discrete(limits = 1:4, labels = season_labs)
 ```
-
 

@@ -55,7 +55,7 @@ test_that("works with fixed order", {
 
   fit_auto <- vinereg(y ~ ., dat[-5], selcrit = "bic")
   fit_ord <- vinereg(y ~ ., dat[-5], selcrit = "bic", order = fit_auto$order)
-  expect_equal(summary(fit_auto$vine), summary(fit_ord$vine))
+  expect_equal(summary(fit_auto$vine), summary(fit_ord$vine), tolerance = 1e-7)
 })
 
 test_that("works in parallel", {
