@@ -34,7 +34,7 @@
 #' @importFrom stats predict
 predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
   if (missing(newdata)) {
-    return(fitted.vinereg(object, alpha = alpha))
+    return(fitted.vinereg(object, alpha = alpha, cores = cores, ...))
   }
 
   stopifnot(length(alpha) > 0)
@@ -45,7 +45,7 @@ predict.vinereg <- function(object, newdata, alpha = 0.5, cores = 1, ...) {
   # predict the conditional mean if alpha contains NA
   if (any(is.na(alpha))) {
     alpha <- alpha[!is.na(alpha)] # remove NA for quantile estimation
-    preds_mean <- predict_mean(object, newdata)
+    preds_mean <- predict_mean(object, newdata, cores)
   } else {
     preds_mean <- NULL
   }
@@ -80,8 +80,8 @@ fitted.vinereg <- function(object, alpha = 0.5, ...) {
 
 #' predicts the conditional mean as the average of quantiles.
 #' @noRd
-predict_mean <- function(object, newdata) {
-  preds <- predict.vinereg(object, newdata, alpha = 1:10 / 11)
+predict_mean <- function(object, newdata, cores = 1) {
+  preds <- predict.vinereg(object, newdata, alpha = 1:10 / 11, cores = cores)
   data.frame(mean = rowMeans(preds))
 }
 

@@ -87,3 +87,25 @@ test_that("works on uscale", {
   fit <- vinereg(y ~ ., dat, uscale = TRUE)
   expect_equal(cll(fit, dat), fit$stats$cll)
 })
+
+
+context("cpdf()")
+
+# simulate data
+set.seed(3)
+x <- matrix(rnorm(30), 10, 3)
+y <- x %*% c(1, -1, 2)
+dat <- data.frame(y = y, x = x, z = as.factor(rbinom(10, 3, 0.5)))
+fit <- vinereg(y ~ ., family = "gauss", dat)
+
+test_that("matches the conditional log-likelihood", {
+  expect_equal(sum(log(cpdf(fit, dat))), cll(fit, dat))
+})
+
+test_that("works with a discrete response", {
+  dat$y <- as.ordered(round(dat$y))
+  fit <- vinereg(y ~ ., dat, fam = "gauss")
+  dens <- cpdf(fit, dat)
+  expect_true(all(is.finite(dens) & dens >= 0))
+  expect_equal(sum(log(dens)), cll(fit, dat))
+})

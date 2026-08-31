@@ -31,6 +31,17 @@ test_that("handles alpha correctly", {
   expect_error(predict(fit, alpha = 1.1))
 })
 
+test_that("mean prediction works in parallel", {
+  expect_equal(
+    predict(fit, dat, alpha = NA, cores = 2),
+    predict(fit, dat, alpha = NA, cores = 1)
+  )
+  expect_equal(
+    predict(fit, alpha = NA, cores = 2),
+    fitted(fit, alpha = NA, cores = 2)
+  )
+})
+
 test_that("works in bivariate case", {
   fit <- vinereg(y ~ ., dat[1:2])
   expect_silent(predict(fit, dat[2]))
@@ -59,4 +70,3 @@ test_that("works on uscale", {
   q <- predict(fit, dat)
   expect_true(all(q >= 0 & q <= 1))
 })
-
