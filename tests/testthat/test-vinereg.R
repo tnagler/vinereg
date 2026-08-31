@@ -76,6 +76,39 @@ test_that("works with fixed order", {
   expect_equal(summary(fit_auto$vine), summary(fit_ord$vine), tolerance = 1e-7)
 })
 
+test_that("accepts original and expanded factor names in fixed orders", {
+  mf <- model.frame(y ~ z + x.1, dat)
+  factor_map <- attr(vinereg:::expand_factors(mf), "factor_map")
+  expanded_order <- c(factor_map$z, "x.1")
+
+  fit_original <- vinereg(
+    y ~ z + x.1,
+    dat,
+    family_set = "gauss",
+    order = c("z", "x.1")
+  )
+  fit_expanded <- vinereg(
+    y ~ z + x.1,
+    dat,
+    family_set = "gauss",
+    order = expanded_order
+  )
+
+  expect_equal(fit_original$order, expanded_order)
+  expect_equal(fit_original$factor_map$z, factor_map$z)
+  expect_equal(fit_original$order, fit_expanded$order)
+  expect_error(
+    vinereg(
+      y ~ z + x.1,
+      dat,
+      family_set = "gauss",
+      order = c("z", factor_map$z[1])
+    ),
+    "duplicate variable names",
+    fixed = TRUE
+  )
+})
+
 test_that("works in parallel", {
   fit <- vinereg(y ~ ., dat[-5])
   fit_par <- vinereg(y ~ ., dat[-5], family = "par", cores = 2)

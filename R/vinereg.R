@@ -104,6 +104,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
 
   # expand factors and deduce variable types
   mfx <- expand_factors(mf)
+  factor_map <- attr(mfx, "factor_map")
   d <- ncol(mfx)
   var_types <- rep("c", d)
   var_types[sapply(mfx, is.ordered)] <- "d"
@@ -127,6 +128,7 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
   ctrl$allow_rotations <- if (!is.null(arg$allow_rotations)) arg$allow_rotations else TRUE
 
   if (!all(is.na(order))) {
+    order <- expand_order(order, factor_map)
     check_order(order, names(mfx))
 
     selected_vars <- which(names(mfx) %in% order)
@@ -203,7 +205,8 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     margins = margins,
     vine = fit$vine,
     selected_vars = fit$selected_vars,
-    var_nms = colnames(mfx)
+    var_nms = colnames(mfx),
+    factor_map = factor_map
   )
 }
 
@@ -261,7 +264,7 @@ check_formula <- function(formula, data) {
 #' @importFrom stats pchisq
 #' @importFrom rvinecopulib as_rvine_structure
 finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine,
-                                    selected_vars, var_nms) {
+                                    selected_vars, var_nms, factor_map) {
   vine$names <- c(var_nms[1], var_nms[sort(selected_vars)])
   nobs <- nrow(model_frame)
   vine$nobs <- nobs
@@ -306,10 +309,17 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
     vine = vine,
     stats = stats,
     order = var_nms[selected_vars],
-    selected_vars = selected_vars
+    selected_vars = selected_vars,
+    factor_map = factor_map
   )
   class(out) <- "vinereg"
   out
+}
+
+expand_order <- function(order, factor_map) {
+  unname(unlist(lapply(order, function(x) {
+    if (x %in% names(factor_map)) factor_map[[x]] else x
+  })))
 }
 
 check_order <- function(order, var_nms) {
