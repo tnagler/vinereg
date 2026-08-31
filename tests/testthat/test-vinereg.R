@@ -26,6 +26,24 @@ test_that("catches wrong arguments", {
   expect_error(vinereg(z ~ .))
 })
 
+test_that("requires formulas with untransformed variable names", {
+  expect_error(
+    vinereg(y ~ log(x.1), dat),
+    "untransformed variable names",
+    fixed = TRUE
+  )
+  expect_error(
+    vinereg(y ~ x.1 * x.2, dat),
+    "untransformed variable names",
+    fixed = TRUE
+  )
+
+  dat$log_x1 <- log(abs(dat$x.1) + 1)
+  expect_silent(
+    vinereg(y ~ log_x1, dat, family_set = "gauss", order = "log_x1")
+  )
+})
+
 test_that("all selcrits work", {
   order <- c("x.3", "x.1")
   for (selcrit in c("loglik", "aic", "bic")) {

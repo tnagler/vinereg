@@ -77,7 +77,7 @@
 #' @export
 #'
 #' @importFrom kde1d kde1d pkde1d
-#' @importFrom stats model.frame logLik
+#' @importFrom stats logLik model.frame terms
 #' @importFrom utils modifyList
 #' @importFrom rvinecopulib bicop vinecop dvine_structure
 #' @importFrom Rcpp sourceCpp
@@ -87,9 +87,12 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
                     cores = 1, ..., uscale = FALSE) {
   # remove unused variables
   if (!missing(data)) {
+    check_formula(formula, data)
     mf <- model.frame(formula, data)
   } else {
-    mf <- model.frame(formula, parent.frame())
+    data_env <- parent.frame()
+    check_formula(formula, data_env)
+    mf <- model.frame(formula, data_env)
   }
   if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
     stop("response must be numeric or ordered")
@@ -199,6 +202,22 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     selected_vars = fit$selected_vars,
     var_nms = colnames(mfx)
   )
+}
+
+check_formula <- function(formula, data) {
+  formula_terms <- terms(formula, data = data)
+  variables <- as.list(attr(formula_terms, "variables"))[-1]
+  has_response <- attr(formula_terms, "response") == 1
+  has_only_names <- all(vapply(variables, is.name, logical(1)))
+  has_only_main_effects <- all(attr(formula_terms, "order") <= 1)
+
+  if (!has_response || !has_only_names || !has_only_main_effects) {
+    stop(
+      "'formula' must contain a response and untransformed variable names; ",
+      "compute transformations and interactions in 'data' before fitting.",
+      call. = FALSE
+    )
+  }
 }
 
 #' @noRd
