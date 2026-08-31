@@ -8,3 +8,4 @@ inst/doc
 *.so
 *.gcda
 *.gcno
+/docs/
