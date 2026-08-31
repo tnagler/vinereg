@@ -24,7 +24,8 @@ jobs:
       matrix:
         config:
           - {os: macos-latest,   r: 'release', error-on: '"error"'}
-          - {os: macos-latest,   r: 'oldrel',  error-on: '"warning"'}
+          # Xcode 26 warns in nlohmann_json.hpp bundled by CRAN rvinecopulib.
+          - {os: macos-latest,   r: 'oldrel',  error-on: '"error"'}
           - {os: windows-latest, r: 'release', error-on: '"warning"'}
           - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release', error-on: '"warning"'}
           - {os: ubuntu-latest,  r: 'release', error-on: '"warning"'}
