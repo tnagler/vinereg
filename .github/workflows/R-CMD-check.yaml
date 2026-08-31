@@ -1,6 +1,17 @@
-on: [push, pull_request]
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 name: R-CMD-check
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   R-CMD-check:
@@ -12,18 +23,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release', error-on: '"error"'}
+          - {os: macos-latest,   r: 'release', error-on: '"error"'}
+          - {os: macos-latest,   r: 'oldrel',  error-on: '"warning"'}
           - {os: windows-latest, r: 'release', error-on: '"warning"'}
-          - {os: ubuntu-22.04,   r: 'devel', error-on: '"warning"'}
-          - {os: ubuntu-22.04,   r: 'release', error-on: '"warning"'}
-          - {os: ubuntu-22.04,   r: 'oldrel', error-on: '"warning"'}
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release', error-on: '"warning"'}
+          - {os: ubuntu-latest,  r: 'release', error-on: '"warning"'}
+          - {os: ubuntu-latest,  r: 'oldrel', error-on: '"warning"'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -35,12 +47,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, any::remotes
+          extra-packages: any::rcmdcheck
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
-          upload-snapshots: true
           error-on: ${{ matrix.config.error-on }}
 
       - name: Show testthat output
@@ -50,13 +61,7 @@ jobs:
 
       - name: Upload check results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: check
-
-      - name: Test coverage
-        if: matrix.config.os == 'macOS-latest'
-        run: |
-          Rscript -e 'remotes::install_github("r-lib/covr@gh-actions")'
-          Rscript -e 'covr::codecov(token = "${{secrets.CODECOV_TOKEN}}")'
