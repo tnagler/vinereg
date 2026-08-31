@@ -94,6 +94,9 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     check_formula(formula, data_env)
     mf <- model.frame(formula, data_env)
   }
+  fit_data <- align_weights(mf, weights)
+  mf <- fit_data$model_frame
+  weights <- fit_data$weights
   if (!(is.ordered(mf[[1]]) | is.numeric(mf[[1]])))
     stop("response must be numeric or ordered")
   if (any(sapply(mf, is.factor)) && uscale)
@@ -202,6 +205,40 @@ vinereg <- function(formula, data, family_set = "parametric", selcrit = "aic",
     selected_vars = fit$selected_vars,
     var_nms = colnames(mfx)
   )
+}
+
+align_weights <- function(model_frame, weights) {
+  if (length(weights) == 0) {
+    return(list(model_frame = model_frame, weights = weights))
+  }
+  if (!is.numeric(weights)) {
+    stop("'weights' must be numeric.", call. = FALSE)
+  }
+
+  omitted <- as.integer(attr(model_frame, "na.action"))
+  n_used <- nrow(model_frame)
+  n_original <- n_used + length(omitted)
+  if (length(weights) == n_original) {
+    if (length(omitted) > 0) {
+      weights <- weights[-omitted]
+    }
+  } else if (length(weights) != n_used) {
+    stop(
+      "'weights' must have one value for every row in 'data' or the model frame.",
+      call. = FALSE
+    )
+  }
+
+  missing_weights <- is.na(weights)
+  if (any(missing_weights)) {
+    model_frame <- model_frame[!missing_weights, , drop = FALSE]
+    weights <- weights[!missing_weights]
+  }
+  if (any(!is.finite(weights)) || any(weights < 0)) {
+    stop("'weights' must be finite and nonnegative.", call. = FALSE)
+  }
+
+  list(model_frame = model_frame, weights = weights)
 }
 
 check_formula <- function(formula, data) {

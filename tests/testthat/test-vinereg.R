@@ -93,3 +93,52 @@ test_that("works with weights", {
   ww <- rep(1, nrow(dat))
   expect_silent(fit <- vinereg(formula=y ~ ., data=dat, weights = ww))
 })
+
+test_that("aligns weights with omitted observations", {
+  dat_missing <- dat
+  dat_missing$x.1[2] <- NA
+  weights <- seq_len(nrow(dat_missing))
+  used <- complete.cases(dat_missing[, c("y", "x.1")])
+
+  fit_full <- vinereg(
+    y ~ x.1,
+    dat_missing,
+    weights = weights,
+    family_set = "gauss",
+    order = "x.1"
+  )
+  fit_used <- vinereg(
+    y ~ x.1,
+    dat_missing[used, ],
+    weights = weights[used],
+    family_set = "gauss",
+    order = "x.1"
+  )
+
+  expect_equal(fit_full$stats$nobs, sum(used))
+  expect_equal(summary(fit_full$vine), summary(fit_used$vine))
+})
+
+test_that("omits missing weights and rejects invalid weights", {
+  weights <- rep(1, nrow(dat))
+  weights[2] <- NA
+  fit <- vinereg(
+    y ~ x.1,
+    dat,
+    weights = weights,
+    family_set = "gauss",
+    order = "x.1"
+  )
+  expect_equal(fit$stats$nobs, nrow(dat) - 1)
+
+  expect_error(
+    vinereg(y ~ x.1, dat, weights = weights[-1]),
+    "one value for every row",
+    fixed = TRUE
+  )
+  expect_error(
+    vinereg(y ~ x.1, dat, weights = c(-1, rep(1, nrow(dat) - 1))),
+    "finite and nonnegative",
+    fixed = TRUE
+  )
+})
