@@ -1,3 +1,10 @@
+# vinereg 0.13.0
+
+DEPENDS
+
+* Adapted the C++ interface to remain compatible with newer `rvinecopulib`
+  releases and their C++17 requirements.
+
 # vinereg 0.12.0
 
 DEPENDS

@@ -65,16 +65,18 @@ select_dvine_cpp(const Eigen::MatrixXd& data,
     for (unsigned int fam = 0; fam < fam_set.size(); ++fam) {
         fam_set[fam] = to_cpp_family(family_set[fam]);
     }
-    FitControlsBicop controls(fam_set,
-                              par_method,
-                              nonpar_method,
-                              mult,
-                              selcrit,
-                              weights,
-                              psi0,
-                              presel,
-                              allow_rotations,
-                              cores);
+    FitControlsConfig config;
+    config.family_set = fam_set;
+    config.parametric_method = par_method;
+    config.nonparametric_method = nonpar_method;
+    config.nonparametric_mult = mult;
+    config.selection_criterion = selcrit;
+    config.weights = weights;
+    config.psi0 = psi0;
+    config.preselect_families = presel;
+    config.allow_rotations = allow_rotations;
+    config.num_threads = cores;
+    FitControlsBicop controls(config);
 
     // select the model -----------------------------------------
     vinereg::DVineRegSelector selector(data, var_types, controls);

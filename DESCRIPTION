@@ -1,7 +1,7 @@
 Package: vinereg
 Type: Package
 Title: D-Vine Quantile Regression
-Version: 0.12.1
+Version: 0.13.0
 Authors@R: c(
         person("Thomas", "Nagler",, "mail@tnagler.com", role = c("aut", "cre")),
         person("Dani", "Kraus",,, role = c("ctb"))
@@ -13,6 +13,7 @@ Description:
   Kraus and Czado (2017) <doi:10.1016/j.csda.2016.12.009> and
   Schallhorn et al. (2017) <doi:10.48550/arXiv.1705.08310>.
 License: GPL-3
+SystemRequirements: C++17
 Imports: 
   rvinecopulib (>= 0.7.1.1.0), 
   kde1d (>= 1.1.0),
