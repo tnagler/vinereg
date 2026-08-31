@@ -1,3 +1,23 @@
+#' Standard methods for D-vine regression models
+#'
+#' These methods extract the fitted model's call information, data, effective
+#' degrees of freedom, conditional log-likelihood, and variable-wise summary.
+#'
+#' @param x,object,formula a `vinereg` object.
+#' @param use.fallback unused; included for compatibility with [nobs()].
+#' @param ... unused.
+#'
+#' @return `print()` returns `x` invisibly. `summary()` returns a data frame with
+#'   one row for the response and each selected predictor. `logLik()` returns an
+#'   object of class `logLik`; its `df` attribute contains the effective degrees
+#'   of freedom. `nobs()` returns the number of observations used for fitting.
+#'   `formula()` and `model.frame()` return the model formula and frame.
+#'
+#' @name vinereg-methods
+#' @importFrom stats formula logLik model.frame nobs
+NULL
+
+#' @rdname vinereg-methods
 #' @export
 print.vinereg <- function(x, ...) {
   cat("D-vine regression model: ")
@@ -15,6 +35,7 @@ print.vinereg <- function(x, ...) {
   invisible(x)
 }
 
+#' @rdname vinereg-methods
 #' @export
 summary.vinereg <- function(object, ...) {
   data.frame(
@@ -25,6 +46,35 @@ summary.vinereg <- function(object, ...) {
     cbic = object$stats$var_cbic,
     p_value = object$stats$var_p_value
   )
+}
+
+#' @rdname vinereg-methods
+#' @export
+logLik.vinereg <- function(object, ...) {
+  structure(
+    object$stats$cll,
+    df = object$stats$edf,
+    nobs = object$stats$nobs,
+    class = "logLik"
+  )
+}
+
+#' @rdname vinereg-methods
+#' @export
+nobs.vinereg <- function(object, use.fallback = TRUE, ...) {
+  object$stats$nobs
+}
+
+#' @rdname vinereg-methods
+#' @export
+formula.vinereg <- function(x, ...) {
+  x$formula
+}
+
+#' @rdname vinereg-methods
+#' @export
+model.frame.vinereg <- function(formula, ...) {
+  formula$model_frame
 }
 
 #' Plot marginal effects of a D-vine regression model

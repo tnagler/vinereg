@@ -15,6 +15,19 @@ test_that("summary() works", {
   expect_equal(nrow(smr), 3)
 })
 
+test_that("model information methods work", {
+  ll <- logLik(fit)
+  expect_s3_class(ll, "logLik")
+  expect_equal(as.numeric(ll), fit$stats$cll)
+  expect_equal(attr(ll, "df"), fit$stats$edf)
+  expect_equal(attr(ll, "nobs"), fit$stats$nobs)
+  expect_equal(nobs(fit), fit$stats$nobs)
+  expect_equal(formula(fit), fit$formula)
+  expect_equal(model.frame(fit), fit$model_frame)
+  expect_equal(AIC(fit), fit$stats$caic)
+  expect_equal(BIC(fit), fit$stats$cbic)
+})
+
 test_that("plot_effects()", {
   expect_s3_class(plot_effects(fit, NA), "gg")
   expect_error(plot_effects(fit, vars = "asdf"))
