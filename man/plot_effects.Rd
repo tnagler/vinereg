@@ -11,11 +11,19 @@ plot_effects(object, alpha = c(0.1, 0.5, 0.9), vars = object$order)
 
 \item{alpha}{vector of quantile levels.}
 
-\item{vars}{vector of variable names.}
+\item{vars}{vector of expanded variable names to display.}
+}
+\value{
+A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 }
 \description{
-The marginal effects of a variable is the expected effect, where expectation
-is meant with respect to all other variables.
+The points show fitted conditional quantiles against each requested variable.
+For variable \eqn{X_k}, the smooth curve estimates
+\eqn{E[\hat Q_\alpha(Y \mid X) \mid X_k = x]}. It therefore averages over
+the conditional distribution of the other variables. A curve for an
+unselected variable can vary when that variable is associated with selected
+predictors. The curve is descriptive and is not a partial-dependence or
+causal effect.
 }
 \examples{
 # simulate data

@@ -1,11 +1,16 @@
 #' Conditional probability integral transform
 #'
-#' Calculates the conditional distribution of the response given the covariates.
+#' Evaluates the fitted conditional distribution of the response given the
+#' covariates. For a discrete response, this is the conditional CDF at the
+#' observed category, not a randomized probability integral transform.
 #'
 #' @param object an object of class \code{vinereg}.
-#' @param newdata matrix of response and covariate values for which to compute
-#'   the conditional distribution.
+#' @param newdata a data frame containing the response and covariates from the
+#'   original formula, with matching classes and factor levels.
 #' @param cores integer; the number of cores to use for computations.
+#'
+#' @return A numeric vector containing one conditional CDF value per row of
+#'   `newdata`.
 #'
 #' @export
 #'
@@ -33,9 +38,11 @@ cpit <- function(object, newdata, cores = 1) {
 #' Calculates the conditional log-likelihood of the response given the covariates.
 #'
 #' @param object an object of class \code{vinereg}.
-#' @param newdata matrix of response and covariate values for which to compute
-#'   the conditional distribution.
+#' @param newdata a data frame containing the response and covariates from the
+#'   original formula, with matching classes and factor levels.
 #' @param cores integer; the number of cores to use for computations.
+#'
+#' @return The scalar conditional log-likelihood evaluated on `newdata`.
 #'
 #' @export
 #'
@@ -65,14 +72,18 @@ cll <- function(object, newdata, cores = 1) {
   ll_cop + ll_marg
 }
 
-#' Conditional PDF
+#' Conditional density or probability mass
 #'
-#' Calculates the conditional density of the response given the covariates.
+#' Calculates the conditional density of a continuous response or conditional
+#' probability mass of a discrete response given the covariates.
 #'
 #' @param object an object of class \code{vinereg}.
-#' @param newdata matrix of response and covariate values for which to compute
-#'   the conditional density
+#' @param newdata a data frame containing the response and covariates from the
+#'   original formula, with matching classes and factor levels.
 #' @param cores integer; the number of cores to use for computations.
+#'
+#' @return A numeric vector containing one conditional density or probability
+#'   mass per row of `newdata`.
 #'
 #' @export
 #'

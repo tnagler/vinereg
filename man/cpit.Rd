@@ -9,13 +9,19 @@ cpit(object, newdata, cores = 1)
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
 
-\item{newdata}{matrix of response and covariate values for which to compute
-the conditional distribution.}
+\item{newdata}{a data frame containing the response and covariates from the
+original formula, with matching classes and factor levels.}
 
 \item{cores}{integer; the number of cores to use for computations.}
 }
+\value{
+A numeric vector containing one conditional CDF value per row of
+\code{newdata}.
+}
 \description{
-Calculates the conditional distribution of the response given the covariates.
+Evaluates the fitted conditional distribution of the response given the
+covariates. For a discrete response, this is the conditional CDF at the
+observed category, not a randomized probability integral transform.
 }
 \examples{
 \dontshow{

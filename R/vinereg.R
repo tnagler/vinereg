@@ -4,24 +4,26 @@
 #' prediction as described in Kraus and Czado (2017).
 #'
 #' If discrete variables are declared as `ordered()` or `factor()`, they are
-#' handled as described in Panagiotelis et al. (2012). This is different from
-#' previous version where the data was jittered before fitting.
+#' handled as described in Panagiotelis et al. (2012).
 #'
-#' @param formula an object of class "formula"; same as [lm()].
+#' @param formula a two-sided formula containing untransformed variable names.
+#'   Compute transformations and interactions in `data` before fitting.
 #' @param data data frame (or object coercible by [as.data.frame()]) containing
 #'   the variables in the model.
 #' @param family_set see `family_set` argument of [rvinecopulib::bicop()].
 #' @param selcrit selection criterion based on conditional log-likelihood.
-#'   \code{"loglik"} (default) imposes no correction; other choices are
-#'   \code{"aic"} and \code{"bic"}.
+#'   `"aic"` (default) and `"bic"` penalize model complexity; `"loglik"`
+#'   imposes no penalty.
 #' @param order the order of covariates in the D-vine, provided as vector of
-#'   variable names (after calling
-#'   `vinereg:::expand_factors(model.frame(formula, data))`); selected
-#'   automatically if `order = NA` (default).
+#'   variable names. An unordered factor name expands to all of its dummy
+#'   variables in level order. Expanded dummy names remain accepted. The order
+#'   is selected automatically if `order = NA` (default).
 #' @param par_1d list of options passed to [kde1d::kde1d()], must be one value
 #'   for each margin, e.g. `list(xmin = c(0, 0, NaN))` if the response and first
 #'   covariate have non-negative support.
-#' @param weights optional vector of weights for each observation.
+#' @param weights optional numeric vector of nonnegative observation weights.
+#'   Supply one value per row of `data` or per row of the model frame after
+#'   missing values have been omitted. Missing weights are omitted as well.
 #' @param cores integer; the number of cores to use for computations.
 #' @param ... further arguments passed to [rvinecopulib::bicop()].
 #' @param uscale if TRUE, vinereg assumes that marginal distributions have been
@@ -36,7 +38,9 @@
 #'   D-vine.} \item{stats}{fit statistics such as conditional
 #'   log-likelihood/AIC/BIC and p-values for each variable's contribution.}
 #'   \item{order}{order of the covariates chosen by the variable selection
-#'   algorithm.} \item{selected_vars}{indices of selected variables.} } Use
+#'   algorithm.} \item{selected_vars}{indices of selected variables.}
+#'   \item{factor_map}{mapping from original variables to expanded variables.} }
+#'   Use
 #'   [predict.vinereg()] to predict conditional quantiles. `summary.vinereg()`
 #'   shows the contribution of each selected variable with the associated
 #'   p-value derived from a likelihood ratio test.
@@ -71,7 +75,7 @@
 #' plot(cbind(y, mu_hat))
 #'
 #' ## fixed variable order (no selection)
-#' (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
+#' (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z")))
 #' @seealso \code{\link{predict.vinereg}}
 #'
 #' @export

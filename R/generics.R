@@ -79,13 +79,20 @@ model.frame.vinereg <- function(formula, ...) {
 
 #' Plot marginal effects of a D-vine regression model
 #'
-#' The marginal effects of a variable is the expected effect, where expectation
-#' is meant with respect to all other variables.
+#' The points show fitted conditional quantiles against each requested variable.
+#' For variable \eqn{X_k}, the smooth curve estimates
+#' \eqn{E[\hat Q_\alpha(Y \mid X) \mid X_k = x]}. It therefore averages over
+#' the conditional distribution of the other variables. A curve for an
+#' unselected variable can vary when that variable is associated with selected
+#' predictors. The curve is descriptive and is not a partial-dependence or
+#' causal effect.
 #'
 #' @param object a `vinereg` object
 #'
 #' @param alpha vector of quantile levels.
-#' @param vars vector of variable names.
+#' @param vars vector of expanded variable names to display.
+#'
+#' @return A [ggplot2::ggplot()] object.
 #'
 #' @export
 #' @examples
