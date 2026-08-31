@@ -13,6 +13,16 @@ BUG FIXES
 
 * Improved validation of variable orders and prediction data.
 
+IMPROVEMENTS
+
+* Formula transformations and interactions now produce an informative error;
+  transformed predictors can be computed in `data` before fitting.
+
+* Observation weights are aligned with rows omitted because of missing data.
+
+* Original factor names can be used in fixed variable orders. Expanded dummy
+  names remain supported for backwards compatibility.
+
 # vinereg 0.12.0
 
 DEPENDS
