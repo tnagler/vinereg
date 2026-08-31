@@ -5,6 +5,14 @@ DEPENDS
 * Adapted the C++ interface to remain compatible with newer `rvinecopulib`
   releases and their C++17 requirements.
 
+BUG FIXES
+
+* Stabilized a platform-sensitive test for fixed variable orders.
+
+* Forwarded `cores` when predicting conditional means.
+
+* Improved validation of variable orders and prediction data.
+
 # vinereg 0.12.0
 
 DEPENDS

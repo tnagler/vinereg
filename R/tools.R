@@ -45,8 +45,8 @@ check_types <- function(actual, expected) {
   )
   if (any(different_type)) {
     errors <- data.frame(
-      expected = sapply(actual[different_type], function(x) class(x)[1]),
-      actual = sapply(expected[different_type], function(x) class(x)[1])
+      expected = sapply(expected[different_type], function(x) class(x)[1]),
+      actual = sapply(actual[different_type], function(x) class(x)[1])
     )
     errors <- paste(capture.output(print(errors)), collapse = "\n")
     stop("some columns have incorrect type:\n", errors, call. = FALSE)
@@ -70,11 +70,11 @@ check_levels <- function(actual, expected) {
   if (any(different_levels)) {
     errors <- data.frame(
       expected = sapply(
-        actual[different_levels],
+        expected[different_levels],
         function(x) paste(levels(x), collapse = ",")
       ),
       actual = sapply(
-        expected[different_levels],
+        actual[different_levels],
         function(x) paste(levels(x), collapse = ",")
       )
     )
@@ -278,4 +278,3 @@ finalize_margins <- function(margins, data) {
   margins[[1]]$loglik <- sum(log(kde1d::dkde1d(data[[1]], margins[[1]])))
   margins
 }
-

@@ -258,6 +258,9 @@ finalize_vinereg_object <- function(formula, selcrit, model_frame, margins, vine
 
 check_order <- function(order, var_nms) {
   stopifnot(length(order) > 0)
+  if (anyDuplicated(order)) {
+    stop("'order' must not contain duplicate variable names.")
+  }
   if (!all(order %in% var_nms)) {
     stop(
       "unknown variable name in 'order'; ",
