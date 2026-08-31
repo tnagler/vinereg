@@ -1,3 +1,24 @@
 template:
   bootstrap: 5
 url: https://tnagler.github.io/vinereg/
+
+reference:
+- title: Fit and inspect models
+  contents:
+  - vinereg-package
+  - vinereg
+  - vinereg-methods
+- title: Prediction and diagnostics
+  contents:
+  - predict.vinereg
+  - plot_effects
+  - cpit
+  - cpdf
+  - cll
+
+articles:
+- title: Examples
+  navbar: Examples
+  contents:
+  - abalone-example
+  - bike-rental

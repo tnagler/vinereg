@@ -28,10 +28,10 @@ print.vinereg <- function(x, ...) {
     predictors <- paste(x$order[1:10], collapse = ", ")
     predictors <- paste0(predictors, ", ... (", n_predictors - 10, " more)")
   }
-  cat(names(x$model_frame)[1], "|", predictors, "\n")
+  cat(names(x$model_frame)[1], " | ", predictors, "\n", sep = "")
   stats <- unlist(x$stats[1:5])
   stats <- paste(names(stats), round(stats, 2), sep = " = ")
-  cat(paste(stats, collapse = ", "), "\n")
+  cat(paste(stats, collapse = ", "), "\n", sep = "")
   invisible(x)
 }
 
