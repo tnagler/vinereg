@@ -23,6 +23,16 @@ IMPROVEMENTS
 * Original factor names can be used in fixed variable orders. Expanded dummy
   names remain supported for backwards compatibility.
 
+NEW FEATURES
+
+* Added `logLik()`, `nobs()`, `formula()`, and `model.frame()` methods for
+  fitted models. Standard `AIC()` and `BIC()` methods are now available.
+
+DOCUMENTATION
+
+* Clarified the supported formula and prediction interfaces, conditional
+  density outputs, and the interpretation of marginal effect plots.
+
 # vinereg 0.12.0
 
 DEPENDS
@@ -44,7 +54,7 @@ BUG FIX
 
 NEW FEATURE
 
-* New function `pdf()` to compute the conditional log-likelihood.
+* New function `cpdf()` to compute the conditional density or probability mass.
 
 
 # vinereg 0.9.2
@@ -90,7 +100,7 @@ BUG FIXES
 * `require()` calls with single argument in vignettes.
 
 
-vinereg 0.8.0
+# vinereg 0.8.0
 
 BUG FIXES
 
@@ -109,10 +119,6 @@ BUG FIXES
 
 * fix simulated data size in documentation examples.
 
-# vinereg 0.7.3
-
-BUG FIXES
-
 * properly handle case where no covariates are selected.
 * conditional use of packages in Suggests.
 
@@ -130,7 +136,7 @@ This is a maintenance release following an update in rvinecopulib.
 
 DEPENDS
 
-* requires rvinecopulib (>= 0.5.4.1.0) to fix an unitialized value issue.
+* requires rvinecopulib (>= 0.5.4.1.0) to fix an uninitialized value issue.
 
 NEW FEATURES
 
@@ -175,7 +181,7 @@ BUG FIXES
 
 * allow for empty and bivariate models.
 
-* properly pass degree parameter for margin al estimation.
+* properly pass degree parameter for marginal estimation.
   
   
 # vinereg 0.4.0

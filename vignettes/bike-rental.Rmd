@@ -17,11 +17,11 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 #### Required packages
 ```{r, message = FALSE}
 library(vinereg)
-require(ggplot2)
-require(dplyr)
-require(purrr)
-require(scales)
-require(quantreg)
+library(ggplot2)
+library(dplyr)
+library(purrr)
+library(scales)
+library(quantreg)
 ```
 
 
@@ -130,7 +130,7 @@ bikedata <- bikedata %>%
 fit <- vinereg(
   count ~ ., 
   data = bikedata, 
-  family = c("onepar", "tll"), 
+  family_set = c("onepar", "tll"),
   selcrit = "aic"
 )
 fit
@@ -186,4 +186,3 @@ season_labs <- c("spring", "summer", "fall", "winter")
 plot_marginal_effects(covs = select(bikedata, season), preds = pred) +
     scale_x_discrete(limits = 1:4, labels = season_labs)
 ```
-

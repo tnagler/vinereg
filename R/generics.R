@@ -1,3 +1,23 @@
+#' Standard methods for D-vine regression models
+#'
+#' These methods extract the fitted model's call information, data, effective
+#' degrees of freedom, conditional log-likelihood, and variable-wise summary.
+#'
+#' @param x,object,formula a `vinereg` object.
+#' @param use.fallback unused; included for compatibility with [nobs()].
+#' @param ... unused.
+#'
+#' @return `print()` returns `x` invisibly. `summary()` returns a data frame with
+#'   one row for the response and each selected predictor. `logLik()` returns an
+#'   object of class `logLik`; its `df` attribute contains the effective degrees
+#'   of freedom. `nobs()` returns the number of observations used for fitting.
+#'   `formula()` and `model.frame()` return the model formula and frame.
+#'
+#' @name vinereg-methods
+#' @importFrom stats formula logLik model.frame nobs
+NULL
+
+#' @rdname vinereg-methods
 #' @export
 print.vinereg <- function(x, ...) {
   cat("D-vine regression model: ")
@@ -8,13 +28,14 @@ print.vinereg <- function(x, ...) {
     predictors <- paste(x$order[1:10], collapse = ", ")
     predictors <- paste0(predictors, ", ... (", n_predictors - 10, " more)")
   }
-  cat(names(x$model_frame)[1], "|", predictors, "\n")
+  cat(names(x$model_frame)[1], " | ", predictors, "\n", sep = "")
   stats <- unlist(x$stats[1:5])
   stats <- paste(names(stats), round(stats, 2), sep = " = ")
-  cat(paste(stats, collapse = ", "), "\n")
+  cat(paste(stats, collapse = ", "), "\n", sep = "")
   invisible(x)
 }
 
+#' @rdname vinereg-methods
 #' @export
 summary.vinereg <- function(object, ...) {
   data.frame(
@@ -27,15 +48,51 @@ summary.vinereg <- function(object, ...) {
   )
 }
 
+#' @rdname vinereg-methods
+#' @export
+logLik.vinereg <- function(object, ...) {
+  structure(
+    object$stats$cll,
+    df = object$stats$edf,
+    nobs = object$stats$nobs,
+    class = "logLik"
+  )
+}
+
+#' @rdname vinereg-methods
+#' @export
+nobs.vinereg <- function(object, use.fallback = TRUE, ...) {
+  object$stats$nobs
+}
+
+#' @rdname vinereg-methods
+#' @export
+formula.vinereg <- function(x, ...) {
+  x$formula
+}
+
+#' @rdname vinereg-methods
+#' @export
+model.frame.vinereg <- function(formula, ...) {
+  formula$model_frame
+}
+
 #' Plot marginal effects of a D-vine regression model
 #'
-#' The marginal effects of a variable is the expected effect, where expectation
-#' is meant with respect to all other variables.
+#' The points show fitted conditional quantiles against each requested variable.
+#' For variable \eqn{X_k}, the smooth curve estimates
+#' \eqn{E[\hat Q_\alpha(Y \mid X) \mid X_k = x]}. It therefore averages over
+#' the conditional distribution of the other variables. A curve for an
+#' unselected variable can vary when that variable is associated with selected
+#' predictors. The curve is descriptive and is not a partial-dependence or
+#' causal effect.
 #'
 #' @param object a `vinereg` object
 #'
 #' @param alpha vector of quantile levels.
-#' @param vars vector of variable names.
+#' @param vars vector of expanded variable names to display.
+#'
+#' @return A [ggplot2::ggplot()] object.
 #'
 #' @export
 #' @examples

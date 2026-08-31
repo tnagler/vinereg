@@ -12,7 +12,9 @@
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
 
-\item{newdata}{matrix of covariate values for which to predict the quantile.}
+\item{newdata}{a data frame containing the covariates from the original
+formula, with matching classes and factor levels. If omitted, the model
+frame used for fitting is used.}
 
 \item{alpha}{vector of quantile levels; \code{NA} predicts the mean based on an
 average of the \code{1:10 / 11}-quantiles.}
@@ -22,8 +24,9 @@ average of the \code{1:10 / 11}-quantiles.}
 \item{...}{unused.}
 }
 \value{
-A data.frame of quantiles where each column corresponds to one
-value of \code{alpha}.
+A data frame with one row per observation and one column per value of
+\code{alpha}. Columns are named by their quantile level; the conditional mean
+column is named \code{mean}.
 }
 \description{
 Predict conditional mean and quantiles from a D-vine regression model
@@ -35,7 +38,7 @@ y <- x \%*\% c(1, -2)
 dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 2, 0.5)))
 
 ## fixed variable order (no selection)
-(fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
+(fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z")))
 
 # model predictions
 mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean

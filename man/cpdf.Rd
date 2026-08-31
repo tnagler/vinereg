@@ -2,20 +2,25 @@
 % Please edit documentation in R/cpit.R
 \name{cpdf}
 \alias{cpdf}
-\title{Conditional PDF}
+\title{Conditional density or probability mass}
 \usage{
 cpdf(object, newdata, cores = 1)
 }
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
 
-\item{newdata}{matrix of response and covariate values for which to compute
-the conditional density}
+\item{newdata}{a data frame containing the response and covariates from the
+original formula, with matching classes and factor levels.}
 
 \item{cores}{integer; the number of cores to use for computations.}
 }
+\value{
+A numeric vector containing one conditional density or probability
+mass per row of \code{newdata}.
+}
 \description{
-Calculates the conditional density of the response given the covariates.
+Calculates the conditional density of a continuous response or conditional
+probability mass of a discrete response given the covariates.
 }
 \examples{
 \dontshow{

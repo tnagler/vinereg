@@ -1,14 +1,17 @@
 #' Predict conditional mean and quantiles from a D-vine regression model
 #'
 #' @param object an object of class \code{vinereg}.
-#' @param newdata matrix of covariate values for which to predict the quantile.
+#' @param newdata a data frame containing the covariates from the original
+#'   formula, with matching classes and factor levels. If omitted, the model
+#'   frame used for fitting is used.
 #' @param alpha vector of quantile levels; `NA` predicts the mean based on an
 #'   average of the `1:10 / 11`-quantiles.
 #' @param cores integer; the number of cores to use for computations.
 #' @param ... unused.
 #'
-#' @return A data.frame of quantiles where each column corresponds to one
-#' value of `alpha`.
+#' @return A data frame with one row per observation and one column per value of
+#'   `alpha`. Columns are named by their quantile level; the conditional mean
+#'   column is named `mean`.
 #'
 #' @examples
 #' # simulate data
@@ -17,7 +20,7 @@
 #' dat <- data.frame(y = y, x = x, z = as.factor(rbinom(50, 2, 0.5)))
 #'
 #' ## fixed variable order (no selection)
-#' (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z.1")))
+#' (fit <- vinereg(y ~ ., dat, order = c("x.2", "x.1", "z")))
 #'
 #' # model predictions
 #' mu_hat <- predict(fit, newdata = dat, alpha = NA) # mean

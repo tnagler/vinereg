@@ -9,10 +9,13 @@ cll(object, newdata, cores = 1)
 \arguments{
 \item{object}{an object of class \code{vinereg}.}
 
-\item{newdata}{matrix of response and covariate values for which to compute
-the conditional distribution.}
+\item{newdata}{a data frame containing the response and covariates from the
+original formula, with matching classes and factor levels.}
 
 \item{cores}{integer; the number of cores to use for computations.}
+}
+\value{
+The scalar conditional log-likelihood evaluated on \code{newdata}.
 }
 \description{
 Calculates the conditional log-likelihood of the response given the covariates.

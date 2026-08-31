@@ -23,10 +23,10 @@ Please, feel free to address questions to <daniel.kraus@tum.de>.
 # Load required packages 
 ```{r, message = FALSE}
 library(vinereg) 
-require(ggplot2)
-require(dplyr)
-require(tidyr)
-require(AppliedPredictiveModeling)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(AppliedPredictiveModeling)
 ```
 
 
@@ -132,9 +132,9 @@ head(pred_vine_par)
 
 To examine the effect of the individual variables, we will plot the predicted
 quantiles against each of the variables. To visualize the relationship more 
-clearly, we add a smoothed line for each quantile level. This gives an estimate
-of the expected effect of a variable (taking expectation with respect to all
-other variables).
+clearly, we add a smoothed line for each quantile level. For a displayed
+variable, this estimates the fitted conditional quantile averaged over the
+conditional distribution of the other variables.
 
 ```{r, fig.width=7, fig.height=4}
 plot_effects(fit_vine_par)
@@ -192,19 +192,18 @@ Now only the length and height variables are selected as predictors. Let's have
 a look at the marginal effects.
 
 ```{r, fig.width=7, fig.height=4}
-plot_effects(fit_vine_np, var = c("diameter", "height", "length"))
+plot_effects(fit_vine_np, vars = c("diameter", "height", "length"))
 ```
 
-The effects look similar to the parametric one, but slightly more wiggly. Note
-that even the diameter was not selected as a covariate, it's marginal effect 
-is captured by the model. It just does not provide additional information when
-height and length are already accounted for.
+The effects look similar to the parametric ones, but slightly more wiggly.
+Although diameter was not selected as a covariate, its marginal curve can vary
+because diameter is associated with selected predictors. It does not provide
+additional information once height and length are accounted for.
 
 ## Discrete D-vine quantile regression
 
-To deal with discrete variables, we use the methodology of 
-Schallhorn et al. (2017). For estimating nonparametric pair-copulas with 
-discrete variable(s), jittering is used (Nagler, 2017). 
+To deal with discrete variables, we use the methodology of
+Schallhorn et al. (2017).
 
 We let `vinereg()` know that a variable is discrete by declaring it `ordered`.
 
