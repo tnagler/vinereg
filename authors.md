@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/tnagler/vinereg/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/tnagler/vinereg/blob/v0.13.0/DESCRIPTION)
 
 Nagler T (2026). *vinereg: D-Vine Quantile Regression*. R package
 version 0.13.0, <https://tnagler.github.io/vinereg/>.
